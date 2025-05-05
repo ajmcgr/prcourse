@@ -12,6 +12,7 @@ import SignupPage from "./pages/SignupPage";
 import PricingPage from "./pages/PricingPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import ContentLibrary from "./pages/ContentLibrary";
+import CourseContent from "./pages/CourseContent";
 import ContentDetailPage from "./pages/ContentDetailPage";
 import NotFound from "./pages/NotFound";
 import CourseLayout from "./pages/CourseLayout";
@@ -36,6 +37,7 @@ const App: React.FC = () => {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/payment-success" element={<PaymentSuccessPage />} />
+              <Route path="/coursecontent" element={<CourseContent />} />
               
               {/* Protected routes that require payment */}
               <Route path="/content" element={

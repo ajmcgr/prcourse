@@ -58,7 +58,7 @@ const Navbar: React.FC = () => {
             <Link to="/about" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
               About
             </Link>
-            <Link to="/content" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
+            <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
               Course Content
             </Link>
           </div>
@@ -81,7 +81,7 @@ const Navbar: React.FC = () => {
                   <Link to="/about">About</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/content">Course Content</Link>
+                  <Link to="/coursecontent">Course Content</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/pricing">Pricing</Link>
