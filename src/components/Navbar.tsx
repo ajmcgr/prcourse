@@ -9,8 +9,8 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="text-2xl font-bold text-pr-main font-serif">
-              PR Mastery
+            <Link to="/" className="text-2xl font-bold text-pr-main">
+              Alex MacGregor PR Course
             </Link>
           </div>
           <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">

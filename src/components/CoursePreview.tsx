@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 const CoursePreview: React.FC = () => {
   return (
-    <section className="py-16">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -45,11 +45,11 @@ const CoursePreview: React.FC = () => {
               <Link to="/signup">Get Full Access</Link>
             </Button>
           </div>
-          <div className="bg-gray-100 p-8 rounded-lg">
-            <div className="aspect-video bg-pr-dark rounded-lg overflow-hidden relative">
+          <div className="border bg-white p-8 rounded-lg shadow-sm">
+            <div className="aspect-video bg-white rounded-lg overflow-hidden relative border">
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-white/90 p-6 rounded-lg text-center max-w-xs">
-                  <h3 className="font-serif text-xl text-pr-dark mb-2">Course Preview</h3>
+                <div className="bg-white p-6 rounded-lg text-center max-w-xs shadow-sm">
+                  <h3 className="text-xl text-pr-dark mb-2">Course Preview</h3>
                   <p className="text-gray-600 mb-4">Sign up to access all video content and essays</p>
                   <Button variant="outline" className="border-pr-main text-pr-main hover:bg-pr-main hover:text-white">
                     <Link to="/signup">Sign Up Now</Link>
@@ -58,7 +58,7 @@ const CoursePreview: React.FC = () => {
               </div>
             </div>
             <div className="mt-4">
-              <h3 className="text-xl font-serif text-pr-dark mb-2">PR Strategy Fundamentals</h3>
+              <h3 className="text-xl text-pr-dark mb-2">PR Strategy Fundamentals</h3>
               <p className="text-gray-600">
                 A comprehensive introduction to effective public relations strategy in today's media landscape.
               </p>
