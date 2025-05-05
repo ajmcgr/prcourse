@@ -19,7 +19,7 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative h-[70vh] flex items-center overflow-hidden bg-black -mt-16 w-full">
+    <div className="relative h-[70vh] flex items-center overflow-hidden bg-white -mt-16 w-screen">
       {/* YouTube Video Background */}
       <div className="absolute inset-0 z-0 overflow-hidden w-full h-full opacity-80">
         <div className="relative w-full h-full">
