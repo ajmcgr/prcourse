@@ -51,7 +51,7 @@ const CoursePreviewTable: React.FC = () => {
     {
       id: 7,
       topic: "Getting Creative",
-      synopsis: "Presents "unconventional PR" ideas—from branded YouTube docuseries and live demos to limited‑edition swag and tongue‑in‑cheek stunts—that generate buzz and differentiate a brand. Success hinges on originality, timing and cultural fit."
+      synopsis: 'Presents "unconventional PR" ideas—from branded YouTube docuseries and live demos to limited‑edition swag and tongue‑in‑cheek stunts—that generate buzz and differentiate a brand. Success hinges on originality, timing and cultural fit.'
     },
     {
       id: 8,
@@ -102,14 +102,14 @@ const CoursePreviewTable: React.FC = () => {
       id: 17,
       topic: "Conclusion",
       synopsis: "Reflecting on a decade in tech PR, Alex urges practitioners to trust their gut, embrace constant travel and external engagement, and balance instinct with data. He reiterates that adaptability and human relationships remain PR's enduring currencies."
-    },
+    }
   ];
 
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-pr-dark">Course Content Preview</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-pr-dark">We'll Cover Everything You Need to Know About PR</h2>
           <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
             A comprehensive overview of all modules included in Alex MacGregor's PR course.
           </p>
