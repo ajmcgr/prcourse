@@ -39,7 +39,7 @@ const Hero: React.FC = () => {
       {/* Dark overlay to make text more readable */}
       <div className="absolute inset-0 bg-black opacity-30 z-5"></div>
       
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-white pt-32">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-white pt-32 flex flex-col items-center text-center">
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight animate-fade-in">
           Master the Art of Public Relations
         </h1>
@@ -47,21 +47,21 @@ const Hero: React.FC = () => {
           A comprehensive course from Alex MacGregor featuring essays and video lessons to elevate your PR strategy and execution.
         </p>
         
-        <div className="mt-10 animate-fade-in flex flex-col md:flex-row items-center" style={{animationDelay: '0.4s'}}>
-          <div className="flex flex-col items-center md:flex-row md:items-start gap-6">
+        <div className="mt-10 animate-fade-in flex flex-col items-center" style={{animationDelay: '0.4s'}}>
+          <div className="flex flex-col items-center gap-6">
             <Button size="lg" className="bg-white hover:bg-white/90 text-pr-dark font-medium text-lg">
               <Link to="/signup">Get Access Now for $99</Link>
             </Button>
             
             {/* Senja Widget */}
-            <div className="mt-6 md:mt-0 w-full md:w-auto min-w-[300px]">
+            <div className="mt-6 w-full min-w-[300px]">
               <div className="senja-embed" data-id="07ff3942-eab2-49dd-8952-8e59761f1472" data-mode="shadow" data-lazyload="false" style={{ display: "block", width: "100%" }}></div>
             </div>
           </div>
         </div>
         
         {/* Added secure access text row */}
-        <div className="flex justify-center md:justify-start mt-4 text-white animate-fade-in" style={{animationDelay: '0.5s'}}>
+        <div className="flex justify-center mt-4 text-white animate-fade-in" style={{animationDelay: '0.5s'}}>
           <div className="flex items-center space-x-3 text-sm md:text-base font-medium">
             <span className="flex items-center">
               <Check className="h-4 w-4 mr-1" />
