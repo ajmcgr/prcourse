@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -44,7 +43,7 @@ const EmailSignup: React.FC = () => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-serif text-center">
+        <CardTitle className="text-2xl font-sans text-center">
           {isSignUp ? 'Create an Account' : 'Sign In'}
         </CardTitle>
         <CardDescription className="text-center">

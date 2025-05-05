@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,24 +14,11 @@ const PricingSection: React.FC = () => {
     setIsProcessing(true);
     
     try {
-      if (!user) {
-        // Redirect to sign up if not logged in
-        toast.info("Please sign in to continue with your purchase");
-        navigate('/signup', { state: { returnTo: '/pricing' } });
-        return;
-      }
-      
-      const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: { priceId: 'complete-pr-course' }
-      });
-      
-      if (error) throw error;
-      
-      // Redirect to Stripe checkout
-      window.location.href = data.url;
+      // Always direct to signup first
+      navigate('/signup', { state: { returnTo: '/pricing' } });
     } catch (error) {
-      console.error('Payment error:', error);
-      toast.error("There was a problem processing your payment. Please try again.");
+      console.error('Navigation error:', error);
+      toast.error("There was a problem. Please try again.");
     } finally {
       setIsProcessing(false);
     }

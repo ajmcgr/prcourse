@@ -103,7 +103,7 @@ const Navbar: React.FC = () => {
                   <Link to="/signup">Login</Link>
                 </Button>
                 <Button variant="default" className="bg-black hover:bg-black/90">
-                  <Link to="/pricing">Access Course</Link>
+                  <Link to="/signup">Access Course</Link>
                 </Button>
               </>
             )}
