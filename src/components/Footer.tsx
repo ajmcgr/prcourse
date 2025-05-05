@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer className="bg-white border-t">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h3 className="text-lg font-semibold mb-4">PR Masterclass</h3>
             <p className="text-sm text-gray-600">
@@ -25,7 +25,7 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <ul className="space-y-2 text-sm">
-              <li className="text-gray-600">Email: hello@prmasterclass.com</li>
+              <li className="text-gray-600">Email: alex@alexmacgregor.com</li>
             </ul>
             <div className="flex space-x-4 mt-4">
               <a href="https://www.instagram.com/alexmacgregor__/" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black">
