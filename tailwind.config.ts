@@ -65,7 +65,7 @@ export default {
 				},
 				pr: {
 					dark: '#0F2341',
-					main: '#1E3A6D',
+					main: '#000000',
 					light: '#3D5A9E',
 					accent: '#FFA53C',
 				}
