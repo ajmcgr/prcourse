@@ -5,6 +5,7 @@ import Hero from '@/components/Hero';
 import LetterSection from '@/components/LetterSection';
 import CourseFeatures from '@/components/CourseFeatures';
 import Testimonials from '@/components/Testimonials';
+import CallToAction from '@/components/CallToAction';
 import Footer from '@/components/Footer';
 
 const Index = () => {
@@ -15,6 +16,7 @@ const Index = () => {
       <LetterSection />
       <CourseFeatures />
       <Testimonials />
+      <CallToAction />
       <Footer />
     </div>
   );
