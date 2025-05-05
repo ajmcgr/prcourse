@@ -34,9 +34,6 @@ const Navbar: React.FC = () => {
             <Link to="/content" className="px-3 py-2 text-sm font-medium text-foreground hover:text-black">
               Course Content
             </Link>
-            <Link to="/signup" className="px-3 py-2 text-sm font-medium text-foreground hover:text-black">
-              Login
-            </Link>
           </div>
           
           {/* Mobile menu */}
@@ -98,9 +95,14 @@ const Navbar: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="default" className="bg-black hover:bg-black/90">
-                <Link to="/signup">Access Course</Link>
-              </Button>
+              <>
+                <Button variant="default" className="bg-black hover:bg-black/90">
+                  <Link to="/signup">Access Course</Link>
+                </Button>
+                <Button variant="outline">
+                  <Link to="/signup">Login</Link>
+                </Button>
+              </>
             )}
           </div>
         </div>
