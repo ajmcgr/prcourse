@@ -39,23 +39,26 @@ const Navbar: React.FC = () => {
     return "border-b bg-background sticky top-0 z-50";
   };
   
+  // Determine text color based on scroll state and page
+  const textColorClass = (isHomePage && !scrolled) ? "text-white" : "text-black";
+  
   return (
     <nav className={navbarClasses()}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="text-2xl font-bold text-black">
+            <Link to="/" className={`text-2xl font-bold ${textColorClass}`}>
               PR Masterclass
             </Link>
           </div>
           <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-            <Link to="/" className="px-3 py-2 text-sm font-medium text-foreground hover:text-black">
+            <Link to="/" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
               Home
             </Link>
-            <Link to="/about" className="px-3 py-2 text-sm font-medium text-foreground hover:text-black">
+            <Link to="/about" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
               About
             </Link>
-            <Link to="/content" className="px-3 py-2 text-sm font-medium text-foreground hover:text-black">
+            <Link to="/content" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
               Course Content
             </Link>
           </div>
@@ -64,7 +67,7 @@ const Navbar: React.FC = () => {
           <div className="md:hidden flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className={textColorClass}>
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Menu</span>
                 </Button>
@@ -104,7 +107,7 @@ const Navbar: React.FC = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
+                  <Button variant="ghost" size="icon" className={`rounded-full ${textColorClass}`}>
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -123,10 +126,10 @@ const Navbar: React.FC = () => {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="outline">
+                <Button variant="outline" className={(isHomePage && !scrolled) ? "bg-transparent text-white hover:text-black hover:bg-white/90 border-white" : ""}>
                   <Link to="/signup">Login</Link>
                 </Button>
-                <Button variant="default" className="bg-black hover:bg-black/90">
+                <Button variant="default" className={(isHomePage && !scrolled) ? "bg-white text-black hover:bg-white/90" : "bg-black hover:bg-black/90"}>
                   <Link to="/signup">Access Course</Link>
                 </Button>
               </>
