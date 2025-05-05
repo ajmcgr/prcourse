@@ -63,10 +63,17 @@ const Hero: React.FC = () => {
           </li>
         </ul>
         
-        <div className="mt-10 animate-fade-in" style={{animationDelay: '0.4s'}}>
-          <Button size="lg" className="bg-white hover:bg-white/90 text-pr-dark font-medium text-lg">
-            <Link to="/signup">Get Access Now for $99</Link>
-          </Button>
+        <div className="mt-10 animate-fade-in flex flex-col md:flex-row items-center" style={{animationDelay: '0.4s'}}>
+          <div className="flex flex-col items-center md:flex-row md:items-start gap-6">
+            <Button size="lg" className="bg-white hover:bg-white/90 text-pr-dark font-medium text-lg">
+              <Link to="/signup">Get Access Now for $99</Link>
+            </Button>
+            
+            {/* Senja Widget */}
+            <div className="mt-6 md:mt-0 w-full md:w-auto min-w-[300px]">
+              <div className="senja-embed" data-id="07ff3942-eab2-49dd-8952-8e59761f1472" data-mode="shadow" data-lazyload="false" style={{ display: "block", width: "100%" }}></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
