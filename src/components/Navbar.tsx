@@ -21,7 +21,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="text-2xl font-bold text-black">
-              Alex MacGregor's PR Masterclass
+              PR Masterclass
             </Link>
           </div>
           <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
@@ -34,8 +34,8 @@ const Navbar: React.FC = () => {
             <Link to="/content" className="px-3 py-2 text-sm font-medium text-foreground hover:text-black">
               Course Content
             </Link>
-            <Link to="/course" className="px-3 py-2 text-sm font-medium text-foreground hover:text-black">
-              Course Lessons
+            <Link to="/signup" className="px-3 py-2 text-sm font-medium text-foreground hover:text-black">
+              Login
             </Link>
           </div>
           
@@ -59,7 +59,7 @@ const Navbar: React.FC = () => {
                   <Link to="/content">Course Content</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/course">Course Lessons</Link>
+                  <Link to="/signup">Login</Link>
                 </DropdownMenuItem>
                 {user ? (
                   <>
@@ -71,11 +71,7 @@ const Navbar: React.FC = () => {
                       Sign Out
                     </DropdownMenuItem>
                   </>
-                ) : (
-                  <DropdownMenuItem asChild>
-                    <Link to="/signup">Sign In</Link>
-                  </DropdownMenuItem>
-                )}
+                ) : null}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
