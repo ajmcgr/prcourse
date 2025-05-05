@@ -5,7 +5,6 @@ import Hero from '@/components/Hero';
 import LetterSection from '@/components/LetterSection';
 import CourseFeatures from '@/components/CourseFeatures';
 import Testimonials from '@/components/Testimonials';
-import CoursePreview from '@/components/CoursePreview';
 import Footer from '@/components/Footer';
 
 const Index = () => {
@@ -15,7 +14,6 @@ const Index = () => {
       <Hero />
       <LetterSection />
       <CourseFeatures />
-      <CoursePreview />
       <Testimonials />
       <Footer />
     </div>

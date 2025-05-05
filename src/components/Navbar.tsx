@@ -96,11 +96,11 @@ const Navbar: React.FC = () => {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="default" className="bg-black hover:bg-black/90">
-                  <Link to="/signup">Access Course</Link>
-                </Button>
                 <Button variant="outline">
                   <Link to="/signup">Login</Link>
+                </Button>
+                <Button variant="default" className="bg-black hover:bg-black/90">
+                  <Link to="/signup">Access Course</Link>
                 </Button>
               </>
             )}
