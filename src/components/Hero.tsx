@@ -19,7 +19,7 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative h-[70vh] flex items-center overflow-hidden bg-black">
+    <div className="relative h-[70vh] flex items-center overflow-hidden bg-black -mt-16">
       {/* YouTube Video Background */}
       <div className="absolute inset-0 z-0 overflow-hidden w-full h-full opacity-80">
         <div className="relative w-full h-full">
@@ -38,7 +38,7 @@ const Hero: React.FC = () => {
       {/* Dark overlay to make text more readable */}
       <div className="absolute inset-0 bg-black opacity-30 z-5"></div>
       
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-white">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-white pt-32">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight animate-fade-in">
           Master the Art of Public Relations
         </h1>

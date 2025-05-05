@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu,
@@ -14,9 +14,33 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
+  const location = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+  const isHomePage = location.pathname === '/';
+  
+  // Handle scroll event
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 10;
+      setScrolled(isScrolled);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  // Determine navbar background classes based on scroll state and page
+  const navbarClasses = () => {
+    if (isHomePage) {
+      return scrolled
+        ? "border-b bg-white shadow-sm transition-all duration-300 sticky top-0 z-50"
+        : "border-b border-transparent bg-transparent transition-all duration-300 sticky top-0 z-50";
+    }
+    return "border-b bg-background sticky top-0 z-50";
+  };
   
   return (
-    <nav className="border-b bg-background sticky top-0 z-50">
+    <nav className={navbarClasses()}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
