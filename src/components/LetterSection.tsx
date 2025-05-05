@@ -52,7 +52,7 @@ const LetterSection: React.FC = () => {
           </div>
           
           <div className="mt-12 flex justify-center">
-            <Button className="bg-[#1c1c1c] hover:bg-black text-white rounded-none px-8 py-6">
+            <Button className="bg-[#1c1c1c] hover:bg-black text-white rounded-md px-8 py-6">
               <Link to="/signup">Get Access Now</Link>
             </Button>
           </div>
