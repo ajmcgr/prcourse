@@ -40,6 +40,14 @@ const LetterSection: React.FC = () => {
             <div className="pt-6 mt-8">
               <p className="italic">Best,</p>
               <p className="font-bold">Alex MacGregor</p>
+              <a 
+                href="https://www.linkedin.com/in/alexmacgregor2/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-blue-600 hover:underline block mt-2"
+              >
+                Connect with me on LinkedIn
+              </a>
             </div>
           </div>
           
