@@ -33,10 +33,10 @@ const Navbar: React.FC = () => {
   const navbarClasses = () => {
     if (isHomePage) {
       return scrolled
-        ? "border-b bg-white shadow-sm transition-all duration-300 sticky top-0 z-50"
-        : "border-b border-transparent bg-transparent transition-all duration-300 sticky top-0 z-50";
+        ? "bg-white shadow-sm transition-all duration-300 sticky top-0 z-50"
+        : "bg-transparent transition-all duration-300 sticky top-0 z-50";
     }
-    return "border-b bg-background sticky top-0 z-50";
+    return "bg-background sticky top-0 z-50";
   };
   
   // Determine text color based on scroll state and page
