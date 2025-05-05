@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -47,7 +48,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className={`text-2xl font-bold ${textColorClass}`}>
-              PR Masterclass Online Course
+              Alex MacGregor's PR Masterclass
             </Link>
           </div>
           <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">

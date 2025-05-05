@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">PR Masterclass Online Course</h3>
+            <h3 className="text-lg font-semibold mb-4">Alex MacGregor's PR Masterclass</h3>
             <p className="text-sm text-gray-600">
               Learn PR strategies from Alex MacGregor — build your brand and gain the media attention your business deserves.
             </p>
