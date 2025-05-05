@@ -26,7 +26,7 @@ const Hero: React.FC = () => {
         <div className="relative w-full h-full">
           <iframe
             ref={iframeRef}
-            src="https://www.youtube.com/embed/x2S3wo5SCYg?controls=0&showinfo=0&rel=0&autoplay=1&loop=1&mute=1&playlist=x2S3wo5SCYg"
+            src="https://www.youtube.com/embed/cXDTeTXzoRs?controls=0&showinfo=0&rel=0&autoplay=1&loop=1&mute=1&playlist=cXDTeTXzoRs"
             title="PR Masterclass Background Video"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             className="absolute top-1/2 left-1/2 w-[120%] h-[120%] min-w-full min-h-full object-cover -translate-x-1/2 -translate-y-1/2 pointer-events-none"
