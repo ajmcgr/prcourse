@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="text-2xl font-bold text-black">
-              Alex MacGregor PR Course
+              Alex MacGregor's PR Masterclass
             </Link>
           </div>
           <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
