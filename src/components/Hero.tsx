@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Check } from 'lucide-react';
 
 const Hero: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -45,9 +46,26 @@ const Hero: React.FC = () => {
         <p className="mt-6 text-xl md:text-2xl max-w-3xl animate-fade-in text-white" style={{animationDelay: '0.2s'}}>
           A comprehensive course featuring expert essays and video lessons to elevate your PR strategy and execution.
         </p>
+        
+        {/* Feature list with checkmarks */}
+        <ul className="mt-8 space-y-2 animate-fade-in" style={{animationDelay: '0.3s'}}>
+          <li className="flex items-center gap-2">
+            <Check className="h-5 w-5 text-white" />
+            <span className="text-lg">The full blueprint to learn the A-Z of PR</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <Check className="h-5 w-5 text-white" />
+            <span className="text-lg">Full chapter content; text, audio and videos</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <Check className="h-5 w-5 text-white" />
+            <span className="text-lg">Suitable for both beginners and professionals</span>
+          </li>
+        </ul>
+        
         <div className="mt-10 animate-fade-in" style={{animationDelay: '0.4s'}}>
           <Button size="lg" className="bg-white hover:bg-white/90 text-pr-dark font-medium text-lg">
-            <Link to="/signup">Get Access Now</Link>
+            <Link to="/signup">Get Access Now for $99</Link>
           </Button>
         </div>
       </div>
