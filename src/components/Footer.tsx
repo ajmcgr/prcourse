@@ -51,7 +51,7 @@ const Footer = () => {
         
         {/* Copyright - No divider and smaller text */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">© 2025 PR Masterclass. All rights reserved.</p>
+          <p className="text-xs text-gray-500">© 2025 Alex MacGregor. All rights reserved.</p>
         </div>
       </div>
     </footer>
