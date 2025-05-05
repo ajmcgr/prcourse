@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-2xl mb-4">PR Masterclass</h3>
             <p className="text-gray-600 mb-4">
-              Elevate your public relations skills with expert-led courses and resources.
+              A comprehensive course featuring expert essays and video lessons to elevate your PR strategy and execution.
             </p>
           </div>
           <div>
