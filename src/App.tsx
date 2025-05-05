@@ -11,6 +11,8 @@ import SignupPage from "./pages/SignupPage";
 import ContentLibrary from "./pages/ContentLibrary";
 import ContentDetailPage from "./pages/ContentDetailPage";
 import NotFound from "./pages/NotFound";
+import CourseLayout from "./pages/CourseLayout";
+import CourseLesson from "./components/CourseLesson";
 import AuthGuard from "./utils/auth-guard";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,13 @@ const App = () => (
             </AuthGuard>
           } />
           <Route path="/content/:slug" element={<ContentDetailPage />} />
+          
+          {/* Course routes */}
+          <Route path="/course" element={<CourseLayout />}>
+            <Route index element={<CourseLesson />} />
+            <Route path=":slug" element={<CourseLesson />} />
+          </Route>
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
