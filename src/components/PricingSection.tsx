@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
 
 const PricingSection: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,62 +47,66 @@ const PricingSection: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="grid md:grid-cols-4 gap-8 items-start">
-        <div className="md:col-span-2">
-          <div className="bg-white p-6 rounded-xl border shadow-sm">
-            <div className="text-center mb-6">
-              <h3 className="text-3xl font-bold text-pr-dark mb-2">Complete PR Course</h3>
-              <div className="flex items-center justify-center">
-                <span className="text-5xl font-bold">$99</span>
-                <span className="ml-1 text-gray-600">/one-time</span>
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Pricing Card - Now above the image */}
+        <div className="md:w-1/2">
+          <Card className="border shadow-sm h-full">
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <h3 className="text-3xl font-bold text-pr-dark mb-2">Complete PR Course</h3>
+                <div className="flex items-center justify-center">
+                  <span className="text-5xl font-bold">$99</span>
+                  <span className="ml-1 text-gray-600">/one-time</span>
+                </div>
+                <p className="mt-2 text-gray-500">Lifetime access to all content</p>
               </div>
-              <p className="mt-2 text-gray-500">Lifetime access to all content</p>
-            </div>
-            
-            <div className="space-y-4 mb-6">
-              <div className="flex items-center">
-                <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>All video lessons</span>
+              
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>All video lessons</span>
+                </div>
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>All written materials</span>
+                </div>
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Future updates</span>
+                </div>
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>30-day money-back guarantee</span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>All written materials</span>
+              
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handlePurchase} 
+                  disabled={isProcessing} 
+                  className="bg-black hover:bg-black/90 text-white py-3 text-lg px-10"
+                >
+                  {isProcessing ? "Processing..." : "Buy Now — $99"}
+                </Button>
               </div>
-              <div className="flex items-center">
-                <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Future updates</span>
-              </div>
-              <div className="flex items-center">
-                <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>30-day money-back guarantee</span>
-              </div>
-            </div>
-            
-            <div className="flex justify-center">
-              <Button 
-                onClick={handlePurchase} 
-                disabled={isProcessing} 
-                className="bg-black hover:bg-black/90 text-white py-3 text-lg px-12"
-              >
-                {isProcessing ? "Processing..." : "Buy Now — $99"}
-              </Button>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
         
-        <div className="md:col-span-2">
+        {/* Image and content section - Now below the pricing */}
+        <div className="md:w-1/2">
           <div className="mb-6">
             <div className="mb-6 rounded-lg overflow-hidden">
               <img 
-                src="/public/lovable-uploads/16e5f17b-6893-4af2-97c9-575c46cb5ea4.png" 
+                src="/public/lovable-uploads/4a77d3e3-0cd6-4a01-8d12-e40f80854178.png" 
                 alt="Alex MacGregor" 
                 className="w-full object-cover rounded-lg" 
               />
