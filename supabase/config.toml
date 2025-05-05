@@ -1,1 +1,43 @@
+
 project_id = "eijqehmzaffrwianhcto"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://localhost"
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+port = 54325
+
+[auth]
+enabled = true
+port = 54326
+
+[realtime]
+enabled = true
+port = 54327
+
+[analytics]
+enabled = false
+port = 54328
+
+[vector]
+enabled = true
+port = 54329
+
+[functions]
+[functions.beehiiv-subscribe]
+verify_jwt = true

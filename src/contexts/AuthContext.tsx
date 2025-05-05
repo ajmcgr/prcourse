@@ -109,6 +109,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Add user to beehiiv audience when they sign up
+  const addToBeehiivAudience = async (email: string, name: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('beehiiv-subscribe', {
+        body: { email, name }
+      });
+
+      if (error) {
+        console.error("Error subscribing to beehiiv:", error);
+      } else {
+        console.log("Successfully subscribed to beehiiv audience");
+      }
+    } catch (error) {
+      console.error("Error calling beehiiv-subscribe function:", error);
+    }
+  };
+
   const signUp = async (email: string, password: string, name: string) => {
     try {
       const { error } = await supabase.auth.signUp({
@@ -123,6 +140,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (error) throw error;
+      
+      // Subscribe to beehiiv audience
+      await addToBeehiivAudience(email, name);
+      
       toast.success("Check your email to confirm your registration!");
     } catch (error: any) {
       toast.error(error.message || "Failed to sign up");
