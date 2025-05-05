@@ -6,11 +6,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Menu } from 'lucide-react';
+import { Menu, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar: React.FC = () => {
+  const { user, signOut } = useAuth();
+  
   return (
     <nav className="border-b bg-background sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,14 +61,51 @@ const Navbar: React.FC = () => {
                 <DropdownMenuItem asChild>
                   <Link to="/course">Course Lessons</Link>
                 </DropdownMenuItem>
+                {user ? (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={(e) => {
+                      e.preventDefault();
+                      signOut();
+                    }}>
+                      Sign Out
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem asChild>
+                    <Link to="/signup">Sign In</Link>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
           
-          <div className="hidden md:flex items-center">
-            <Button variant="default" className="bg-black hover:bg-black/90">
-              <Link to="/signup">Access Course</Link>
-            </Button>
+          <div className="hidden md:flex items-center space-x-2">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem disabled>
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={(e) => {
+                    e.preventDefault();
+                    signOut();
+                  }}>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="default" className="bg-black hover:bg-black/90">
+                <Link to="/signup">Access Course</Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>

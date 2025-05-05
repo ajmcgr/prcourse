@@ -1,56 +1,95 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner";
+import { useAuth } from '@/contexts/AuthContext';
 
 const EmailSignup: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [isSignUp, setIsSignUp] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { signInWithEmail, signUp, signInWithGoogle } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const from = location.state?.from?.pathname || '/content';
+
+  const handleGoogleSignIn = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await signInWithGoogle();
+  };
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // In a real app, you would send this data to your backend
-    // For now, we'll simulate a successful submission
-    setTimeout(() => {
-      // Store the email in localStorage to simulate authentication
-      localStorage.setItem('prCourseUser', JSON.stringify({ email, name }));
-      
+    try {
+      if (isSignUp) {
+        await signUp(email, password, name);
+      } else {
+        await signInWithEmail(email, password);
+        navigate(from);
+      }
+    } finally {
       setIsLoading(false);
-      toast.success("Success! You now have access to all course materials.");
-      navigate('/content');
-    }, 1500);
+    }
   };
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-serif text-center">Get Course Access</CardTitle>
+        <CardTitle className="text-2xl font-serif text-center">
+          {isSignUp ? 'Create an Account' : 'Sign In'}
+        </CardTitle>
         <CardDescription className="text-center">
-          Enter your email to get immediate access to all PR course materials
+          {isSignUp 
+            ? 'Enter your details to get access to all PR course materials' 
+            : 'Sign in to access course materials'}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <form onSubmit={handleSubmit}>
+        <Button 
+          className="w-full flex items-center justify-center gap-2 bg-white text-black border border-gray-300 hover:bg-gray-100" 
+          onClick={handleGoogleSignIn}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            <path d="M1 1h22v22H1z" fill="none"/>
+          </svg>
+          <span>{isSignUp ? 'Sign up with Google' : 'Sign in with Google'}</span>
+        </Button>
+        
+        <div className="flex items-center">
+          <Separator className="flex-1" />
+          <span className="mx-4 text-xs text-gray-500">OR</span>
+          <Separator className="flex-1" />
+        </div>
+
+        <form onSubmit={handleEmailSignIn}>
           <div className="grid gap-4">
-            <div className="grid gap-2">
-              <label htmlFor="name" className="text-sm font-medium">
-                Full Name
-              </label>
-              <Input
-                id="name"
-                placeholder="John Smith"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
+            {isSignUp && (
+              <div className="grid gap-2">
+                <label htmlFor="name" className="text-sm font-medium">
+                  Full Name
+                </label>
+                <Input
+                  id="name"
+                  placeholder="John Smith"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required={isSignUp}
+                />
+              </div>
+            )}
             <div className="grid gap-2">
               <label htmlFor="email" className="text-sm font-medium">
                 Email
@@ -64,14 +103,52 @@ const EmailSignup: React.FC = () => {
                 required
               />
             </div>
-            <Button className="w-full bg-pr-accent hover:bg-pr-accent/90 text-pr-dark" type="submit" disabled={isLoading}>
-              {isLoading ? "Processing..." : "Get Instant Access"}
+            <div className="grid gap-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+            </div>
+            <Button className="w-full bg-black hover:bg-black/90 text-white" type="submit" disabled={isLoading}>
+              {isLoading ? "Processing..." : isSignUp ? "Create Account" : "Sign In"}
             </Button>
           </div>
         </form>
       </CardContent>
-      <CardFooter className="text-center text-sm text-gray-600">
-        <p>We respect your privacy. Your email will never be shared.</p>
+      <CardFooter className="text-center text-sm">
+        <div className="w-full text-center">
+          {isSignUp ? (
+            <p>
+              Already have an account?{" "}
+              <button 
+                type="button"
+                onClick={() => setIsSignUp(false)}
+                className="underline text-black font-medium"
+              >
+                Sign in
+              </button>
+            </p>
+          ) : (
+            <p>
+              Don't have an account?{" "}
+              <button 
+                type="button"
+                onClick={() => setIsSignUp(true)}
+                className="underline text-black font-medium"
+              >
+                Create one
+              </button>
+            </p>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );
