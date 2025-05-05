@@ -56,6 +56,9 @@ const Navbar: React.FC = () => {
                   <Link to="/content">Course Content</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link to="/pricing">Pricing</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link to="/signup">Login</Link>
                 </DropdownMenuItem>
                 {user ? (
@@ -100,7 +103,7 @@ const Navbar: React.FC = () => {
                   <Link to="/signup">Login</Link>
                 </Button>
                 <Button variant="default" className="bg-black hover:bg-black/90">
-                  <Link to="/signup">Access Course</Link>
+                  <Link to="/pricing">Access Course</Link>
                 </Button>
               </>
             )}
