@@ -7,28 +7,22 @@ import { Link } from 'react-router-dom';
 
 const About = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-[#f5f5f5]">
       <Navbar />
       
-      <main className="flex-grow">
-        <div className="bg-white border-b text-pr-dark py-16">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl md:text-5xl font-bold">About the Course</h1>
-          </div>
-        </div>
-        
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <article className="max-w-2xl mx-auto bg-white p-6 border-b border-gray-200">
+      <main className="flex-grow py-16 md:py-24">
+        <div className="max-w-2xl mx-auto px-6">
+          <article className="bg-white p-8 md:p-12 shadow-sm">
             <div className="mb-10 flex justify-center">
               <img 
                 src="/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" 
                 alt="Alex MacGregor" 
-                className="w-40 h-40 rounded-full object-cover"
+                className="w-40 h-40 rounded-full object-cover border-2 border-gray-100"
               />
             </div>
             
-            <div className="prose prose-lg max-w-none space-y-6 text-gray-700">
-              <p className="text-xl">
+            <div className="space-y-6 text-gray-800 font-serif">
+              <p className="text-xl font-medium">
                 I'm Alex MacGregor, and I've spent the last eight years proving that great PR is equal parts art, science, and street‑level hustle.
               </p>
               
@@ -54,8 +48,8 @@ const About = () => {
               </div>
             </div>
             
-            <div className="mt-10 flex justify-center">
-              <Button className="bg-pr-main hover:bg-pr-dark">
+            <div className="mt-12 flex justify-center">
+              <Button className="bg-[#1c1c1c] hover:bg-black text-white rounded-none px-8 py-6">
                 <Link to="/signup">Get Access Now</Link>
               </Button>
             </div>

@@ -1,5 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,8 +8,8 @@
 
 @layer base {
   :root {
-    --background: 240 30% 99%;
-    --foreground: 0 0% 0%;
+    --background: 0 0% 96%;
+    --foreground: 0 0% 11%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -16,8 +17,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 221 54% 27%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 0% 11%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -25,17 +26,17 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 33 100% 62%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 11%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221 54% 27%;
+    --ring: 0 0% 11%;
 
-    --radius: 0.5rem;
+    --radius: 0;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -88,6 +89,10 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Inter', sans-serif;
+    @apply font-semibold tracking-tight;
+  }
+  .font-serif {
+    font-family: 'Merriweather', serif;
   }
 }
 

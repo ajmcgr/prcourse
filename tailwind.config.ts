@@ -23,11 +23,11 @@ export default {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
-				background: '#F2F2F9',
-				foreground: 'hsl(var(--foreground))',
+				background: '#f5f5f5',
+				foreground: '#1c1c1c',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: '#1c1c1c',
+					foreground: '#ffffff'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -64,10 +64,10 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				pr: {
-					dark: '#0F2341',
-					main: '#000000',
-					light: '#3D5A9E',
-					accent: '#FFA53C',
+					dark: '#1c1c1c',
+					main: '#1c1c1c',
+					light: '#4a4a4a',
+					accent: '#f5f5f5',
 				}
 			},
 			borderRadius: {
@@ -101,6 +101,10 @@ export default {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.5s ease-out'
+			},
+			fontFamily: {
+				serif: ['Merriweather', 'serif'],
+				sans: ['Inter', 'sans-serif']
 			}
 		}
 	},
