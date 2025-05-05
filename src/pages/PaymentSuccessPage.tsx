@@ -1,11 +1,46 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const PaymentSuccessPage = () => {
+  const { user, updatePaymentStatus } = useAuth();
+
+  useEffect(() => {
+    const updateUserPaymentStatus = async () => {
+      if (!user) return;
+
+      try {
+        // Record successful payment in database
+        const { error } = await supabase
+          .from('user_payments')
+          .upsert({
+            user_id: user.id,
+            payment_status: 'completed',
+            amount: 9900, // $99.00 in cents
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (error) {
+          console.error('Error updating payment status:', error);
+          return;
+        }
+
+        // Update context state to reflect successful payment
+        updatePaymentStatus(true);
+      } catch (err) {
+        console.error('Error in payment success handling:', err);
+      }
+    };
+
+    updateUserPaymentStatus();
+  }, [user, updatePaymentStatus]);
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />

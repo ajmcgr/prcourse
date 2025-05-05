@@ -7,18 +7,37 @@ import { useNavigate } from 'react-router-dom';
 
 const PricingSection: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const { user } = useAuth();
+  const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
   
   const handlePurchase = async () => {
     setIsProcessing(true);
     
     try {
-      // Always direct to signup first
-      navigate('/signup', { state: { returnTo: '/pricing' } });
+      if (!user) {
+        // Redirect to signup if not logged in
+        navigate('/signup', { state: { returnTo: '/pricing' } });
+        return;
+      }
+
+      // Call Supabase function to create payment session
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: { userId: user.id }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
     } catch (error) {
-      console.error('Navigation error:', error);
-      toast.error("There was a problem. Please try again.");
+      console.error('Payment error:', error);
+      toast.error("There was a problem starting your payment. Please try again.");
     } finally {
       setIsProcessing(false);
     }

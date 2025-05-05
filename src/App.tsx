@@ -36,15 +36,25 @@ const App: React.FC = () => {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/payment-success" element={<PaymentSuccessPage />} />
+              
+              {/* Protected routes that require payment */}
               <Route path="/content" element={
                 <AuthGuard>
                   <ContentLibrary />
                 </AuthGuard>
               } />
-              <Route path="/content/:slug" element={<ContentDetailPage />} />
+              <Route path="/content/:slug" element={
+                <AuthGuard>
+                  <ContentDetailPage />
+                </AuthGuard>
+              } />
               
               {/* Course routes */}
-              <Route path="/course" element={<CourseLayout />}>
+              <Route path="/course" element={
+                <AuthGuard>
+                  <CourseLayout />
+                </AuthGuard>
+              }>
                 <Route index element={<CourseLesson />} />
                 <Route path=":slug" element={<CourseLesson />} />
               </Route>

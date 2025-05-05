@@ -10,17 +10,26 @@ interface AuthGuardProps {
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const location = useLocation();
-  const { user, loading } = useAuth();
+  const { user, loading, hasPaid } = useAuth();
   
   // If we're loading auth state, show nothing
   if (loading) {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
   }
   
+  // User is not signed in, redirect to signup
   if (!user && location.pathname !== '/signup') {
-    // Redirect to the signup page but remember where they were trying to go
     toast.error("Please sign up to access course content.");
     return <Navigate to="/signup" state={{ from: location }} replace />;
+  }
+
+  // User is signed in but hasn't paid, redirect to pricing
+  if (user && !hasPaid && 
+      location.pathname !== '/pricing' && 
+      location.pathname !== '/payment-success' && 
+      location.pathname !== '/signup') {
+    toast.info("Please complete your payment to access course content.");
+    return <Navigate to="/pricing" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
