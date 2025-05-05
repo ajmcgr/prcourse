@@ -7,7 +7,7 @@ import AuthGuard from '@/utils/auth-guard';
 
 const ContentDetailPage = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       
       <main className="flex-grow">
