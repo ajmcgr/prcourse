@@ -40,28 +40,12 @@ const Hero: React.FC = () => {
       <div className="absolute inset-0 bg-black opacity-30 z-5"></div>
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-white pt-32">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight animate-fade-in">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight animate-fade-in">
           Master the Art of Public Relations
         </h1>
         <p className="mt-6 text-xl md:text-2xl max-w-3xl animate-fade-in text-white" style={{animationDelay: '0.2s'}}>
           A comprehensive course from Alex MacGregor featuring essays and video lessons to elevate your PR strategy and execution.
         </p>
-        
-        {/* Feature list with checkmarks */}
-        <ul className="mt-8 space-y-2 animate-fade-in" style={{animationDelay: '0.3s'}}>
-          <li className="flex items-center gap-2">
-            <Check className="h-5 w-5 text-white" />
-            <span className="text-lg">The full blueprint to learn the A-Z of PR</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <Check className="h-5 w-5 text-white" />
-            <span className="text-lg">Full chapter content; text, audio and videos</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <Check className="h-5 w-5 text-white" />
-            <span className="text-lg">Suitable for both beginners and professionals</span>
-          </li>
-        </ul>
         
         <div className="mt-10 animate-fade-in flex flex-col md:flex-row items-center" style={{animationDelay: '0.4s'}}>
           <div className="flex flex-col items-center md:flex-row md:items-start gap-6">
