@@ -1,18 +1,43 @@
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const Hero: React.FC = () => {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    // YouTube iframe API requires a global callback function
+    // This adds the YouTube iframe API script
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    if (firstScriptTag && firstScriptTag.parentNode) {
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+  }, []);
+
   return (
     <div className="relative h-[70vh] flex items-center overflow-hidden bg-black">
-      <div 
-        className="absolute inset-0 bg-cover bg-center z-0" 
-        style={{ 
-          backgroundImage: "url('/lovable-uploads/166015f0-ab05-44a4-a5e0-c55380758f21.png')",
-          opacity: 0.9
-        }}
-      ></div>
+      {/* YouTube Video Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden w-full h-full opacity-80">
+        <div className="relative w-full h-full">
+          <iframe
+            ref={iframeRef}
+            src="https://www.youtube.com/embed/x2S3wo5SCYg?controls=0&showinfo=0&rel=0&autoplay=1&loop=1&mute=1&playlist=x2S3wo5SCYg"
+            title="PR Masterclass Background Video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            className="absolute top-1/2 left-1/2 w-[120%] h-[120%] min-w-full min-h-full object-cover -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ border: "none" }}
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+      
+      {/* Dark overlay to make text more readable */}
+      <div className="absolute inset-0 bg-black opacity-30 z-5"></div>
+      
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-white">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight animate-fade-in">
           Master the Art of Public Relations
