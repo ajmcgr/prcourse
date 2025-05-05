@@ -9,6 +9,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import SignupPage from "./pages/SignupPage";
+import PricingPage from "./pages/PricingPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import ContentLibrary from "./pages/ContentLibrary";
 import ContentDetailPage from "./pages/ContentDetailPage";
 import NotFound from "./pages/NotFound";
@@ -32,6 +34,8 @@ const App: React.FC = () => {
               <Route path="/" element={<Index />} />
               <Route path="/about" element={<About />} />
               <Route path="/signup" element={<SignupPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/payment-success" element={<PaymentSuccessPage />} />
               <Route path="/content" element={
                 <AuthGuard>
                   <ContentLibrary />

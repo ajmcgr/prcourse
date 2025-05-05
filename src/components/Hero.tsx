@@ -22,7 +22,7 @@ const Hero: React.FC = () => {
         </p>
         <div className="mt-10 animate-fade-in" style={{animationDelay: '0.4s'}}>
           <Button size="lg" className="bg-white hover:bg-white/90 text-pr-dark font-medium text-lg">
-            <Link to="/signup">Get Access Now</Link>
+            <Link to="/pricing">Get Access Now</Link>
           </Button>
         </div>
       </div>
