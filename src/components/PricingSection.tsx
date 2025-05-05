@@ -46,8 +46,8 @@ const PricingSection: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="grid md:grid-cols-3 gap-8 items-start">
-        <div className="md:col-span-1">
+      <div className="grid md:grid-cols-4 gap-8 items-start">
+        <div className="md:col-span-3">
           <div className="mb-6">
             <div className="mb-6 rounded-lg overflow-hidden">
               <img 
@@ -86,7 +86,7 @@ const PricingSection: React.FC = () => {
             <p className="mt-2 font-medium text-pr-dark text-sm">— David Miller, Communications Director</p>
           </div>
         </div>
-        <div className="md:col-span-2">
+        <div className="md:col-span-1">
           <div className="bg-white p-6 rounded-xl border shadow-sm">
             <div className="text-center mb-6">
               <h3 className="text-3xl font-bold text-pr-dark mb-2">Complete PR Course</h3>
