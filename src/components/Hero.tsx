@@ -75,6 +75,24 @@ const Hero: React.FC = () => {
             </div>
           </div>
         </div>
+        
+        {/* Added secure access text row */}
+        <div className="flex justify-center md:justify-start mt-4 text-white animate-fade-in" style={{animationDelay: '0.5s'}}>
+          <div className="flex items-center space-x-3 text-sm md:text-base font-medium">
+            <span className="flex items-center">
+              <Check className="h-4 w-4 mr-1" />
+              Get access now
+            </span>
+            <span className="flex items-center">
+              <Check className="h-4 w-4 mr-1" />
+              Secure payment
+            </span>
+            <span className="flex items-center">
+              <Check className="h-4 w-4 mr-1" />
+              Cancel any-time
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

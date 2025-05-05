@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { Check } from 'lucide-react';
 
 const CallToAction: React.FC = () => {
   return (
@@ -14,6 +15,24 @@ const CallToAction: React.FC = () => {
         <Button size="lg" className="bg-black hover:bg-black/90 text-white font-medium text-lg">
           <Link to="/signup">Get Access Now for $99</Link>
         </Button>
+        
+        {/* Added secure access text row */}
+        <div className="flex justify-center mt-4 text-gray-700">
+          <div className="flex items-center space-x-3 text-sm md:text-base font-medium">
+            <span className="flex items-center">
+              <Check className="h-4 w-4 mr-1" />
+              Get access now
+            </span>
+            <span className="flex items-center">
+              <Check className="h-4 w-4 mr-1" />
+              Secure payment
+            </span>
+            <span className="flex items-center">
+              <Check className="h-4 w-4 mr-1" />
+              Cancel any-time
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
