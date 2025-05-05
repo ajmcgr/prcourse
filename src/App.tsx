@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,36 +16,39 @@ import CourseLayout from "./pages/CourseLayout";
 import CourseLesson from "./components/CourseLesson";
 import AuthGuard from "./utils/auth-guard";
 
+// Create a client
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/content" element={
-            <AuthGuard>
-              <ContentLibrary />
-            </AuthGuard>
-          } />
-          <Route path="/content/:slug" element={<ContentDetailPage />} />
-          
-          {/* Course routes */}
-          <Route path="/course" element={<CourseLayout />}>
-            <Route index element={<CourseLesson />} />
-            <Route path=":slug" element={<CourseLesson />} />
-          </Route>
-          
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App: React.FC = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/content" element={
+              <AuthGuard>
+                <ContentLibrary />
+              </AuthGuard>
+            } />
+            <Route path="/content/:slug" element={<ContentDetailPage />} />
+            
+            {/* Course routes */}
+            <Route path="/course" element={<CourseLayout />}>
+              <Route index element={<CourseLesson />} />
+              <Route path=":slug" element={<CourseLesson />} />
+            </Route>
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
