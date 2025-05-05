@@ -49,7 +49,14 @@ const PricingSection: React.FC = () => {
       <div className="grid md:grid-cols-3 gap-8 items-start">
         <div className="md:col-span-1">
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-pr-dark mb-3">A comprehensive course featuring expert essays and video lessons to elevate your PR strategy and execution.</h2>
+            <div className="mb-6 rounded-lg overflow-hidden">
+              <img 
+                src="/public/lovable-uploads/16e5f17b-6893-4af2-97c9-575c46cb5ea4.png" 
+                alt="Alex MacGregor" 
+                className="w-full object-cover rounded-lg" 
+              />
+            </div>
+            <h2 className="text-xl font-bold text-pr-dark mb-3">A comprehensive course from Alex MacGregor featuring essays and video lessons to elevate your PR strategy and execution.</h2>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <svg className="h-5 w-5 text-pr-accent mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,13 +124,15 @@ const PricingSection: React.FC = () => {
               </div>
             </div>
             
-            <Button 
-              onClick={handlePurchase} 
-              disabled={isProcessing} 
-              className="w-full bg-black hover:bg-black/90 text-white py-3 text-lg"
-            >
-              {isProcessing ? "Processing..." : "Buy Now — $99"}
-            </Button>
+            <div className="flex justify-center">
+              <Button 
+                onClick={handlePurchase} 
+                disabled={isProcessing} 
+                className="bg-black hover:bg-black/90 text-white py-3 text-lg px-12"
+              >
+                {isProcessing ? "Processing..." : "Buy Now — $99"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
