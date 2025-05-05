@@ -7,7 +7,7 @@ const LetterSection: React.FC = () => {
   return (
     <section className="py-16 bg-white">
       <div className="max-w-2xl mx-auto px-6">
-        <article className="bg-white p-8 md:p-12 shadow-sm">
+        <article className="bg-white p-8 md:p-12 shadow-sm border border-gray-200 rounded-md">
           <div className="mb-10 flex justify-center">
             <img 
               src="/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" 
@@ -37,7 +37,7 @@ const LetterSection: React.FC = () => {
               If you want PR advice that's battle‑tested, culturally fluent, and laser‑focused on measurable impact, pull up a chair. I'll show you how it's done.
             </p>
             
-            <div className="pt-6 border-t border-gray-200 mt-8">
+            <div className="pt-6 mt-8">
               <p className="italic">Best,</p>
               <p className="font-bold">Alex MacGregor</p>
             </div>
