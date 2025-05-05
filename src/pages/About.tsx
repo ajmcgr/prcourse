@@ -12,7 +12,7 @@ const About = () => {
       
       <main className="flex-grow py-16 md:py-24">
         <div className="max-w-2xl mx-auto px-6">
-          <article className="bg-white p-8 md:p-12 shadow-sm">
+          <article className="bg-white p-8 md:p-12 shadow-sm border border-gray-200 rounded-md">
             <div className="mb-10 flex justify-center">
               <img 
                 src="/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" 
@@ -21,7 +21,7 @@ const About = () => {
               />
             </div>
             
-            <div className="space-y-6 text-gray-800 font-serif">
+            <div className="space-y-6 text-gray-800 font-sans">
               <p className="text-xl font-medium">
                 I'm Alex MacGregor, and I've spent the last eight years proving that great PR is equal parts art, science, and street‑level hustle.
               </p>
@@ -42,7 +42,7 @@ const About = () => {
                 If you want PR advice that's battle‑tested, culturally fluent, and laser‑focused on measurable impact, pull up a chair. I'll show you how it's done.
               </p>
               
-              <div className="pt-6 border-t border-gray-200 mt-8">
+              <div className="pt-6 mt-8">
                 <p className="italic">Best,</p>
                 <p className="font-bold">Alex MacGregor</p>
               </div>
