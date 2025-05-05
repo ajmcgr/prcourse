@@ -58,10 +58,15 @@ const ContentLibrary = () => {
               </Button>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
               {filteredContent.map(item => (
                 <ContentCard key={item.id} item={item} />
               ))}
+            </div>
+            
+            <div className="mt-16 pt-8 border-t">
+              <h2 className="text-2xl font-bold text-center mb-8">What You'll Learn</h2>
+              <CourseContentTable />
             </div>
           </div>
         ) : (
