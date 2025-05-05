@@ -24,7 +24,7 @@ const PaymentSuccessPage = () => {
             amount: 9900, // $99.00 in cents
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          });
+          }, { onConflict: 'user_id, payment_status' });
 
         if (error) {
           console.error('Error updating payment status:', error);
