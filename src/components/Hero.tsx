@@ -44,7 +44,7 @@ const Hero: React.FC = () => {
           Master the Art of Public Relations
         </h1>
         <p className="mt-6 text-xl md:text-2xl max-w-3xl animate-fade-in text-white" style={{animationDelay: '0.2s'}}>
-          A comprehensive course featuring expert essays and video lessons to elevate your PR strategy and execution.
+          A comprehensive course from Alex MacGreogr featuring essays and video lessons to elevate your PR strategy and execution.
         </p>
         
         {/* Feature list with checkmarks */}

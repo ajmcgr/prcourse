@@ -10,7 +10,7 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">PR Masterclass</h3>
             <p className="text-sm text-gray-600">
-              Learn PR strategies from industry experts. Build your brand and gain the media attention your business deserves.
+              Learn PR strategies from Alex MacGregor — build your brand and gain the media attention your business deserves.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
