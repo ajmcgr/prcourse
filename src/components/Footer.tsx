@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Discord } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -46,7 +46,7 @@ const Footer = () => {
                   </svg>
                 </a>
                 <a href="https://discord.gg/7sbqZgesud" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black">
-                  <Discord className="h-5 w-5" />
+                  <MessageCircle className="h-5 w-5" />
                 </a>
               </div>
             </div>
