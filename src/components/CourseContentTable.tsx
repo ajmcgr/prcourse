@@ -115,7 +115,7 @@ const CourseContentTable: React.FC = () => {
           </p>
         </div>
         
-        <div className="overflow-x-auto">
+        <div className="max-w-5xl mx-auto overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
