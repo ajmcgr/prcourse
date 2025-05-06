@@ -7,8 +7,8 @@ const CourseFeatures: React.FC = () => {
   const features = [
     {
       icon: <BookOpen className="h-10 w-10 text-pr-main" />,
-      title: 'In-depth Essays',
-      description: 'Access comprehensive, expertly written essays covering all aspects of modern public relations.'
+      title: 'Expert Presentation',
+      description: 'Watch a comprehensive presentation from Alex with full access to the accompanying slides and notes.'
     },
     {
       icon: <Video className="h-10 w-10 text-pr-main" />,
