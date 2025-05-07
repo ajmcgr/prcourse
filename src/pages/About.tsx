@@ -27,7 +27,7 @@ const About = () => {
               </p>
               
               <p>
-                I cut my teeth launching consumer‑tech giants—Meizu, OPPO, and OnePlus—across the hyper‑competitive markets of Greater China and APAC. Navigating multiple languages, time zones, and regulatory mazes taught me how to craft stories that resonate from Shanghai boardrooms to Singapore coffee shops—and hit revenue targets while they're at it.
+                I cut my teeth launching consumer‑tech giants—Meizu, OPPO, and OnePlus—across the world. Navigating multiple languages, time zones, and regulatory mazes taught me how to craft stories that resonate — and hit revenue targets while we're at it.
               </p>
               
               <p>
