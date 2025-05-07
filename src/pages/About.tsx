@@ -31,7 +31,7 @@ const About = () => {
               </p>
               
               <p>
-                Collaborating with world‑class agencies like Ogilvy and Weber Shandwick sharpened my instincts for turning relationships into rocket fuel. Add in hands‑on mastery of Meltwater and Cision, and I operate with real‑time data as my compass—no guesswork, no vanity metrics.
+                Collaborating with world‑class agencies like Ogilvy and Weber Shandwick sharpened my instincts for turning relationships into rocket fuel. Add in hands‑on mastery of PR software and AI tools, and I operate with real‑time data as my compass—no guesswork, no vanity metrics.
               </p>
               
               <p>
