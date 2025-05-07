@@ -73,7 +73,7 @@ const Hero: React.FC = () => {
             </span>
             <span className="flex items-center">
               <Check className="h-4 w-4 mr-1" />
-              30-day money-back guarantee
+              Money-back guarantee
             </span>
           </div>
         </div>
