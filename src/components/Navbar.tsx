@@ -52,12 +52,6 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
           <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-            <Link to="/" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
-              Home
-            </Link>
-            <Link to="/about" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
-              About
-            </Link>
             <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
               Course Content
             </Link>
@@ -76,9 +70,6 @@ const Navbar: React.FC = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
                   <Link to="/">Home</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/about">About</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/coursecontent">Course Content</Link>
