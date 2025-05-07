@@ -51,14 +51,8 @@ const Navbar: React.FC = () => {
               Alex MacGregor's PR Masterclass
             </Link>
           </div>
-          <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-            <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
-              Course Content
-            </Link>
-          </div>
           
           {/* Mobile menu */}
-          
           <div className="md:hidden flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -96,6 +90,9 @@ const Navbar: React.FC = () => {
           </div>
           
           <div className="hidden md:flex items-center space-x-2">
+            <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
+              Course Content
+            </Link>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
