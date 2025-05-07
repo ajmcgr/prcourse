@@ -6,6 +6,7 @@ import LetterSection from '@/components/LetterSection';
 import CourseFeatures from '@/components/CourseFeatures';
 import CourseContentTable from '@/components/CourseContentTable';
 import Testimonials from '@/components/Testimonials';
+import FAQ from '@/components/FAQ';
 import CallToAction from '@/components/CallToAction';
 import Footer from '@/components/Footer';
 
@@ -18,6 +19,7 @@ const Index = () => {
       <CourseFeatures />
       <CourseContentTable />
       <Testimonials />
+      <FAQ />
       <CallToAction />
       <Footer />
     </div>
