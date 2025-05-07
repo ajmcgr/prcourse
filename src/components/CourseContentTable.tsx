@@ -30,7 +30,7 @@ const courseModules: CourseModule[] = [
   {
     id: 3,
     topic: "Media Relations",
-    synopsis: "Covers building durable journalist relationships through consistency and personalization, using media databases, and crafting compelling email pitches that cut through overcrowded inboxes. Emphasizes trust, tailored outreach and value‑led stories over mass blasts."
+    synopsis: "Covers building durable journalist relationships through consistency and personalization, using media databases, and crafting compelling email pitches that cut through overcrowded inboxes. Also includes influencer relations - a systematic approach to working with creators, selecting the right tier of influencers, personalizing outreach, setting KPIs, and tracking ROI."
   },
   {
     id: 4,
@@ -74,31 +74,26 @@ const courseModules: CourseModule[] = [
   },
   {
     id: 12,
-    topic: "Influencer Relations",
-    synopsis: "Outlines a systematic approach to influencer marketing—define goals, select the right tier of creators, personalize outreach, set KPIs, track ROI and safeguard brand fit. Emphasizes long‑term relationships over one‑off paid posts."
-  },
-  {
-    id: 13,
     topic: "Internal Communications",
     synopsis: "Uses fundraising announcements as a case study: start with the objective (hiring, investors, customers), target specific audiences, nail the why, include credible validations and choreograph post‑announcement follow‑ups."
   },
   {
-    id: 14,
+    id: 13,
     topic: "Reputation Management",
     synopsis: "Explores psychology's role in PR: understand others' needs, show genuine interest, mirror sentiment and ask effectively. Highlights personal branding, crisis empathy and the shift toward leadership‑driven social presence."
   },
   {
-    id: 15,
+    id: 14,
     topic: "SEO & Digital PR",
     synopsis: "Describes \"digital PR\" as white‑hat backlink building that merges classic storytelling with SEO tactics. Research data‑led angles, personalize journalist outreach and measure links, traffic and authority gains."
   },
   {
-    id: 16,
+    id: 15,
     topic: "Analytics & Measurement",
     synopsis: "Lists modern PR KPIs—backlinks, brand mentions, domain authority, sentiment, social shares, subscribers, web traffic and sales—and explains how AI and bots affect interpretation. Recommends aligning a few metrics tightly with business goals."
   },
   {
-    id: 17,
+    id: 16,
     topic: "Conclusion",
     synopsis: "Reflecting on a decade in tech PR, Alex urges practitioners to trust their gut, embrace constant travel and external engagement, and balance instinct with data. He reiterates that adaptability and human relationships remain PR's enduring currencies."
   }
