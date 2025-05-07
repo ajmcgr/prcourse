@@ -83,8 +83,12 @@
   * {
     @apply border-border;
   }
-  body {
+  html, body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+  body {
     font-family: 'Inter', sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
@@ -101,4 +105,3 @@
     @apply absolute inset-0 bg-gradient-to-r from-white/80 to-white/50;
   }
 }
-
