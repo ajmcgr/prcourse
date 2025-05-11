@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 const LetterSection: React.FC = () => {
   return (
-    <section className="py-16 bg-white">
+    <section className="py-8 bg-white">
       <div className="max-w-2xl mx-auto px-6">
         <article className="bg-white p-8 md:p-12 shadow-sm border border-gray-200 rounded-md">
           <div className="mb-10 flex justify-center">
