@@ -34,7 +34,8 @@ export const courseData: CourseChapter[] = [
         id: "1-1",
         title: "Introduction",
         videoUrl: "https://vimeo.com/1083271721",
-        slug: "introduction"
+        slug: "introduction",
+        transcript: "Hi, my name is Alex McGregor. I'm here today for the self-titled PR Master Class. I was going to call it PR Course, but I feel Master Class is a cooler name and I'm a PR guy after all, so why not? Yeah, it's been great to kind of finally get around to doing this. I've been talking about this for a while, and it 's kind of like it's been on my agenda,  but I just haven't had time to do it. So super grateful to be able to do it now. And yeah, and you know, just super excited to kind of get into it and share some learnings I've had during the years and whatnot with you guys. So let's dive into the course."
       },
       {
         id: "1-2",
