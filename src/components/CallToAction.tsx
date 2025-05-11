@@ -12,7 +12,7 @@ const CallToAction: React.FC = () => {
         <p className="text-lg md:text-xl mb-8 text-gray-700">
           Join Alex MacGregor's comprehensive PR course and transform your PR strategy today.
         </p>
-        <Button size="lg" className="bg-black hover:bg-black/90 text-white font-medium text-lg px-6 py-6">
+        <Button size="lg" className="bg-[#409EFF] hover:bg-[#409EFF]/90 text-white font-medium text-lg px-6 py-6">
           <Link to="/signup">Get Access Now for $99</Link>
         </Button>
         
