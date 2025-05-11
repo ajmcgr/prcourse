@@ -58,7 +58,7 @@ const CourseSidebar: React.FC = () => {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {courseData.map((chapter) => (
+        {courseData.map((chapter, index) => (
           <SidebarGroup key={chapter.id}>
             <Collapsible 
               open={openChapters.includes(chapter.id)}
@@ -67,7 +67,10 @@ const CourseSidebar: React.FC = () => {
             >
               <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-2 hover:bg-sidebar-accent rounded-md">
                 <SidebarGroupLabel asChild className="text-base font-medium m-0 p-0">
-                  <span>{chapter.title}</span>
+                  <span>
+                    {/* Add chapter number before the title */}
+                    {chapter.id === "chapter-0" ? "Full Course" : `${index}. ${chapter.title}`}
+                  </span>
                 </SidebarGroupLabel>
                 {openChapters.includes(chapter.id) ? (
                   <ChevronUp className="h-4 w-4" />
