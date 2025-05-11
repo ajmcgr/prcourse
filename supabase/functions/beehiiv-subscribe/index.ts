@@ -38,9 +38,10 @@ serve(async (req) => {
 
     console.log(`Adding subscriber to beehiiv: ${email}`);
 
-    // Use the provided API key or fall back to environment variable
-    const apiKey = BEEHIIV_API_KEY || "uk1wuNsqbSwS6Q7ZiU2KuLaJgBMJVGnHxpQ5DLQy5dF4BMPwDeXYzpQSG9iLY5TP";
+    // Use only the environment variable for the API key, don't use hardcoded fallback
+    const apiKey = BEEHIIV_API_KEY;
     
+    // If no API key is provided, return early with success but indicate beehiiv was skipped
     if (!apiKey) {
       console.log("No BEEHIIV_API_KEY provided, skipping beehiiv subscription");
       return new Response(

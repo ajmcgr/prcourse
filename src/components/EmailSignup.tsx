@@ -48,15 +48,36 @@ const EmailSignup: React.FC = () => {
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!email || !email.includes('@')) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
+    if (isSignUp && !name) {
+      toast.error("Please enter your name");
+      return;
+    }
+    
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       if (isSignUp) {
         await signUp(email, password, name);
+        // Don't navigate right away if email confirmation is required
       } else {
         await signInWithEmail(email, password);
         navigate('/course/introduction');
       }
+    } catch (error) {
+      console.error("Authentication error:", error);
+      // Error toasts are handled in the auth context
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +130,7 @@ const EmailSignup: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required={isSignUp}
+                  disabled={isLoading}
                 />
               </div>
             )}
@@ -123,6 +145,7 @@ const EmailSignup: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="grid gap-2">
@@ -137,6 +160,7 @@ const EmailSignup: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
+                disabled={isLoading}
               />
             </div>
             <Button className="w-full bg-black hover:bg-black/90 text-white" type="submit" disabled={isLoading}>
@@ -154,6 +178,7 @@ const EmailSignup: React.FC = () => {
                 type="button"
                 onClick={() => setIsSignUp(false)}
                 className="underline text-black font-medium"
+                disabled={isLoading}
               >
                 Sign in
               </button>
@@ -165,6 +190,7 @@ const EmailSignup: React.FC = () => {
                 type="button"
                 onClick={() => setIsSignUp(true)}
                 className="underline text-black font-medium"
+                disabled={isLoading}
               >
                 Create one
               </button>
