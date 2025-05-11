@@ -17,7 +17,7 @@ const Index = () => {
       <Hero />
       
       {/* PR Skills Image Section */}
-      <div className="w-full py-8 mb-8">
+      <div className="w-full py-2">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <img 
             src="/lovable-uploads/f0847da8-f9ce-4357-bf49-d1d6a7bed030.png" 
