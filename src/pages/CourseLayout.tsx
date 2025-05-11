@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CourseSidebar from '@/components/CourseSidebar';
 import { useAuth } from '@/contexts/AuthContext';
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const CourseLayout = () => {
   const { user, loading } = useAuth();
@@ -24,9 +24,6 @@ const CourseLayout = () => {
           <div className="flex w-full">
             <CourseSidebar />
             <div className="flex-1 p-6">
-              <div className="md:hidden mb-4">
-                <SidebarTrigger />
-              </div>
               <Outlet />
             </div>
           </div>

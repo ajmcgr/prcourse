@@ -4,7 +4,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { useSidebar } from '@/components/ui/sidebar';
 import { 
   Pagination, 
   PaginationContent, 
@@ -18,6 +19,7 @@ const CourseLesson = () => {
   const { slug } = useParams<{ slug?: string }>();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { toggleSidebar } = useSidebar();
   
   useEffect(() => {
     if (!loading && !user) {
@@ -58,6 +60,17 @@ const CourseLesson = () => {
 
   return (
     <div className="px-8 py-10">
+      {/* Desktop Sidebar Toggle */}
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={toggleSidebar} 
+        className="mb-6 hidden md:flex items-center gap-2"
+      >
+        <Menu className="h-4 w-4" />
+        <span>Curriculum</span>
+      </Button>
+
       {lesson && chapter && (
         <>
           <div className="mb-8">
