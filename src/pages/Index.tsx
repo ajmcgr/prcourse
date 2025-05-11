@@ -12,12 +12,12 @@ import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <Hero />
       
-      {/* Minimal padding - 2em (32px) as requested */}
-      <div className="w-full bg-white py-2">
+      {/* Image with minimal padding */}
+      <div className="w-full py-6 mb-12">
         <div className="max-w-5xl mx-auto px-4">
           <img 
             src="/lovable-uploads/b8bde38e-9849-4784-ab6d-6e57e0caca4a.png" 
@@ -26,9 +26,6 @@ const Index = () => {
           />
         </div>
       </div>
-      
-      {/* Adding margin-top (mb-8) to create space between the image and letter section */}
-      <div className="mb-8"></div>
       
       <LetterSection />
       <CourseFeatures />
