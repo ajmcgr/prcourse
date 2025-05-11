@@ -11,8 +11,8 @@ const Hero: React.FC = () => {
   return (
     <div className="relative h-auto md:h-[50vh] flex items-center bg-white -mt-16 pb-2 pt-24 md:pt-8"> 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:pt-24 flex flex-col items-center text-center">
-        <p className="text-xs md:text-sm uppercase tracking-wider font-medium text-gray-600 mb-3 animate-fade-in">
-          Made for PR & social media pro's, agencies and freelancers
+        <p className="text-xs md:text-sm tracking-normal font-medium text-gray-600 mb-3 animate-fade-in">
+          Made for PR & social media pros, agencies and freelancers
         </p>
         <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold leading-tight animate-fade-in text-pr-dark">
           Master the Art of Public Relations
@@ -22,13 +22,13 @@ const Hero: React.FC = () => {
         </p>
         
         <div className="mt-6 md:mt-8 w-full animate-fade-in" style={{animationDelay: '0.4s'}}>
-          <div className="flex flex-col items-center justify-center gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
             <Button size="lg" className="w-full md:w-auto bg-black hover:bg-black/90 text-white font-medium text-lg px-6 py-5 md:py-6">
               <Link to="/signup">Get Access Now for $99</Link>
             </Button>
             
-            {/* Senja Widget - Adjusted for mobile */}
-            <div className="w-full md:min-w-[300px] md:max-w-[400px]">
+            {/* Senja Widget - Aligned in same row on desktop */}
+            <div className="w-full md:w-auto md:min-w-[300px] md:max-w-[400px]">
               <div className="senja-embed" data-id="07ff3942-eab2-49dd-8952-8e59761f1472" data-mode="shadow" data-lazyload="false" style={{ display: "block", width: "100%" }}></div>
             </div>
           </div>
