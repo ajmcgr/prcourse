@@ -39,8 +39,8 @@ const Navbar: React.FC = () => {
     return "bg-background sticky top-0 z-50";
   };
   
-  // Determine text color based on scroll state and page
-  const textColorClass = (isHomePage && !scrolled) ? "text-white" : "text-black";
+  // Always set text color to black
+  const textColorClass = "text-black";
   
   return (
     <nav className={navbarClasses()}>
@@ -115,10 +115,10 @@ const Navbar: React.FC = () => {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="outline" className={(isHomePage && !scrolled) ? "bg-transparent text-white hover:text-black hover:bg-white/90 border-white" : ""}>
+                <Button variant="outline" className="bg-transparent text-black hover:text-black hover:bg-white/90 border-black">
                   <Link to="/signup">Login</Link>
                 </Button>
-                <Button variant="default" className={(isHomePage && !scrolled) ? "bg-white text-black hover:bg-white/90" : "bg-black hover:bg-black/90"}>
+                <Button variant="default" className="bg-black hover:bg-black/90">
                   <Link to="/signup">Access Course</Link>
                 </Button>
               </>
