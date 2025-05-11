@@ -23,9 +23,9 @@ const EmailSignup: React.FC = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate(from);
+      navigate('/course/introduction');
     }
-  }, [user, navigate, from]);
+  }, [user, navigate]);
 
   const handleGoogleSignIn = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -33,7 +33,7 @@ const EmailSignup: React.FC = () => {
       setIsLoading(true);
       console.log("Starting Google sign in process from component...");
       await signInWithGoogle();
-      // Note: No redirect here as it's handled by the auth context when the session is updated
+      // Note: No redirect here as it's handled by the redirectTo option in signInWithGoogle
     } catch (error) {
       console.error("Google sign-in error in component:", error);
       toast.error("Failed to sign in with Google. Please try again later.");
