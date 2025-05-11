@@ -6,8 +6,8 @@ import { Check } from 'lucide-react';
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative h-[80vh] flex items-center bg-white -mt-16">
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-32 flex flex-col items-center text-center">
+    <div className="relative h-[70vh] flex items-center bg-white -mt-16">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-28 flex flex-col items-center text-center">
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight animate-fade-in text-pr-dark">
           Master the Art of Public Relations
         </h1>
