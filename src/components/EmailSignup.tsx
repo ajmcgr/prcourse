@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
 import { AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const EmailSignup: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -98,7 +99,8 @@ const EmailSignup: React.FC = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await useAuth().supabase.auth.resetPasswordForEmail(email, {
+      // Using supabase directly since we don't have this method in our auth context
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/course/introduction`,
       });
       
