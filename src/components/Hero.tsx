@@ -6,7 +6,7 @@ import { Check } from 'lucide-react';
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative h-[60vh] flex items-center bg-white -mt-16">
+    <div className="relative h-[60vh] flex items-center bg-white -mt-16 pb-4"> {/* Added pb-4 to reduce bottom padding */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 flex flex-col items-center text-center">
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight animate-fade-in text-pr-dark">
           Master the Art of Public Relations
