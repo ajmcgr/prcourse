@@ -9,7 +9,7 @@ const Hero: React.FC = () => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="relative h-auto md:h-[75vh] flex items-center bg-white -mt-16 pb-12 pt-32 md:pt-20"> 
+    <div className="relative h-auto md:h-[75vh] flex items-center bg-white -mt-16 pt-32 md:pt-20"> 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-28 flex flex-col items-center text-center">
         <p className="text-xs md:text-sm tracking-normal font-medium text-gray-600 mb-4 animate-fade-in">
           Made for PR & social media pros, agencies and freelancers
