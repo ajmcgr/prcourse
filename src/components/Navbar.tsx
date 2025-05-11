@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -32,14 +33,17 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Determine navbar background classes based on scroll state and page
+  // Determine navbar background classes based on scroll state, page, and user login status
   const navbarClasses = () => {
+    // Add border for logged-in users (except on homepage when not scrolled)
+    const borderClass = user && (!isHomePage || scrolled) ? "border-b border-[#e5e7eb]" : "";
+    
     if (isHomePage) {
       return scrolled
-        ? "bg-white shadow-sm transition-all duration-300 sticky top-0 z-50"
-        : "bg-transparent transition-all duration-300 sticky top-0 z-50";
+        ? `bg-white shadow-sm transition-all duration-300 sticky top-0 z-50 ${borderClass}`
+        : `bg-transparent transition-all duration-300 sticky top-0 z-50 ${borderClass}`;
     }
-    return "bg-background sticky top-0 z-50";
+    return `bg-background sticky top-0 z-50 ${borderClass}`;
   };
   
   // Always set text color to black
