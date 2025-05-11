@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -38,7 +37,9 @@ PaginationItem.displayName = "PaginationItem"
 
 type PaginationLinkProps = {
   isActive?: boolean
-  as?: any
+  as?: React.ElementType
+  href?: string
+  to?: string
 } & Pick<ButtonProps, "size"> &
   React.ComponentProps<"a">
 
@@ -47,12 +48,16 @@ const PaginationLink = ({
   isActive,
   size = "icon",
   as: Comp = "a",
+  href,
+  to,
   ...props
 }: PaginationLinkProps) => {
-  const Element = Comp === Link ? Link : "a";
+  // If Comp is Link from react-router-dom, use "to" prop
+  // Otherwise use "href" prop for regular anchor elements
+  const linkProps = Comp === Link ? { to: to || href } : { href };
   
   return (
-    <Element
+    <Comp
       aria-current={isActive ? "page" : undefined}
       className={cn(
         buttonVariants({
@@ -61,10 +66,11 @@ const PaginationLink = ({
         }),
         className
       )}
+      {...linkProps}
       {...props}
     />
-  )
-}
+  );
+};
 PaginationLink.displayName = "PaginationLink"
 
 const PaginationPrevious = ({
