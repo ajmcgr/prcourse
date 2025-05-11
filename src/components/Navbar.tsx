@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,7 @@ import { Menu, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getFirstLesson } from '@/utils/course-data';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -54,8 +54,14 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className={`text-lg md:text-2xl font-bold truncate ${textColorClass}`}>
-              {isMobile ? "PR Masterclass" : "Alex MacGregor's PR Masterclass"}
+            <Link to="/" className="flex items-center">
+              <Avatar className="h-8 w-8 mr-2">
+                <AvatarImage src="https://prcourse.alexmacgregor.com/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" alt="Alex MacGregor" />
+                <AvatarFallback>AM</AvatarFallback>
+              </Avatar>
+              <span className={`text-lg md:text-2xl font-bold truncate ${textColorClass}`}>
+                {isMobile ? "PR Masterclass" : "Alex MacGregor's PR Masterclass"}
+              </span>
             </Link>
           </div>
           
