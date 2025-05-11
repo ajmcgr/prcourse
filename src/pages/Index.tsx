@@ -17,8 +17,8 @@ const Index = () => {
       <Hero />
       
       {/* PR Skills Image Section */}
-      <div className="w-full mt-2"> {/* Changed from -mt-6 to mt-2 for small positive spacing */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      <div className="w-full mt-2 px-4 sm:px-6"> {/* Added horizontal padding for mobile */}
+        <div className="max-w-5xl mx-auto">
           <img 
             src="/lovable-uploads/f0847da8-f9ce-4357-bf49-d1d6a7bed030.png" 
             alt="Things That Make a Great PR Person" 

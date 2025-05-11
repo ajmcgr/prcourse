@@ -11,12 +11,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Menu, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const isHomePage = location.pathname === '/';
+  const isMobile = useIsMobile();
   
   // Handle scroll event
   useEffect(() => {
@@ -47,8 +49,8 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className={`text-2xl font-bold ${textColorClass}`}>
-              Alex MacGregor's PR Masterclass
+            <Link to="/" className={`text-lg md:text-2xl font-bold truncate ${textColorClass}`}>
+              {isMobile ? "PR Masterclass" : "Alex MacGregor's PR Masterclass"}
             </Link>
           </div>
           
@@ -61,18 +63,18 @@ const Navbar: React.FC = () => {
                   <span className="sr-only">Menu</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-screen max-w-[250px] mr-2 bg-white">
                 <DropdownMenuItem asChild>
-                  <Link to="/">Home</Link>
+                  <Link to="/" className="w-full px-4 py-2">Home</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/coursecontent">Course Content</Link>
+                  <Link to="/coursecontent" className="w-full px-4 py-2">Course Content</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/pricing">Pricing</Link>
+                  <Link to="/pricing" className="w-full px-4 py-2">Pricing</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/signup">Login</Link>
+                  <Link to="/signup" className="w-full px-4 py-2">Login</Link>
                 </DropdownMenuItem>
                 {user ? (
                   <>
@@ -89,6 +91,7 @@ const Navbar: React.FC = () => {
             </DropdownMenu>
           </div>
           
+          {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-2">
             <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
               Course Content
