@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,7 @@ const EmailSignup: React.FC = () => {
   const location = useLocation();
   const { signInWithEmail, signUp, signInWithGoogle, user } = useAuth();
 
-  const from = location.state?.from?.pathname || '/content';
+  const from = location.state?.from?.pathname || '/course/introduction';
 
   // Redirect if already logged in
   useEffect(() => {
@@ -54,7 +55,7 @@ const EmailSignup: React.FC = () => {
         await signUp(email, password, name);
       } else {
         await signInWithEmail(email, password);
-        navigate(from);
+        navigate('/course/introduction');
       }
     } finally {
       setIsLoading(false);

@@ -49,6 +49,13 @@ const CourseLesson = () => {
     );
   }
 
+  // Extract video ID from video URL for proper embedding
+  const getVimeoEmbedUrl = (url: string) => {
+    // Extract the Vimeo ID from the URL
+    const vimeoId = url.split('/').pop();
+    return `https://player.vimeo.com/video/${vimeoId}`;
+  };
+
   return (
     <div className="px-6 py-8">
       {lesson && chapter && (
@@ -60,7 +67,7 @@ const CourseLesson = () => {
           
           <div className="aspect-video mb-8 bg-black rounded-lg overflow-hidden">
             <iframe
-              src={`${lesson.videoUrl}/embed`}
+              src={getVimeoEmbedUrl(lesson.videoUrl)}
               className="w-full h-full"
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture"
@@ -79,13 +86,19 @@ const CourseLesson = () => {
             <PaginationContent>
               {previousLesson && (
                 <PaginationItem>
-                  <PaginationPrevious href={`/course/${previousLesson.lesson.slug}`} />
+                  <PaginationPrevious 
+                    as={Link} 
+                    to={`/course/${previousLesson.lesson.slug}`} 
+                  />
                 </PaginationItem>
               )}
               
               {nextLesson && (
                 <PaginationItem>
-                  <PaginationNext href={`/course/${nextLesson.lesson.slug}`} />
+                  <PaginationNext 
+                    as={Link} 
+                    to={`/course/${nextLesson.lesson.slug}`} 
+                  />
                 </PaginationItem>
               )}
             </PaginationContent>
