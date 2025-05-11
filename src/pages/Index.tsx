@@ -20,7 +20,7 @@ const Index = () => {
       <div className="w-full bg-white py-2">
         <div className="max-w-5xl mx-auto px-4">
           <img 
-            src="/lovable-uploads/2a12047c-9dd9-42af-9de3-3991f6e7ae70.png" 
+            src="/lovable-uploads/b8bde38e-9849-4784-ab6d-6e57e0caca4a.png" 
             alt="Things That Make a Great PR Person" 
             className="w-full rounded-lg shadow-md"
           />
