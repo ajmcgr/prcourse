@@ -17,7 +17,7 @@ const Index = () => {
       <Hero />
       
       {/* PR Skills Image Section - Reduced spacing above and below */}
-      <div className="w-full -mt-8 px-4 sm:px-6"> {/* Changed -mt-4 to -mt-8 to move it up further */}
+      <div className="w-full -mt-4 px-4 sm:px-6"> {/* Changed mt-0 to -mt-4 to move it up */}
         <div className="max-w-5xl mx-auto">
           <img 
             src="/lovable-uploads/f0847da8-f9ce-4357-bf49-d1d6a7bed030.png" 
@@ -27,7 +27,7 @@ const Index = () => {
         </div>
       </div>
       
-      <div className="py-8"></div> {/* Keeping the same py-8 for bottom spacing */}
+      <div className="py-8"></div> {/* Reduced from py-16 to py-8 to decrease spacing below */}
       
       <LetterSection />
       <CourseFeatures />
