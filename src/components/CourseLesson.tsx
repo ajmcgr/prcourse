@@ -19,7 +19,7 @@ const CourseLesson = () => {
   const { slug } = useParams<{ slug?: string }>();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, state } = useSidebar();
   
   useEffect(() => {
     if (!loading && !user) {
@@ -68,7 +68,7 @@ const CourseLesson = () => {
         className="mb-6 hidden md:flex items-center gap-2"
       >
         <Menu className="h-4 w-4" />
-        <span>Hide Menu</span>
+        <span>{state.open ? "Hide Menu" : "Show Menu"}</span>
       </Button>
 
       {lesson && chapter && (
