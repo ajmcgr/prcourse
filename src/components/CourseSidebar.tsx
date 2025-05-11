@@ -18,7 +18,7 @@ import { courseData } from '@/utils/course-data';
 
 const CourseSidebar: React.FC = () => {
   const location = useLocation();
-  const [openChapters, setOpenChapters] = useState<string[]>(["chapter-1"]);
+  const [openChapters, setOpenChapters] = useState<string[]>(["chapter-0"]);
 
   const toggleChapter = (chapterId: string) => {
     setOpenChapters(current => 

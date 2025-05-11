@@ -1,8 +1,18 @@
 
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getLessonBySlug, getFirstLesson } from '@/utils/course-data';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '@/components/ui/pagination';
 
 const CourseLesson = () => {
   const { slug } = useParams<{ slug?: string }>();
@@ -24,6 +34,7 @@ const CourseLesson = () => {
   }, [slug, navigate, user]);
 
   const { lesson, chapter } = slug ? getLessonBySlug(slug) : { lesson: null, chapter: null };
+  const { previousLesson, nextLesson } = slug ? getAdjacentLessons(slug) : { previousLesson: null, nextLesson: null };
 
   if (loading) {
     return <div className="flex justify-center items-center h-[60vh]">Loading...</div>;
@@ -58,10 +69,33 @@ const CourseLesson = () => {
             ></iframe>
           </div>
           
-          <div className="prose max-w-none">
+          <div className="prose max-w-none mb-8">
             <h2>About This Lesson</h2>
             <p>This is part of Alex MacGregor's PR Masterclass. Watch this video to learn more about "{lesson.title}" within the "{chapter.title}" chapter.</p>
           </div>
+          
+          {/* Navigation controls */}
+          <Pagination className="mt-8">
+            <PaginationContent>
+              {previousLesson && (
+                <PaginationItem>
+                  <PaginationPrevious
+                    as={Link}
+                    to={`/course/${previousLesson.lesson.slug}`}
+                  />
+                </PaginationItem>
+              )}
+              
+              {nextLesson && (
+                <PaginationItem>
+                  <PaginationNext
+                    as={Link}
+                    to={`/course/${nextLesson.lesson.slug}`}
+                  />
+                </PaginationItem>
+              )}
+            </PaginationContent>
+          </Pagination>
         </>
       )}
     </div>

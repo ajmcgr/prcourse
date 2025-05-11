@@ -1,4 +1,3 @@
-
 export interface VideoLesson {
   id: string;
   title: string;
@@ -13,6 +12,18 @@ export interface CourseChapter {
 }
 
 export const courseData: CourseChapter[] = [
+  {
+    id: "chapter-0",
+    title: "Full Course",
+    lessons: [
+      {
+        id: "0-1",
+        title: "Alex MacGregor's PR Masterclass (Full Video)",
+        videoUrl: "https://vimeo.com/1083286083",
+        slug: "full-course"
+      }
+    ]
+  },
   {
     id: "chapter-1",
     title: "Introduction",
@@ -470,4 +481,41 @@ export const getFirstLesson = (): { lesson: VideoLesson; chapter: CourseChapter 
     lesson: courseData[0].lessons[0],
     chapter: courseData[0]
   };
+};
+
+// Helper function to get next and previous lessons
+export const getAdjacentLessons = (
+  currentSlug: string
+): { 
+  previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
+  nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
+} => {
+  let previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
+  let nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
+  let foundCurrent = false;
+  
+  // Create a flat list of all lessons
+  const allLessons: Array<{ lesson: VideoLesson; chapter: CourseChapter }> = [];
+  
+  courseData.forEach(chapter => {
+    chapter.lessons.forEach(lesson => {
+      allLessons.push({ lesson, chapter });
+    });
+  });
+  
+  // Find the current, previous and next lessons
+  for (let i = 0; i < allLessons.length; i++) {
+    if (allLessons[i].lesson.slug === currentSlug) {
+      foundCurrent = true;
+      if (i > 0) {
+        previousLesson = allLessons[i - 1];
+      }
+      if (i < allLessons.length - 1) {
+        nextLesson = allLessons[i + 1];
+      }
+      break;
+    }
+  }
+  
+  return { previousLesson, nextLesson };
 };
