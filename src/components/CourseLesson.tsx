@@ -68,7 +68,7 @@ const CourseLesson = () => {
         className="mb-6 hidden md:flex items-center gap-2"
       >
         <Menu className="h-4 w-4" />
-        <span>Curriculum</span>
+        <span>Hide Menu</span>
       </Button>
 
       {lesson && chapter && (
