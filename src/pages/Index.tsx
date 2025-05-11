@@ -17,9 +17,7 @@ const Index = () => {
       <Hero />
       <LetterSection />
       <CourseFeatures />
-      <div id="course-content" className="scroll-mt-16">
-        <CourseContentTable />
-      </div>
+      <CourseContentTable />
       <Testimonials />
       <FAQ />
       <CallToAction />
