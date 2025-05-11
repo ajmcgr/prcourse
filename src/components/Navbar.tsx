@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -138,7 +137,7 @@ const Navbar: React.FC = () => {
                   <Link to="/signup">Login</Link>
                 </Button>
                 <Button variant="default" className="bg-black hover:bg-black/90">
-                  <Link to="/signup">Access Course</Link>
+                  <Link to="/signup">Order Now</Link>
                 </Button>
               </>
             )}

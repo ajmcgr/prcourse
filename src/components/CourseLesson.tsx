@@ -79,19 +79,13 @@ const CourseLesson = () => {
             <PaginationContent>
               {previousLesson && (
                 <PaginationItem>
-                  <PaginationPrevious
-                    as={Link}
-                    to={`/course/${previousLesson.lesson.slug}`}
-                  />
+                  <PaginationPrevious href={`/course/${previousLesson.lesson.slug}`} />
                 </PaginationItem>
               )}
               
               {nextLesson && (
                 <PaginationItem>
-                  <PaginationNext
-                    as={Link}
-                    to={`/course/${nextLesson.lesson.slug}`}
-                  />
+                  <PaginationNext href={`/course/${nextLesson.lesson.slug}`} />
                 </PaginationItem>
               )}
             </PaginationContent>
