@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
+import { AlertCircle } from 'lucide-react';
 
 const EmailSignup: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,8 @@ const EmailSignup: React.FC = () => {
   const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithEmail, signUp, signInWithGoogle, user } = useAuth();
@@ -82,6 +85,116 @@ const EmailSignup: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!email || !email.includes('@')) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const { error } = await useAuth().supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/course/introduction`,
+      });
+      
+      if (error) throw error;
+      
+      setResetEmailSent(true);
+      toast.success("Password reset email sent. Check your inbox.");
+    } catch (error: any) {
+      console.error("Password reset error:", error);
+      toast.error(error.message || "Failed to send password reset email");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (resetEmailSent) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-sans text-center">
+            Check Your Email
+          </CardTitle>
+          <CardDescription className="text-center">
+            We've sent a password reset link to {email}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="p-4 bg-blue-50 rounded-md flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-blue-500" />
+            <p className="text-sm text-blue-700">
+              If you don't see the email in your inbox, check your spam folder.
+            </p>
+          </div>
+          <Button 
+            className="w-full"
+            onClick={() => {
+              setIsResetPassword(false);
+              setResetEmailSent(false);
+            }}
+          >
+            Back to Login
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isResetPassword) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-sans text-center">
+            Reset Password
+          </CardTitle>
+          <CardDescription className="text-center">
+            Enter your email address and we'll send you a link to reset your password
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <form onSubmit={handleResetPassword}>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <label htmlFor="email" className="text-sm font-medium">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <Button className="w-full bg-black hover:bg-black/90 text-white" type="submit" disabled={isLoading}>
+                {isLoading ? "Processing..." : "Send Reset Link"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter className="text-center text-sm">
+          <div className="w-full text-center">
+            <Button 
+              type="button" 
+              variant="link" 
+              onClick={() => setIsResetPassword(false)}
+              disabled={isLoading}
+            >
+              Back to login
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -163,6 +276,23 @@ const EmailSignup: React.FC = () => {
                 disabled={isLoading}
               />
             </div>
+            
+            {!isSignUp && (
+              <div className="flex justify-end">
+                <Button 
+                  variant="link" 
+                  className="p-0 h-auto text-sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsResetPassword(true);
+                  }}
+                  disabled={isLoading}
+                >
+                  Forgot password?
+                </Button>
+              </div>
+            )}
+            
             <Button className="w-full bg-black hover:bg-black/90 text-white" type="submit" disabled={isLoading}>
               {isLoading ? "Processing..." : isSignUp ? "Create Account" : "Sign In"}
             </Button>
