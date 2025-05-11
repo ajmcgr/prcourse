@@ -27,7 +27,9 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Added mb-8 margin to LetterSection container instead of using a separate div */}
+      {/* Adding margin-top (mb-8) to create space between the image and letter section */}
+      <div className="mb-8"></div>
+      
       <LetterSection />
       <CourseFeatures />
       <CourseContentTable />
