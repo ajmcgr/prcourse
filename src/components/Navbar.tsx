@@ -137,7 +137,7 @@ const Navbar: React.FC = () => {
               </DropdownMenu>
             ) : (
               <>
-                <Link to="/signup" className={`px-3 py-2 text-sm font-medium hover:opacity-80 text-[#409EFF]`}>
+                <Link to="/signup" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
                   Login
                 </Link>
                 <Button variant="default" className="bg-[#409EFF] hover:bg-[#409EFF]/90">
