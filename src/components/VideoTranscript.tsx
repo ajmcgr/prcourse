@@ -8,7 +8,8 @@ interface VideoTranscriptProps {
 }
 
 const VideoTranscript: React.FC<VideoTranscriptProps> = ({ transcript }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Change the initial state to true so the transcript is expanded by default
+  const [isExpanded, setIsExpanded] = useState(true);
   
   // Add console log for debugging
   console.log('VideoTranscript received transcript:', transcript);
