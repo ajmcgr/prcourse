@@ -27,6 +27,8 @@ const Index = () => {
         </div>
       </div>
       
+      <div className="py-8"></div> {/* Added spacing div between image and letter section */}
+      
       <LetterSection />
       <CourseFeatures />
       <CourseContentTable />
