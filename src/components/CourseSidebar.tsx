@@ -10,14 +10,19 @@ import {
   SidebarMenuButton,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarGroupContent
+  SidebarGroupContent,
+  useSidebar
 } from './ui/sidebar';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { courseData } from '@/utils/course-data';
+import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
+import { Toggle } from './ui/toggle';
 
 const CourseSidebar: React.FC = () => {
   const location = useLocation();
+  const { toggleSidebar, state } = useSidebar();
+  
   // Initialize with all chapters open by default
   const [openChapters, setOpenChapters] = useState<string[]>(
     courseData.map(chapter => chapter.id)
@@ -38,7 +43,19 @@ const CourseSidebar: React.FC = () => {
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarHeader className="border-b pb-2">
-        <h2 className="text-lg font-bold px-4">Course Content</h2>
+        <div className="flex justify-between items-center px-4">
+          <h2 className="text-lg font-bold">Course Content</h2>
+          <Toggle 
+            variant="outline" 
+            size="sm" 
+            aria-label="Toggle sidebar" 
+            pressed={state === "collapsed"}
+            onPressedChange={toggleSidebar}
+            className="ml-2"
+          >
+            {state === "collapsed" ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </Toggle>
+        </div>
       </SidebarHeader>
       <SidebarContent>
         {courseData.map((chapter) => (

@@ -20,7 +20,7 @@ const CourseLayout = () => {
       <Navbar />
       
       <main className="flex-grow">
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={true}>
           <div className="flex w-full">
             <CourseSidebar />
             <div className="flex-1 p-6">
