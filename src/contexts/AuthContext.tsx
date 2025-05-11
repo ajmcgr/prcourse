@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log("Auth state changed:", event);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
@@ -81,17 +82,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signInWithGoogle = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log("Initializing Google sign in...");
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         },
       });
       
       if (error) throw error;
+      console.log("Google sign in initiated:", data);
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in with Google");
       console.error("Google sign in error:", error);
+      toast.error(error.message || "Failed to sign in with Google");
+      throw error; // Re-throw to handle in component
     }
   };
 
