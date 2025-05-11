@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
@@ -58,6 +59,12 @@ const CourseLesson = () => {
     return `https://player.vimeo.com/video/${vimeoId}`;
   };
 
+  // Add a console.log to debug the issue
+  console.log('Lesson data:', lesson);
+  if (lesson) {
+    console.log('Lesson transcript:', lesson.transcript);
+  }
+
   return (
     <div className="px-8 py-10">
       {lesson && chapter && (
@@ -84,7 +91,7 @@ const CourseLesson = () => {
           </div>
           
           {/* Add the transcript component */}
-          <VideoTranscript transcript={lesson.transcript || null} />
+          <VideoTranscript transcript={lesson.transcript} />
           
           {/* Navigation controls */}
           <Pagination className="mt-10">

@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface VideoTranscriptProps {
-  transcript: string | null;
+  transcript?: string | null;
 }
 
 const VideoTranscript: React.FC<VideoTranscriptProps> = ({ transcript }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Add console log for debugging
+  console.log('VideoTranscript received transcript:', transcript);
 
   if (!transcript) {
     return (
