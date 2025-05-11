@@ -13,6 +13,7 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
+import VideoTranscript from './VideoTranscript';
 
 const CourseLesson = () => {
   const { slug } = useParams<{ slug?: string }>();
@@ -59,8 +60,6 @@ const CourseLesson = () => {
 
   return (
     <div className="px-8 py-10">
-      {/* Hide Menu button removed */}
-
       {lesson && chapter && (
         <>
           <div className="mb-8">
@@ -83,6 +82,9 @@ const CourseLesson = () => {
             <h2>About This Lesson</h2>
             <p>This is part of Alex MacGregor's PR Masterclass. Watch this video to learn more about "{lesson.title}" within the "{chapter.title}" chapter.</p>
           </div>
+          
+          {/* Add the transcript component */}
+          <VideoTranscript transcript={lesson.transcript || null} />
           
           {/* Navigation controls */}
           <Pagination className="mt-10">

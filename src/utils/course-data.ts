@@ -3,6 +3,7 @@ export interface VideoLesson {
   title: string;
   videoUrl: string;
   slug: string;
+  transcript?: string;
 }
 
 export interface CourseChapter {
@@ -20,7 +21,8 @@ export const courseData: CourseChapter[] = [
         id: "0-1",
         title: "Alex MacGregor's PR Masterclass (Full Video)",
         videoUrl: "https://vimeo.com/1083286083",
-        slug: "full-course"
+        slug: "full-course",
+        transcript: "Welcome to Alex MacGregor's PR Masterclass. In this comprehensive video, I'll cover everything you need to know about modern public relations strategies from start to finish."
       }
     ]
   },
