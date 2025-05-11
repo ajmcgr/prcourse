@@ -16,8 +16,8 @@ const Index = () => {
       <Navbar />
       <Hero />
       
-      {/* Further reduced padding on the image section to 2em (32px) */}
-      <div className="w-full bg-white py-8">
+      {/* Minimal padding - 2em (32px) as requested */}
+      <div className="w-full bg-white py-2">
         <div className="max-w-5xl mx-auto px-4">
           <img 
             src="/lovable-uploads/2a12047c-9dd9-42af-9de3-3991f6e7ae70.png" 
