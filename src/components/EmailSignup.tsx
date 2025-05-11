@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,22 +15,33 @@ const EmailSignup: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { signInWithEmail, signUp, signInWithGoogle } = useAuth();
+  const { signInWithEmail, signUp, signInWithGoogle, user } = useAuth();
 
   const from = location.state?.from?.pathname || '/content';
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate(from);
+    }
+  }, [user, navigate, from]);
 
   const handleGoogleSignIn = async (e: React.MouseEvent) => {
     e.preventDefault();
     try {
       setIsLoading(true);
-      console.log("Starting Google sign in process...");
+      console.log("Starting Google sign in process from component...");
       await signInWithGoogle();
       // Note: No redirect here as it's handled by the auth context when the session is updated
     } catch (error) {
-      console.error("Google sign-in error:", error);
+      console.error("Google sign-in error in component:", error);
       toast.error("Failed to sign in with Google. Please try again later.");
     } finally {
-      setIsLoading(false);
+      // Keep loading state active as we're being redirected
+      // The loading state will be reset if there's an error
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 10000); // Reset loading after 10 seconds if redirect doesn't happen
     }
   };
 

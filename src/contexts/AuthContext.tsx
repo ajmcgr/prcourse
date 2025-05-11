@@ -83,14 +83,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithGoogle = async () => {
     try {
       console.log("Initializing Google sign in...");
+      
+      // Clear any previous auth errors that might be cached
+      localStorage.removeItem('supabase.auth.error');
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: `${window.location.origin}/content`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          }
+          },
         },
       });
       
