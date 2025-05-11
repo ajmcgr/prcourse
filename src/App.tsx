@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Index from "./pages/Index";
 import About from "./pages/About";
@@ -17,7 +17,6 @@ import ContentDetailPage from "./pages/ContentDetailPage";
 import NotFound from "./pages/NotFound";
 import CourseLayout from "./pages/CourseLayout";
 import CourseLesson from "./components/CourseLesson";
-import AuthGuard from "./utils/auth-guard";
 import { AuthProvider } from "./contexts/AuthContext";
 
 // Create a client
@@ -39,24 +38,12 @@ const App: React.FC = () => {
               <Route path="/payment-success" element={<PaymentSuccessPage />} />
               <Route path="/coursecontent" element={<CourseContent />} />
               
-              {/* Protected routes that require payment */}
-              <Route path="/content" element={
-                <AuthGuard>
-                  <ContentLibrary />
-                </AuthGuard>
-              } />
-              <Route path="/content/:slug" element={
-                <AuthGuard>
-                  <ContentDetailPage />
-                </AuthGuard>
-              } />
+              {/* Protected routes that require authentication */}
+              <Route path="/content" element={<ContentLibrary />} />
+              <Route path="/content/:slug" element={<ContentDetailPage />} />
               
               {/* Course routes */}
-              <Route path="/course" element={
-                <AuthGuard>
-                  <CourseLayout />
-                </AuthGuard>
-              }>
+              <Route path="/course" element={<CourseLayout />}>
                 <Route index element={<CourseLesson />} />
                 <Route path=":slug" element={<CourseLesson />} />
               </Route>
