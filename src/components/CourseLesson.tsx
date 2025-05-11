@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
@@ -60,16 +59,7 @@ const CourseLesson = () => {
 
   return (
     <div className="px-8 py-10">
-      {/* Desktop Sidebar Toggle */}
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={toggleSidebar} 
-        className="mb-6 hidden md:flex items-center gap-2"
-      >
-        <Menu className="h-4 w-4" />
-        <span>{state === "expanded" ? "Hide Menu" : "Show Menu"}</span>
-      </Button>
+      {/* Hide Menu button removed */}
 
       {lesson && chapter && (
         <>
