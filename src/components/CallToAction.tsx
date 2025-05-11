@@ -9,7 +9,7 @@ const CallToAction: React.FC = () => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="bg-gray-100 py-12 md:py-16 px-4">
+    <div className="bg-background py-12 md:py-16 px-4">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-2xl md:text-4xl font-bold mb-4">Ready to Master Public Relations?</h2>
         <p className="text-base md:text-xl mb-6 md:mb-8 text-gray-700">
