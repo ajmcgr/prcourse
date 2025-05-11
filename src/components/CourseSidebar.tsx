@@ -67,17 +67,17 @@ const CourseSidebar: React.FC = () => {
                 onOpenChange={() => toggleChapter(chapter.id)}
                 className="w-full"
               >
-                <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-2 hover:bg-sidebar-accent rounded-md">
-                  <SidebarGroupLabel asChild className="text-base font-medium m-0 p-0">
+                <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-1.5 hover:bg-sidebar-accent rounded-md text-sm">
+                  <SidebarGroupLabel asChild className="text-sm font-medium m-0 p-0 leading-tight">
                     <span>
                       {/* Add chapter number before the title */}
                       {chapter.id === "chapter-0" ? "Full Course" : `${index}. ${chapter.title}`}
                     </span>
                   </SidebarGroupLabel>
                   {openChapters.includes(chapter.id) ? (
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronUp className="h-3.5 w-3.5" />
                   ) : (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-3.5 w-3.5" />
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent>
@@ -89,6 +89,7 @@ const CourseSidebar: React.FC = () => {
                             isActive={isLessonActive(lesson.slug)}
                             asChild
                             tooltip={lesson.title}
+                            className="text-xs py-1 leading-tight"
                           >
                             <Link to={`/course/${lesson.slug}`}>
                               <span>{lesson.title}</span>
