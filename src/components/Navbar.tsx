@@ -137,10 +137,10 @@ const Navbar: React.FC = () => {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="outline" className="bg-transparent text-black hover:text-black hover:bg-white/90 border-black">
-                  <Link to="/signup">Login</Link>
-                </Button>
-                <Button variant="default" className="bg-black hover:bg-black/90">
+                <Link to="/signup" className={`px-3 py-2 text-sm font-medium hover:opacity-80 text-[#409EFF]`}>
+                  Login
+                </Link>
+                <Button variant="default" className="bg-[#409EFF] hover:bg-[#409EFF]/90">
                   <Link to="/signup">Order Now</Link>
                 </Button>
               </>
