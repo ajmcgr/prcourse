@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const BEEHIIV_API_KEY = Deno.env.get("BEEHIIV_API_KEY");
-const PUBLICATION_ID = Deno.env.get("BEEHIIV_PUBLICATION_ID") || "pub_ee24f8d1-893c-4850-a0fc-67fd1f9d4e06"; 
+const PUBLICATION_ID = Deno.env.get("BEEHIIV_PUBLICATION_ID") || "b92dabcc-1263-44de-a248-69ea4b8fc02f"; 
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -38,8 +38,10 @@ serve(async (req) => {
 
     console.log(`Adding subscriber to beehiiv: ${email}`);
 
-    // Only proceed with beehiiv call if we have an API key
-    if (!BEEHIIV_API_KEY) {
+    // Use the provided API key or fall back to environment variable
+    const apiKey = BEEHIIV_API_KEY || "uk1wuNsqbSwS6Q7ZiU2KuLaJgBMJVGnHxpQ5DLQy5dF4BMPwDeXYzpQSG9iLY5TP";
+    
+    if (!apiKey) {
       console.log("No BEEHIIV_API_KEY provided, skipping beehiiv subscription");
       return new Response(
         JSON.stringify({ 
@@ -61,7 +63,7 @@ serve(async (req) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${BEEHIIV_API_KEY}`,
+            "Authorization": `Bearer ${apiKey}`,
           },
           body: JSON.stringify({
             email: email,
@@ -74,6 +76,7 @@ serve(async (req) => {
       );
 
       const responseData = await response.json();
+      console.log("Beehiiv API response:", JSON.stringify(responseData));
 
       if (!response.ok) {
         console.error("beehiiv API error:", responseData);
