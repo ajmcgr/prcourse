@@ -121,25 +121,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Add user to beehiiv audience when they sign up - separated from signUp to avoid blocking
-  const addToBeehiivAudience = async (email: string, name: string) => {
-    try {
-      console.log("Attempting to add to beehiiv audience:", email);
-      const { data, error } = await supabase.functions.invoke('beehiiv-subscribe', {
-        body: { email, name }
-      });
-
-      if (error) {
-        console.error("Error subscribing to beehiiv:", error);
-      } else {
-        console.log("Successfully subscribed to beehiiv audience:", data);
-      }
-    } catch (error) {
-      console.error("Error calling beehiiv-subscribe function:", error);
-      // Don't throw - we don't want this to block signup
-    }
-  };
-
   const signUp = async (email: string, password: string, name: string) => {
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -154,11 +135,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (error) throw error;
-      
-      // Subscribe to beehiiv audience in the background - don't await or block signup flow
-      addToBeehiivAudience(email, name).catch(err => {
-        console.error("Failed to subscribe to newsletter but continuing signup:", err);
-      });
       
       // Check if email confirmation is enabled
       if (data.session) {

@@ -6,6 +6,7 @@
   max-width: none;
   padding: 0;
   overflow-x: hidden; /* Prevent horizontal scrolling */
+  background-color: #F2F2F9; /* Added background color */
 }
 
 .logo {

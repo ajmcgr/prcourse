@@ -23,7 +23,7 @@ export default {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
-				background: '#ffffff', // Changed from #f5f5f5 to white
+				background: '#F2F2F9', // Changed to solid color #F2F2F9
 				foreground: '#1c1c1c',
 				primary: {
 					DEFAULT: '#1c1c1c',
@@ -67,7 +67,7 @@ export default {
 					dark: '#1c1c1c',
 					main: '#1c1c1c',
 					light: '#4a4a4a',
-					accent: '#f5f5f5',
+					accent: '#F2F2F9', // Changed to match the background
 				}
 			},
 			borderRadius: {

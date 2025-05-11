@@ -19,11 +19,11 @@ const ContentLibrary = () => {
   }, [filter]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       
       <main className="flex-grow">
-        <div className="bg-white border-b text-pr-dark py-16">
+        <div className="bg-background border-b text-pr-dark py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Course Content Library</h1>
             <p className="text-xl max-w-3xl">
