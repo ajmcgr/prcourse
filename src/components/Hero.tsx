@@ -11,6 +11,9 @@ const Hero: React.FC = () => {
   return (
     <div className="relative h-auto md:h-[50vh] flex items-center bg-white -mt-16 pb-2 pt-20 md:pt-0"> 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:pt-24 flex flex-col items-center text-center">
+        <p className="text-sm md:text-base lg:text-lg uppercase tracking-wider font-medium text-gray-600 mb-2 animate-fade-in">
+          Made for PR & Social Media pro's, Agencies and Freelancers
+        </p>
         <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold leading-tight animate-fade-in text-pr-dark">
           Master the Art of Public Relations
         </h1>
