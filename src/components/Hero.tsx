@@ -9,20 +9,20 @@ const Hero: React.FC = () => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="relative h-auto md:h-[50vh] flex items-center bg-white -mt-16 pb-2 pt-24 md:pt-8"> 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:pt-24 flex flex-col items-center text-center">
-        <p className="text-xs md:text-sm tracking-normal font-medium text-gray-600 mb-3 animate-fade-in">
+    <div className="relative h-auto md:h-[50vh] flex items-center bg-white -mt-16 pb-8 pt-28 md:pt-16"> 
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:pt-28 flex flex-col items-center text-center">
+        <p className="text-xs md:text-sm tracking-normal font-medium text-gray-600 mb-5 animate-fade-in">
           Made for PR & social media pros, agencies and freelancers
         </p>
         <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold leading-tight animate-fade-in text-pr-dark">
           Master the Art of Public Relations
         </h1>
-        <p className="mt-3 md:mt-4 text-lg md:text-xl lg:text-2xl max-w-3xl animate-fade-in text-gray-700" style={{animationDelay: '0.2s'}}>
+        <p className="mt-5 md:mt-6 text-lg md:text-xl lg:text-2xl max-w-3xl animate-fade-in text-gray-700" style={{animationDelay: '0.2s'}}>
           A comprehensive course from Alex MacGregor featuring essays and video lessons to elevate your PR strategy and execution.
         </p>
         
-        <div className="mt-6 md:mt-8 w-full animate-fade-in" style={{animationDelay: '0.4s'}}>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+        <div className="mt-8 md:mt-10 w-full animate-fade-in" style={{animationDelay: '0.4s'}}>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
             <Button size="lg" className="w-full md:w-auto bg-black hover:bg-black/90 text-white font-medium text-lg px-6 py-5 md:py-6">
               <Link to="/signup">Get Access Now for $99</Link>
             </Button>
@@ -35,7 +35,7 @@ const Hero: React.FC = () => {
         </div>
         
         {/* Secure access text row - Mobile optimized */}
-        <div className="flex justify-center mt-3 text-gray-700 animate-fade-in" style={{animationDelay: '0.5s'}}>
+        <div className="flex justify-center mt-6 text-gray-700 animate-fade-in" style={{animationDelay: '0.5s'}}>
           <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'flex-row items-center space-x-3'} text-sm md:text-base font-medium`}>
             <span className="flex items-center">
               <Check className="h-4 w-4 mr-1" />
