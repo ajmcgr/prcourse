@@ -42,7 +42,7 @@ const CourseLesson = () => {
 
   if (!lesson && !loading && user) {
     return (
-      <div className="px-6 py-8">
+      <div className="px-8 py-10">
         <h1 className="text-3xl font-bold mb-6">Lesson Not Found</h1>
         <p>The requested lesson could not be found. Please select another lesson from the menu.</p>
       </div>
@@ -57,15 +57,15 @@ const CourseLesson = () => {
   };
 
   return (
-    <div className="px-6 py-8">
+    <div className="px-8 py-10">
       {lesson && chapter && (
         <>
-          <div className="mb-6">
-            <div className="text-sm text-gray-500 mb-1">Chapter: {chapter.title}</div>
+          <div className="mb-8">
+            <div className="text-sm text-gray-500 mb-2">Chapter: {chapter.title}</div>
             <h1 className="text-3xl font-bold">{lesson.title}</h1>
           </div>
           
-          <div className="aspect-video mb-8 bg-black rounded-lg overflow-hidden">
+          <div className="aspect-video mb-10 bg-black rounded-lg overflow-hidden shadow-lg">
             <iframe
               src={getVimeoEmbedUrl(lesson.videoUrl)}
               className="w-full h-full"
@@ -76,13 +76,13 @@ const CourseLesson = () => {
             ></iframe>
           </div>
           
-          <div className="prose max-w-none mb-8">
+          <div className="prose max-w-none mb-10">
             <h2>About This Lesson</h2>
             <p>This is part of Alex MacGregor's PR Masterclass. Watch this video to learn more about "{lesson.title}" within the "{chapter.title}" chapter.</p>
           </div>
           
           {/* Navigation controls */}
-          <Pagination className="mt-8">
+          <Pagination className="mt-10">
             <PaginationContent>
               {previousLesson && (
                 <PaginationItem>
