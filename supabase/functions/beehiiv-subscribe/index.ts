@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const BEEHIIV_API_KEY = Deno.env.get("BEEHIIV_API_KEY");
-const PUBLICATION_ID = "pub_ee24f8d1-893c-4850-a0fc-67fd1f9d4e06"; // Default publication ID - update if different
+const PUBLICATION_ID = Deno.env.get("BEEHIIV_PUBLICATION_ID") || "pub_ee24f8d1-893c-4850-a0fc-67fd1f9d4e06"; 
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -38,51 +38,85 @@ serve(async (req) => {
 
     console.log(`Adding subscriber to beehiiv: ${email}`);
 
-    const response = await fetch(
-      `https://api.beehiiv.com/v2/publications/${PUBLICATION_ID}/subscriptions`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${BEEHIIV_API_KEY}`,
-        },
-        body: JSON.stringify({
-          email: email,
-          name: name || undefined,
-          utm_source: utm_source,
-          send_welcome_email: true,
-          reactivate_existing: false,
-        }),
-      }
-    );
-
-    const responseData = await response.json();
-
-    if (!response.ok) {
-      console.error("beehiiv API error:", responseData);
+    // Only proceed with beehiiv call if we have an API key
+    if (!BEEHIIV_API_KEY) {
+      console.log("No BEEHIIV_API_KEY provided, skipping beehiiv subscription");
       return new Response(
         JSON.stringify({ 
-          error: "Failed to subscribe to newsletter", 
-          details: responseData 
+          success: true, 
+          message: "Skipped beehiiv subscription due to missing API key",
         }),
         {
-          status: response.status,
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: "Successfully subscribed to newsletter",
-        data: responseData
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // Try calling the beehiiv API, but don't let it block signup if it fails
+    try {
+      const response = await fetch(
+        `https://api.beehiiv.com/v2/publications/${PUBLICATION_ID}/subscriptions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${BEEHIIV_API_KEY}`,
+          },
+          body: JSON.stringify({
+            email: email,
+            name: name || undefined,
+            utm_source: utm_source,
+            send_welcome_email: true,
+            reactivate_existing: false,
+          }),
+        }
+      );
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        console.error("beehiiv API error:", responseData);
+        // Return success anyway - we don't want this to block signup
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: "User signup successful, but beehiiv subscription failed",
+            beehiiv_error: responseData
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
-    );
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "Successfully subscribed to newsletter",
+          data: responseData
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    } catch (beehiivError) {
+      console.error("Error calling beehiiv API:", beehiivError);
+      // Return success anyway - we don't want this to block signup
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "User signup successful, but beehiiv subscription failed",
+          beehiiv_error: beehiivError.message
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
   } catch (error) {
     console.error("Error in beehiiv-subscribe function:", error);
     return new Response(

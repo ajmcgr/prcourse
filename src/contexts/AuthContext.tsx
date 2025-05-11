@@ -135,12 +135,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error) {
       console.error("Error calling beehiiv-subscribe function:", error);
+      // Don't throw - we don't want this to block signup
     }
   };
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -153,12 +154,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) throw error;
       
-      // Subscribe to beehiiv audience
-      await addToBeehiivAudience(email, name);
+      // Subscribe to beehiiv audience - don't block signup flow if this fails
+      await addToBeehiivAudience(email, name).catch(err => {
+        console.error("Failed to subscribe to newsletter but continuing signup:", err);
+      });
       
-      toast.success("Check your email to confirm your registration!");
+      // Check if email confirmation is enabled
+      if (data.session) {
+        // Auto-confirmation is enabled (development mode)
+        toast.success("Successfully signed up! You're now logged in.");
+      } else {
+        // Email confirmation required
+        toast.success("Check your email to confirm your registration!");
+        toast.info("If you don't see the email, check your spam folder or contact support.", {
+          duration: 6000
+        });
+      }
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign up");
+      // Handle specific known errors
+      if (error.message?.includes('already registered')) {
+        toast.error("This email is already registered. Try signing in instead.");
+      } else {
+        toast.error(error.message || "Failed to sign up");
+      }
       console.error("Sign up error:", error);
     }
   };
