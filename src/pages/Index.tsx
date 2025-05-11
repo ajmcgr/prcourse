@@ -17,7 +17,7 @@ const Index = () => {
       <Hero />
       
       {/* PR Skills Image Section */}
-      <div className="w-full mt-2 px-4 sm:px-6"> {/* Added horizontal padding for mobile */}
+      <div className="w-full mt-0 px-4 sm:px-6"> {/* Reduced mt-2 to mt-0 to remove spacing above */}
         <div className="max-w-5xl mx-auto">
           <img 
             src="/lovable-uploads/f0847da8-f9ce-4357-bf49-d1d6a7bed030.png" 
@@ -27,7 +27,7 @@ const Index = () => {
         </div>
       </div>
       
-      <div className="py-8"></div> {/* Added spacing div between image and letter section */}
+      <div className="py-16"></div> {/* Increased from py-8 to py-16 to add more spacing below */}
       
       <LetterSection />
       <CourseFeatures />
