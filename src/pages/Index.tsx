@@ -15,18 +15,6 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <Hero />
-      
-      {/* Image with minimal padding */}
-      <div className="w-full py-6 mb-12">
-        <div className="max-w-5xl mx-auto px-4">
-          <img 
-            src="/lovable-uploads/b8bde38e-9849-4784-ab6d-6e57e0caca4a.png" 
-            alt="Things That Make a Great PR Person" 
-            className="w-full rounded-lg shadow-md"
-          />
-        </div>
-      </div>
-      
       <LetterSection />
       <CourseFeatures />
       <CourseContentTable />
