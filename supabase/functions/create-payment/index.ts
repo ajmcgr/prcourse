@@ -37,6 +37,11 @@ serve(async (req) => {
 
     console.log("Creating payment session for user:", user.id, user.email);
 
+    // Parse request body to get returnUrl
+    const { returnUrl } = await req.json();
+    const origin = returnUrl ? new URL(returnUrl).origin : req.headers.get("origin");
+    const defaultReturnUrl = `${origin}/payment-success`;
+    
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
@@ -63,7 +68,7 @@ serve(async (req) => {
     }
 
     // Create a one-time payment session
-    console.log("Creating checkout session");
+    console.log("Creating checkout session with return URL:", defaultReturnUrl);
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -80,8 +85,8 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/pricing`,
+      success_url: `${defaultReturnUrl}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/pricing`,
     });
 
     console.log("Created checkout session:", session.id);

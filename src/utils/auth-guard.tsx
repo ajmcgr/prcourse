@@ -44,8 +44,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         pathname: location.pathname
       });
       
-      if ((sessionId || isSuccessRedirect) && user) {
-        console.log("Detected Stripe redirect:", { sessionId, isSuccessRedirect });
+      if ((sessionId || isSuccessRedirect || location.pathname === '/course/full-course') && user) {
+        console.log("Detected Stripe redirect:", { sessionId, isSuccessRedirect, pathname: location.pathname });
         toast.info("Verifying your payment...");
         
         try {

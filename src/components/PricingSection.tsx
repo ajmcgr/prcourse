@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -24,7 +23,10 @@ const PricingSection: React.FC = () => {
       // Option 1: Use our edge function to create a checkout session
       try {
         const { data, error } = await supabase.functions.invoke('create-payment', {
-          body: { returnUrl: `${window.location.origin}/course/full-course` },
+          body: { 
+            // Use current origin for the return URL to ensure it works in both dev and production
+            returnUrl: `${window.location.origin}/payment-success` 
+          },
         });
         
         if (error) {
@@ -45,7 +47,8 @@ const PricingSection: React.FC = () => {
       
       // Option 2 (Fallback): Direct link approach if edge function fails
       const stripeUrl = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
-      const successUrl = encodeURIComponent(`${window.location.origin}/course/full-course?checkout_session_completed=true&direct_link=true`);
+      // Use current origin for success URL
+      const successUrl = encodeURIComponent(`${window.location.origin}/payment-success?checkout_session_completed=true&direct_link=true`);
       const fullStripeUrl = `${stripeUrl}?success_url=${successUrl}`;
       
       console.log("Fallback: Redirecting to Stripe payment URL:", fullStripeUrl);
