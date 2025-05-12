@@ -7,10 +7,10 @@ import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
 
 const PricingSection: React.FC = () => {
-  const { user, supabase } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   
-  const handlePurchase = async () => {
+  const handlePurchase = () => {
     try {
       if (!user) {
         toast.info("Please sign in to continue with purchase");
@@ -18,22 +18,8 @@ const PricingSection: React.FC = () => {
         return;
       }
       
-      toast.info("Preparing checkout...");
-      
-      const { data, error } = await supabase.functions.invoke('create-payment');
-      
-      if (error) {
-        console.error('Error creating payment session:', error);
-        toast.error("Error creating checkout session. Please try again.");
-        return;
-      }
-      
-      if (data?.url) {
-        // Redirect to Stripe checkout
-        window.location.href = data.url;
-      } else {
-        toast.error("Invalid checkout response. Please try again.");
-      }
+      // Redirect to the Stripe payment link
+      window.location.href = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
     } catch (err) {
       console.error('Purchase error:', err);
       toast.error("Something went wrong. Please try again.");
