@@ -19,7 +19,7 @@ const Hero: React.FC = () => {
           Public Relations
         </h1>
         <p className="mt-4 md:mt-6 text-lg md:text-xl lg:text-2xl max-w-3xl animate-fade-in text-gray-700" style={{animationDelay: '0.2s'}}>
-          I've created a comprehensive course with video lessons and practical insights to help you elevate your PR strategy and execution.
+          My comprehensive course with video lessons and practical insights to help you elevate your PR strategy and execution.
         </p>
         
         <div className="mt-6 md:mt-12 w-full animate-fade-in" style={{animationDelay: '0.4s'}}>
