@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -64,7 +63,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!userId) return;
     
     try {
-      // Query a payments table to check if this user has a successful payment
+      console.log("Checking payment status for user:", userId);
+      
+      // Query the payments table to check if this user has a successful payment
       const { data, error } = await supabase
         .from('user_payments')
         .select('payment_status')
@@ -72,9 +73,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq('payment_status', 'completed')
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error checking payment status:", error);
+        throw error;
+      }
       
-      setHasPaid(!!data);
+      const isPaid = !!data;
+      console.log("Payment status check result:", isPaid ? "PAID" : "NOT PAID");
+      setHasPaid(isPaid);
     } catch (error) {
       console.error("Error checking payment status:", error);
       setHasPaid(false);
@@ -241,6 +247,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
   
   const updatePaymentStatus = (paid: boolean) => {
+    console.log("Updating payment status to:", paid ? "PAID" : "NOT PAID");
     setHasPaid(paid);
   };
 

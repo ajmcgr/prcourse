@@ -1,19 +1,29 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from "sonner";
 
 const PaymentSuccessPage = () => {
   const { user, updatePaymentStatus } = useAuth();
+  const [isProcessing, setIsProcessing] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const updateUserPaymentStatus = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsProcessing(false);
+        return;
+      }
 
       try {
+        console.log("Processing payment success for user:", user.id);
+        setIsProcessing(true);
+        
         // Record successful payment in database
         const { error } = await supabase
           .from('user_payments')
@@ -23,17 +33,25 @@ const PaymentSuccessPage = () => {
             amount: 9900, // $99.00 in cents
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          }, { onConflict: 'user_id, payment_status' });
+          }, { onConflict: 'user_id' });
 
         if (error) {
           console.error('Error updating payment status:', error);
+          toast.error("There was an issue updating your payment status. Please contact support.");
+          setIsProcessing(false);
           return;
         }
 
+        console.log("Payment status updated successfully in database");
+        
         // Update context state to reflect successful payment
         updatePaymentStatus(true);
+        toast.success("Payment successful! You now have full access to the course.");
+        setIsProcessing(false);
       } catch (err) {
         console.error('Error in payment success handling:', err);
+        toast.error("There was an error processing your payment confirmation.");
+        setIsProcessing(false);
       }
     };
 
@@ -55,16 +73,37 @@ const PaymentSuccessPage = () => {
           </div>
           
           <h1 className="text-3xl font-bold text-pr-dark mb-4">Thank You for Your Purchase!</h1>
-          <p className="text-gray-600 mb-8">
-            Your payment was successful. You now have full access to the PR Masterclass course.
-            All content is now available in your account.
-          </p>
+          
+          {isProcessing ? (
+            <div className="mb-8">
+              <p className="text-gray-600 mb-4">
+                Processing your payment...
+              </p>
+              <div className="flex justify-center">
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-600 mb-8">
+              Your payment was successful. You now have full access to the PR Masterclass course.
+              All content is now available in your account.
+            </p>
+          )}
           
           <div className="space-y-4">
-            <Button asChild className="w-full bg-black hover:bg-black/90">
-              <Link to="/content">Access Course Content</Link>
+            <Button 
+              asChild 
+              className="w-full bg-black hover:bg-black/90"
+              disabled={isProcessing}
+            >
+              <Link to="/course/introduction">Access Course Content</Link>
             </Button>
-            <Button asChild variant="outline" className="w-full">
+            <Button 
+              asChild 
+              variant="outline" 
+              className="w-full"
+              disabled={isProcessing}
+            >
               <Link to="/">Return to Homepage</Link>
             </Button>
           </div>
