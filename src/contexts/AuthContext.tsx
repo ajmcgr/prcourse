@@ -124,6 +124,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
+      console.log("Starting signup process with:", { email, name });
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -137,16 +139,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) throw error;
       
+      console.log("Signup response:", data);
+      
       // Check if email confirmation is enabled
-      if (data.session) {
-        // Auto-confirmation is enabled (development mode)
-        toast.success("Successfully signed up! You're now logged in.");
+      if (data.user) {
+        console.log("User created:", data.user.id);
+        
+        if (data.session) {
+          // Auto-confirmation is enabled (development mode)
+          console.log("Session created, auto-confirmation is enabled");
+          toast.success("Successfully signed up! You're now logged in.");
+        } else {
+          // Email confirmation required
+          console.log("No session, email confirmation is required");
+          toast.success("Check your email to confirm your registration!");
+          toast.info("If you don't see the email, check your spam folder or contact support.", {
+            duration: 6000
+          });
+        }
       } else {
-        // Email confirmation required
-        toast.success("Check your email to confirm your registration!");
-        toast.info("If you don't see the email, check your spam folder or contact support.", {
-          duration: 6000
-        });
+        console.warn("Signup successful but no user returned");
       }
     } catch (error: any) {
       // Handle specific known errors
@@ -163,6 +175,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
+      // Force refresh to ensure all auth state is cleared
+      window.location.href = "/";
     } catch (error: any) {
       toast.error(error.message || "Failed to sign out");
       console.error("Sign out error:", error);

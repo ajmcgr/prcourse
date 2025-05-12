@@ -72,10 +72,13 @@ const EmailSignup: React.FC = () => {
     setIsLoading(true);
     
     try {
+      console.log("Processing form submission:", isSignUp ? "signup" : "signin");
       if (isSignUp) {
+        console.log("Attempting signup with:", { email, name });
         await signUp(email, password, name);
         // Don't navigate right away if email confirmation is required
       } else {
+        console.log("Attempting signin with:", { email });
         await signInWithEmail(email, password);
         navigate('/course/introduction');
       }
