@@ -1,3 +1,4 @@
+
 export interface VideoLesson {
   id: string;
   title: string;
@@ -483,4 +484,46 @@ export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null; cha
 };
 
 // Helper function to get the first lesson for initial navigation
-export const getFirstLesson = (): { lesson: VideoLesson
+export const getFirstLesson = (): { lesson: VideoLesson; chapter: CourseChapter } => {
+  return {
+    lesson: courseData[0].lessons[0],
+    chapter: courseData[0]
+  };
+};
+
+// Helper function to get next and previous lessons
+export const getAdjacentLessons = (
+  currentSlug: string
+): { 
+  previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
+  nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
+} => {
+  let previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
+  let nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
+  let foundCurrent = false;
+  
+  // Create a flat list of all lessons
+  const allLessons: Array<{ lesson: VideoLesson; chapter: CourseChapter }> = [];
+  
+  courseData.forEach(chapter => {
+    chapter.lessons.forEach(lesson => {
+      allLessons.push({ lesson, chapter });
+    });
+  });
+  
+  // Find the current, previous and next lessons
+  for (let i = 0; i < allLessons.length; i++) {
+    if (allLessons[i].lesson.slug === currentSlug) {
+      foundCurrent = true;
+      if (i > 0) {
+        previousLesson = allLessons[i - 1];
+      }
+      if (i < allLessons.length - 1) {
+        nextLesson = allLessons[i + 1];
+      }
+      break;
+    }
+  }
+  
+  return { previousLesson, nextLesson };
+};
