@@ -80,7 +80,7 @@ serve(async (req) => {
       console.log("Created new customer:", customerId);
     }
 
-    // Create a one-time payment session
+    // Create a one-time payment session with promotion code support
     console.log("Creating checkout session with return URL:", successUrl);
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -100,6 +100,8 @@ serve(async (req) => {
       mode: "payment",
       success_url: successUrl,
       cancel_url: `${origin}/pricing`,
+      // Enable promotion codes in the checkout
+      allow_promotion_codes: true,
     });
 
     console.log("Created checkout session:", session.id);
