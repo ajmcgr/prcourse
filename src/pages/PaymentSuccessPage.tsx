@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -61,10 +60,10 @@ const PaymentSuccessPage = () => {
             throw new Error(fetchError.message);
           }
           
-          // Safely type the returned data
-          const existingPayments = data as PaymentRecord[] | null;
+          // Explicitly cast the data to PaymentRecord[] to avoid deep type instantiation
+          const existingPayments = (data || []) as PaymentRecord[];
           
-          if (existingPayments && existingPayments.length > 0) {
+          if (existingPayments.length > 0) {
             console.log("User already has a completed payment record:", existingPayments[0]);
             updatePaymentStatus(true);
             setIsComplete(true);
@@ -82,10 +81,10 @@ const PaymentSuccessPage = () => {
             console.error('Error fetching pending payment:', pendingError);
           }
           
-          // Safely type the returned data
-          const pendingPayments = pendingData as PaymentRecord[] | null;
+          // Explicitly cast to PaymentRecord[]
+          const pendingPayments = (pendingData || []) as PaymentRecord[];
           
-          if (pendingPayments && pendingPayments.length > 0) {
+          if (pendingPayments.length > 0) {
             console.log("Found pending payment to update:", pendingPayments[0]);
             
             // Mark payment as completed
@@ -122,10 +121,10 @@ const PaymentSuccessPage = () => {
           console.error('Error checking completed payments:', completeError);
         }
         
-        // Safely type the returned data
-        const completedPayments = completeData as PaymentRecord[] | null;
+        // Explicitly cast to PaymentRecord[]
+        const completedPayments = (completeData || []) as PaymentRecord[];
         
-        if (completedPayments && completedPayments.length > 0) {
+        if (completedPayments.length > 0) {
           console.log("User has a completed payment:", completedPayments[0]);
           updatePaymentStatus(true);
           setIsComplete(true);
