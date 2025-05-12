@@ -52,16 +52,17 @@ const PaymentSuccessPage = () => {
           // First check if we already have a completed payment for this user
           const { data, error: fetchError } = await supabase
             .from('user_payments')
-            .select('*')
+            .select()
             .eq('user_id', user.id)
             .eq('payment_status', 'completed')
-            .maybeSingle();
+            .single();
             
-          if (fetchError) {
+          if (fetchError && fetchError.code !== 'PGRST116') {
             console.error('Error fetching payment status:', fetchError);
             throw new Error(fetchError.message);
           }
           
+          // Cast data to our interface
           const existingPayment = data as PaymentRecord | null;
           
           if (existingPayment) {
@@ -75,14 +76,15 @@ const PaymentSuccessPage = () => {
           // Update payment status in database if we found a pending payment with this session ID
           const { data: pendingData, error: pendingError } = await supabase
             .from('user_payments')
-            .select('*')
+            .select()
             .eq('stripe_session_id', sessionId)
-            .maybeSingle();
+            .single();
             
-          if (pendingError) {
+          if (pendingError && pendingError.code !== 'PGRST116') {
             console.error('Error fetching pending payment:', pendingError);
           }
           
+          // Cast pending data to our interface
           const pendingPayment = pendingData as PaymentRecord | null;
           
           if (pendingPayment) {
@@ -114,15 +116,16 @@ const PaymentSuccessPage = () => {
         // If no session ID or no pending payment found, check if this user has any completed payments
         const { data: completeData, error: completeError } = await supabase
           .from('user_payments')
-          .select('*')
+          .select()
           .eq('user_id', user.id)
           .eq('payment_status', 'completed')
-          .maybeSingle();
+          .single();
           
-        if (completeError) {
+        if (completeError && completeError.code !== 'PGRST116') {
           console.error('Error checking completed payments:', completeError);
         }
         
+        // Cast complete data to our interface
         const completedPayment = completeData as PaymentRecord | null;
         
         if (completedPayment) {

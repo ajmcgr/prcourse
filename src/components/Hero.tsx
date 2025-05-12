@@ -52,13 +52,13 @@ const Hero: React.FC = () => {
           </div>
         </div>
         
-        {/* PR Skills Image Section - Updated with the new image */}
+        {/* PR Skills Image Section - Updated with the new image and border */}
         <div className="w-full mt-6 md:mt-12 px-2 md:px-6 animate-fade-in" style={{animationDelay: '0.6s'}}>
           <div className="max-w-5xl mx-auto">
             <img 
-              src="/lovable-uploads/d9aef620-8fd6-4a58-9724-cf3759bfdd07.png" 
+              src="/lovable-uploads/6c4b5aab-27db-4530-8552-bb30f97d0ad9.png" 
               alt="Things That Make a Great PR Person" 
-              className="w-full rounded-lg shadow-md"
+              className="w-full rounded-lg shadow-md border border-gray-200"
             />
           </div>
         </div>
