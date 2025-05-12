@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
@@ -97,7 +96,7 @@ const CourseLesson = () => {
       </div>
     );
   }
-
+  
   // Extract video ID from video URL for proper embedding
   const getVimeoEmbedUrl = (url: string) => {
     if (!url) return '';
@@ -123,28 +122,30 @@ const CourseLesson = () => {
               <h1 className="text-3xl font-bold">{lessonData.title}</h1>
             </div>
             
-            {/* Navigation controls moved above and right-aligned */}
-            <Pagination className="mt-0">
-              <PaginationContent>
-                {adjacentLessons.previousLesson && (
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      as={Link} 
-                      to={`/course/${adjacentLessons.previousLesson.lesson.slug}`} 
-                    />
-                  </PaginationItem>
-                )}
-                
-                {adjacentLessons.nextLesson && (
-                  <PaginationItem>
-                    <PaginationNext 
-                      as={Link} 
-                      to={`/course/${adjacentLessons.nextLesson.lesson.slug}`} 
-                    />
-                  </PaginationItem>
-                )}
-              </PaginationContent>
-            </Pagination>
+            {/* Navigation controls - explicitly right-aligned */}
+            <div className="ml-auto">
+              <Pagination className="mt-0">
+                <PaginationContent>
+                  {adjacentLessons.previousLesson && (
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        as={Link} 
+                        to={`/course/${adjacentLessons.previousLesson.lesson.slug}`} 
+                      />
+                    </PaginationItem>
+                  )}
+                  
+                  {adjacentLessons.nextLesson && (
+                    <PaginationItem>
+                      <PaginationNext 
+                        as={Link} 
+                        to={`/course/${adjacentLessons.nextLesson.lesson.slug}`} 
+                      />
+                    </PaginationItem>
+                  )}
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
           
           {/* Video container taking up most of available height */}
