@@ -1,7 +1,6 @@
-
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getLessonBySlug, getFirstLesson, getPreviousLesson, getNextLesson } from '@/utils/course-data';
+import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
@@ -14,7 +13,6 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
-import VideoTranscript from './VideoTranscript';
 
 const CourseLesson = () => {
   const { slug } = useParams<{ slug?: string }>();
@@ -37,8 +35,7 @@ const CourseLesson = () => {
   }, [slug, navigate, user]);
 
   const { lesson, chapter } = slug ? getLessonBySlug(slug) : { lesson: null, chapter: null };
-  const previousLesson = slug ? getPreviousLesson(slug) : null;
-  const nextLesson = slug ? getNextLesson(slug) : null;
+  const { previousLesson, nextLesson } = slug ? getAdjacentLessons(slug) : { previousLesson: null, nextLesson: null };
 
   if (loading) {
     return <div className="flex justify-center items-center h-[60vh]">Loading...</div>;
@@ -60,51 +57,18 @@ const CourseLesson = () => {
     return `https://player.vimeo.com/video/${vimeoId}`;
   };
 
-  // Add a console.log to debug the issue
-  console.log('Lesson data:', lesson);
-  if (lesson) {
-    console.log('Lesson transcript:', lesson.transcript);
-  }
-
   return (
-    <div className="px-6 md:px-10 lg:px-16 py-10 md:py-12 lg:py-16 max-w-6xl mx-auto">
+    <div className="px-8 py-10">
+      {/* Hide Menu button removed */}
+
       {lesson && chapter && (
         <>
-          <div className="mb-10 md:mb-12">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-              <div className="mb-4 md:mb-0">
-                <div className="text-sm text-gray-500 mb-2">Chapter: {chapter.title}</div>
-                <h1 className="text-3xl font-bold">{lesson.title}</h1>
-              </div>
-              
-              {/* Navigation controls with more right alignment */}
-              <div className="ml-auto">
-                <Pagination className="justify-end mt-0">
-                  <PaginationContent>
-                    {previousLesson && (
-                      <PaginationItem>
-                        <PaginationPrevious 
-                          as={Link} 
-                          to={`/course/${previousLesson.lesson.slug}`} 
-                        />
-                      </PaginationItem>
-                    )}
-                    
-                    {nextLesson && (
-                      <PaginationItem>
-                        <PaginationNext 
-                          as={Link} 
-                          to={`/course/${nextLesson.lesson.slug}`} 
-                        />
-                      </PaginationItem>
-                    )}
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            </div>
+          <div className="mb-8">
+            <div className="text-sm text-gray-500 mb-2">Chapter: {chapter.title}</div>
+            <h1 className="text-3xl font-bold">{lesson.title}</h1>
           </div>
           
-          <div className="aspect-video mb-12 md:mb-14 bg-black rounded-lg overflow-hidden shadow-lg">
+          <div className="aspect-video mb-10 bg-black rounded-lg overflow-hidden shadow-lg">
             <iframe
               src={getVimeoEmbedUrl(lesson.videoUrl)}
               className="w-full h-full"
@@ -115,13 +79,33 @@ const CourseLesson = () => {
             ></iframe>
           </div>
           
-          <div className="prose max-w-none mb-12">
+          <div className="prose max-w-none mb-10">
             <h2>About This Lesson</h2>
             <p>This is part of Alex MacGregor's PR Masterclass. Watch this video to learn more about "{lesson.title}" within the "{chapter.title}" chapter.</p>
           </div>
           
-          {/* Add the transcript component */}
-          <VideoTranscript transcript={lesson.transcript} />
+          {/* Navigation controls */}
+          <Pagination className="mt-10">
+            <PaginationContent>
+              {previousLesson && (
+                <PaginationItem>
+                  <PaginationPrevious 
+                    as={Link} 
+                    to={`/course/${previousLesson.lesson.slug}`} 
+                  />
+                </PaginationItem>
+              )}
+              
+              {nextLesson && (
+                <PaginationItem>
+                  <PaginationNext 
+                    as={Link} 
+                    to={`/course/${nextLesson.lesson.slug}`} 
+                  />
+                </PaginationItem>
+              )}
+            </PaginationContent>
+          </Pagination>
         </>
       )}
     </div>

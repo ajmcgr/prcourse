@@ -1,3 +1,4 @@
+
 /* Remove the max-width and padding constraints that could create borders */
 #root {
   margin: 0 auto;
@@ -5,7 +6,7 @@
   max-width: none;
   padding: 0;
   overflow-x: hidden; /* Prevent horizontal scrolling */
-  background-color: #FFFFFF; /* Changed from #F2F2F9 to white */
+  background-color: #F2F2F9; /* Added background color */
 }
 
 .logo {

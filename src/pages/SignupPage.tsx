@@ -3,7 +3,7 @@ import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EmailSignup from '@/components/EmailSignup';
-import { Toaster } from "sonner";
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const SignupPage = () => {
   return (
@@ -23,7 +23,6 @@ const SignupPage = () => {
       </main>
       
       <Footer />
-      <Toaster position="top-center" richColors />
     </div>
   );
 };

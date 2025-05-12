@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu,
@@ -9,7 +8,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Menu, LogOut } from 'lucide-react';
+import { Menu, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getFirstLesson } from '@/utils/course-data';
@@ -18,7 +17,6 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const isHomePage = location.pathname === '/';
   const isMobile = useIsMobile();
@@ -51,17 +49,6 @@ const Navbar: React.FC = () => {
   // Always set text color to black
   const textColorClass = "text-black";
   
-  const handleSignOut = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    try {
-      console.log("Signing out...");
-      await signOut();
-      console.log("Signed out successfully");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
-
   return (
     <nav className={navbarClasses()}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -111,10 +98,11 @@ const Navbar: React.FC = () => {
                 {user ? (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <button onClick={handleSignOut} className="w-full text-left px-4 py-2">
-                        Sign Out
-                      </button>
+                    <DropdownMenuItem onSelect={(e) => {
+                      e.preventDefault();
+                      signOut();
+                    }}>
+                      Sign Out
                     </DropdownMenuItem>
                   </>
                 ) : null}
@@ -134,14 +122,25 @@ const Navbar: React.FC = () => {
               </Link>
             )}
             {user ? (
-              <Button 
-                variant="ghost" 
-                className={`flex items-center gap-2 ${textColorClass}`} 
-                onClick={handleSignOut}
-              >
-                <span>Sign Out</span>
-                <LogOut className="h-4 w-4" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className={`rounded-full ${textColorClass}`}>
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem disabled>
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={(e) => {
+                    e.preventDefault();
+                    signOut();
+                  }}>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Link to="/signup" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>

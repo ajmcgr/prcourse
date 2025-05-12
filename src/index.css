@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap');
 
@@ -7,7 +8,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* Changed to pure white */
+    --background: 240 33% 97%; /* Changed to #F2F2F9 */
     --foreground: 0 0% 11%;
 
     --card: 0 0% 100%;
@@ -83,7 +84,7 @@
     @apply border-border;
   }
   html, body {
-    @apply bg-background text-foreground; /* Now applies white background */
+    @apply bg-background text-foreground; /* Applied the background color */
     overflow-x: hidden;
     max-width: 100%;
   }
