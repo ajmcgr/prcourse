@@ -1,3 +1,4 @@
+
 export interface VideoLesson {
   id: string;
   title: string;
@@ -129,4 +130,15 @@ export const courseData: CourseChapter[] = [
         title: "Building Strong Media Relationships",
         videoUrl: "https://vimeo.com/1083269350",
         slug: "building-media-relationships",
-        transcript: "So once you've got the sort of the platform, the technology in place to do that, building the relationships is much more manual. All I've got here is just kind of like simple advice that I've kind of done in my career. And when I first started doing this job, like media relations, I didn't really know what to do. So my boss sent me to London and I went to London and I just made a list of all the journalists I wanted to meet. And I would email them and say, hey, like I'm in town from this brand. Let's meet, have a coffee. I'll tell you like what we're doing. And yeah, just put like a face to the name. And as I said in this slide, like you have to have a beginner's mind because when you meet someone for the first time, you don't really know like what their personality is. And a lot of the journalists have different personalities. So you need to, you know, you need to understand each person differently, what they like, what they don't like, preferences and the way they work. They all work differently, different apps, different workflows.\n\nBut at the same time, from my perspective, like I have a set process, I have a workflow for my for my job in
+        transcript: "So once you've got the sort of the platform, the technology in place to do that, building the relationships is much more manual. All I've got here is just kind of like simple advice that I've kind of done in my career. And when I first started doing this job, like media relations, I didn't really know what to do. So my boss sent me to London and I went to London and I just made a list of all the journalists I wanted to meet. And I would email them and say, hey, like I'm in town from this brand. Let's meet, have a coffee. I'll tell you like what we're doing. And yeah, just put like a face to the name. And as I said in this slide, like you have to have a beginner's mind because when you meet someone for the first time, you don't really know like what their personality is. And a lot of the journalists have different personalities. So you need to, you know, you need to understand each person differently, what they like, what they don't like, preferences and the way they work. They all work differently, different apps, different workflows.\n\nBut at the same time, from my perspective, like I have a set process, I have a workflow for my for my job in terms of connecting with journalists. I always follow up, keep notes about their interests, and try to provide genuine value before asking for anything. Over time, these relationships have become the foundation of my PR work, and some of these journalists have even become friends. Building authentic relationships takes time, but it's worth the investment because when you have a story that matters, you'll have people who are willing to listen."
+      },
+      {
+        id: "3-4",
+        title: "Influencer Marketing",
+        videoUrl: "https://vimeo.com/1083269300",
+        slug: "influencer-marketing",
+        transcript: "So similar to the media, traditional media journalists, we have influencer relations and influencer marketing. So influencer marketing really kicked on, I would say in the late 2010s, like mid 2010s, a lot of the big YouTubers, TikTok wasn't really around. And a lot of the big YouTubers were still quite small, maybe a few million subs. Whereas obviously now everyone's got 20 million or a hundred million. So influencers have grown in the last 10 years. Influencer marketing is now a $33 billion industry. But it's slightly different to journalists. Like you do have to brief them in the same way, but the way you work with them is different. Obviously it's paid in many ways. Like sometimes I got earned, earned media from InfoService, like free product review, but often you have to pay InfoService."
+      }
+    ]
+  }
+];
