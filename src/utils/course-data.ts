@@ -366,4 +366,4 @@ export const courseData: CourseChapter[] = [
         title: "How to Conduct a Media Interview",
         videoUrl: "https://vimeo.com/1083265212",
         slug: "media-interview"
-      },
+      }
