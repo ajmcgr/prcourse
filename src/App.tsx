@@ -1,60 +1,47 @@
+import React from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+} from "react-router-dom";
+import HomePage from '@/pages/HomePage';
+import CourseContentPage from '@/pages/CourseContentPage';
+import PricingPage from '@/pages/PricingPage';
+import SignupPage from '@/pages/SignupPage';
+import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
+import AuthGuard from '@/utils/auth-guard';
+import CourseIntroduction from '@/pages/CourseIntroduction';
+import LessonPage from '@/pages/LessonPage';
+import ModulePage from '@/pages/ModulePage';
+import NotFoundPage from '@/pages/NotFoundPage';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { Toaster } from 'sonner';
 
-import React from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
-import Index from "./pages/Index";
-import About from "./pages/About";
-import SignupPage from "./pages/SignupPage";
-import PricingPage from "./pages/PricingPage";
-import PaymentSuccessPage from "./pages/PaymentSuccessPage";
-import ContentLibrary from "./pages/ContentLibrary";
-import CourseContent from "./pages/CourseContent";
-import ContentDetailPage from "./pages/ContentDetailPage";
-import NotFound from "./pages/NotFound";
-import CourseLayout from "./pages/CourseLayout";
-import CourseLesson from "./components/CourseLesson";
-import { AuthProvider } from "./contexts/AuthContext";
-
-// Create a client
-const queryClient = new QueryClient();
-
-const App: React.FC = () => {
+// Wrap the entire application with the AuthProvider
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/payment-success" element={<PaymentSuccessPage />} />
-              <Route path="/coursecontent" element={<CourseContent />} />
-              
-              {/* Protected routes that require authentication */}
-              <Route path="/content" element={<ContentLibrary />} />
-              <Route path="/content/:slug" element={<ContentDetailPage />} />
-              
-              {/* Course routes */}
-              <Route path="/course" element={<CourseLayout />}>
-                <Route index element={<CourseLesson />} />
-                <Route path=":slug" element={<CourseLesson />} />
-              </Route>
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <Toaster position="top-right" />
+      <Router>
+        <Routes>
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/payment-success" element={<PaymentSuccessPage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/coursecontent" element={<CourseContentPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          
+          {/* Protected Routes */}
+          <Route path="/course/introduction" element={<AuthGuard><CourseIntroduction /></AuthGuard>} />
+          <Route path="/course/:courseSlug" element={<AuthGuard><CourseIntroduction /></AuthGuard>} />
+          <Route path="/module/:moduleSlug" element={<AuthGuard><ModulePage /></AuthGuard>} />
+          <Route path="/lesson/:lessonSlug" element={<AuthGuard><LessonPage /></AuthGuard>} />
+          
+          {/* Not Found Route */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-};
+}
 
 export default App;

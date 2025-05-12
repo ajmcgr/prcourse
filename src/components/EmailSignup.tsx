@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,7 @@ const EmailSignup: React.FC = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
+      console.log("User already logged in, redirecting to course");
       navigate('/course/introduction');
     }
   }, [user, navigate]);
@@ -41,12 +41,7 @@ const EmailSignup: React.FC = () => {
     } catch (error) {
       console.error("Google sign-in error in component:", error);
       toast.error("Failed to sign in with Google. Please try again later.");
-    } finally {
-      // Keep loading state active as we're being redirected
-      // The loading state will be reset if there's an error
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 10000); // Reset loading after 10 seconds if redirect doesn't happen
+      setIsLoading(false);
     }
   };
 
