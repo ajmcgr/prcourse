@@ -48,20 +48,13 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
   
-  // Special case for the post-payment success route
-  // Always allow this route regardless of payment status
-  if (location.pathname === '/payment-success') {
-    console.log("Allowing access to payment success page");
-    return <>{children}</>;
-  }
-
   // Special case for the /course/full-course route that Stripe redirects to 
   if (location.pathname === '/course/full-course') {
     console.log("Detected stripe redirect route");
-    // If user is logged in, redirect them to payment success
+    // If user is logged in, redirect them to course intro
     if (user) {
-      console.log("User is authenticated, redirecting to payment success");
-      return <Navigate to="/payment-success" state={{ from: location }} replace />;
+      console.log("User is authenticated, redirecting to course introduction");
+      return <Navigate to="/course/introduction" state={{ from: location }} replace />;
     } else {
       // If not logged in, redirect to signup
       console.log("User not authenticated, redirecting to signup");
@@ -79,7 +72,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
 
   // User is signed in but hasn't paid, redirect to pricing
   // Skip this check for certain paths
-  const paymentExemptPaths = ['/payment-success', '/pricing', '/signup'];
+  const paymentExemptPaths = ['/pricing', '/signup'];
   
   if (user && !hasPaid && !paymentExemptPaths.includes(location.pathname)) {
     console.log("User authenticated but not paid, redirecting to pricing");

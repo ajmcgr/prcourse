@@ -2,16 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
 const EmailSignup: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { signInWithGoogle, user } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUp, user } = useAuth();
 
   const from = location.state?.from?.pathname || '/course/introduction';
 
@@ -22,6 +27,34 @@ const EmailSignup: React.FC = () => {
       navigate('/course/introduction');
     }
   }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      if (isSignUp) {
+        // Handle sign up
+        const result = await signUp(email, password, name);
+        if (result.success) {
+          toast.success(result.message);
+          if (!result.autoSignedIn) {
+            setIsSignUp(false); // Switch back to sign in mode if not auto signed in
+          }
+        } else {
+          toast.error(result.message);
+        }
+      } else {
+        // Handle sign in
+        await signInWithEmail(email, password);
+      }
+    } catch (error: any) {
+      console.error("Auth error:", error);
+      toast.error(error.message || "Authentication failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGoogleSignIn = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -41,17 +74,84 @@ const EmailSignup: React.FC = () => {
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-sans text-center">
-          Sign In with Google
+          {isSignUp ? 'Create an account' : 'Sign in to your account'}
         </CardTitle>
         <CardDescription className="text-center">
-          Sign in with your Google account to access all PR course materials
+          {isSignUp 
+            ? 'Enter your information to create an account' 
+            : 'Enter your credentials to access your account'}
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {isSignUp && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="name">Full Name</label>
+              <Input 
+                id="name"
+                placeholder="Enter your name" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                disabled={isLoading}
+                required
+              />
+            </div>
+          )}
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="email">Email</label>
+            <Input 
+              id="email"
+              type="email" 
+              placeholder="Enter your email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              disabled={isLoading}
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="password">Password</label>
+            <Input 
+              id="password"
+              type="password" 
+              placeholder="Enter your password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              disabled={isLoading}
+              required
+            />
+          </div>
+          
+          <Button 
+            type="submit" 
+            className="w-full bg-black hover:bg-black/90" 
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : isSignUp ? 'Create Account' : 'Sign In'}
+          </Button>
+        </form>
+        
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+          </div>
+        </div>
+        
         <Button 
           className="w-full flex items-center justify-center gap-2 bg-white text-black border border-gray-300 hover:bg-gray-100" 
           onClick={handleGoogleSignIn}
           disabled={isLoading}
+          type="button"
         >
           <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -63,6 +163,24 @@ const EmailSignup: React.FC = () => {
           <span>{isLoading ? "Processing..." : "Sign in with Google"}</span>
         </Button>
       </CardContent>
+      
+      <CardFooter className="flex flex-col items-center">
+        <p className="text-center text-sm">
+          {isSignUp 
+            ? 'Already have an account? ' 
+            : 'Don\'t have an account? '}
+          <a 
+            href="#" 
+            className="text-blue-600 hover:underline" 
+            onClick={(e) => {
+              e.preventDefault();
+              setIsSignUp(!isSignUp);
+            }}
+          >
+            {isSignUp ? 'Sign in' : 'Create one'}
+          </a>
+        </p>
+      </CardFooter>
     </Card>
   );
 };

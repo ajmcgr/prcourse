@@ -8,7 +8,6 @@ import {
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from 'sonner';
 import SignupPage from '@/pages/SignupPage';
-import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
 import PricingPage from '@/pages/PricingPage';
 import AuthGuard from '@/utils/auth-guard';
 
@@ -28,7 +27,6 @@ function App() {
       <Router>
         <Routes>
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/payment-success" element={<PaymentSuccessPage />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/coursecontent" element={<CourseContentPage />} />
           <Route path="/pricing" element={<PricingPage />} />
