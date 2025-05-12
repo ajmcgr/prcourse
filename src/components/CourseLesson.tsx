@@ -74,7 +74,7 @@ const CourseLesson = () => {
       toast.error("Failed to load lesson content");
     }
   }
-
+  
   if (loading) {
     return <div className="flex justify-center items-center h-[60vh]">Loading...</div>;
   }
@@ -126,8 +126,8 @@ const CourseLesson = () => {
             <h1 className="text-3xl font-bold">{lessonData.title}</h1>
           </div>
           
-          {/* Video container with controlled size */}
-          <div className="mx-auto max-w-2xl mb-8">
+          {/* Video container with adjusted size - increased from 2xl to 3xl */}
+          <div className="mx-auto max-w-3xl mb-8">
             <div className="bg-black rounded-lg overflow-hidden shadow-lg">
               <AspectRatio ratio={16 / 9}>
                 <iframe
