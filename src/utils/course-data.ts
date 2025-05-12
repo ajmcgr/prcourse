@@ -1,4 +1,3 @@
-
 export interface VideoLesson {
   id: string;
   title: string;
@@ -102,7 +101,8 @@ export const courseData: CourseChapter[] = [
         id: "2-5",
         title: "Case Study",
         videoUrl: "https://vimeo.com/1083269574",
-        slug: "hiring-case-study"
+        slug: "hiring-case-study",
+        transcript: "So just some quick kind of commentary and case studies from me. I work with some fairly big agencies in my career so far. I picked these three. I have some examples but they're very famous in agency world. Ogilvy, very famous for advertising and creative. Weber-Schanwick, a newer agency but very strong in PR specifically and then Publicis which is now the number one holding company. It's the largest ad agency in the world and I work with these agencies in previous roles and on a freelancer basis. I just saw some commentary. Like I feel when I work with Ogilvy, Ogilvy was very famous for the founder. Um, and the whole, uh, Ogilvy story is like very strong on, um, branding and creative. And I feel like when I work with Ogilvy, like I could tell, like, it was almost like an institution, so they're very much like, when, when you work with them, it was like, as in them, you know, like they're sitting over there, we're sitting over here. They have some ideas. We have some ideas. Um, and it was a kind of difficult working relationship in a way.\n\nUm, very smart people, but at the same time, they're very rigid, I think, in their approach. everything from them comes through the lens of the Ogilvy brand. So they used to come to our office like with everything branded, Ogilvy pen, Ogilvy notebook, all this kind of thing. And I don't know if that still works these days. Like it's obviously they have a great brand, but maybe it's not so much relevant these days. So I don't know. That was a while ago. Weber-Shanwick was really good in terms of like the relationship I have with them and the work we did with them. They're very low ego group, the people. For example, when they came to pitch the company, which was Oppo at the time, the meeting room was full of all the bosses, including the CEO. And the guy walked in and he had like shaggy blonde hair and he started talking. I'm like, God damn, like he's from my hometown. Like I knew within 10 seconds and we were chatting about my hometown and he's become like a mentor to me since then.\n\nBut the whole relationship with them was like very like, you know, collaborative is the word I would use. So they, they wanted to work with the company and they want to understand the company and, and, um, they had a worldwide contract. So they, they did a lot of different work, um, for that brand. I really enjoyed it. I really enjoyed working with them and I feel like they're a very good kind of modern agency benchmark, especially in the PR side. And then finally, just like want to talk on publicists, so I work with them as a freelancer. You can see their website here, Viva La Difrance. I hope my French accent is okay, but they basically the biggest agency now in the world, extremely strong on results. So it was a results driven culture. Uh, they like to talk about the fact they have technology, uh, their own platform. And it's a very kind of similar to Ogilvy in terms like as an institution, but at the same time, they're forward thinking.\n\nAnd I think that's why I took away from them is like, yes, we're a big agency, old company, a hundred year old company, by the same time we're focused on the focus on the future. So for me, like that was a cool thing about publicists. So yeah, if you get a chance to work with these guys, um, you know, highly recommend it and, um, it's good to work with some of the big names, uh, as well as the smaller agencies, um, in the industry."
       }
     ]
   },
@@ -269,150 +269,4 @@ export const courseData: CourseChapter[] = [
       {
         id: "7-2",
         title: "Unconventional PR Strategies",
-        videoUrl: "https://vimeo.com/1083266139",
-        slug: "unconventional-pr"
-      },
-      {
-        id: "7-3",
-        title: "Case Study",
-        videoUrl: "https://vimeo.com/1083290328",
-        slug: "creative-case-study"
-      }
-    ]
-  },
-  {
-    id: "chapter-8",
-    title: "Strategic Communication",
-    lessons: [
-      {
-        id: "8-1",
-        title: "Strategic Communication",
-        videoUrl: "https://vimeo.com/1083266102",
-        slug: "strategic-communication"
-      },
-      {
-        id: "8-2",
-        title: "Effective PR Strategies for Founders",
-        videoUrl: "https://vimeo.com/1083265920",
-        slug: "pr-strategies-founders"
-      },
-      {
-        id: "8-3",
-        title: "Case Study",
-        videoUrl: "https://vimeo.com/1083265861",
-        slug: "strategic-case-study"
-      }
-    ]
-  },
-  {
-    id: "chapter-9",
-    title: "Brand Management",
-    lessons: [
-      {
-        id: "9-1",
-        title: "Brand Management",
-        videoUrl: "https://vimeo.com/1083265820",
-        slug: "brand-management"
-      },
-      {
-        id: "9-2",
-        title: "Measuring Brand",
-        videoUrl: "https://vimeo.com/1083265734",
-        slug: "measuring-brand"
-      },
-      {
-        id: "9-3",
-        title: "Case Study",
-        videoUrl: "https://vimeo.com/1083265557",
-        slug: "brand-case-study"
-      }
-    ]
-  },
-  {
-    id: "chapter-10",
-    title: "Events And Community",
-    lessons: [
-      {
-        id: "10-1",
-        title: "Events And Community",
-        videoUrl: "https://vimeo.com/1083265407",
-        slug: "events-community"
-      },
-      {
-        id: "10-2",
-        title: "Building a Thriving Community",
-        videoUrl: "https://vimeo.com/1083265331",
-        slug: "thriving-community"
-      },
-      {
-        id: "10-3",
-        title: "Case Study",
-        videoUrl: "https://vimeo.com/1083265288",
-        slug: "community-case-study"
-      }
-    ]
-  },
-  {
-    id: "chapter-11",
-    title: "Public Speaking",
-    lessons: [
-      {
-        id: "11-1",
-        title: "Public Speaking",
-        videoUrl: "https://vimeo.com/1083265244",
-        slug: "public-speaking"
-      },
-      {
-        id: "11-2",
-        title: "How to Conduct a Media Interview",
-        videoUrl: "https://vimeo.com/1083265212",
-        slug: "media-interview"
-      }
-    ]
-  }
-];
-
-export const getFirstLesson = (): { lesson: VideoLesson, chapter: CourseChapter } => {
-  const firstChapter = courseData[0];
-  const firstLesson = firstChapter.lessons[0];
-  return { lesson: firstLesson, chapter: firstChapter };
-};
-
-export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null, chapter: CourseChapter | null } => {
-  for (const chapter of courseData) {
-    const lesson = chapter.lessons.find(l => l.slug === slug);
-    if (lesson) {
-      return { lesson, chapter };
-    }
-  }
-  return { lesson: null, chapter: null };
-};
-
-export const getAdjacentLessons = (currentSlug: string): { 
-  previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null, 
-  nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null
-} => {
-  let previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
-  let nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
-  
-  // Flatten all lessons with their chapters for easier navigation
-  const allLessons: { lesson: VideoLesson, chapter: CourseChapter }[] = [];
-  courseData.forEach(chapter => {
-    chapter.lessons.forEach(lesson => {
-      allLessons.push({ lesson, chapter });
-    });
-  });
-  
-  // Find current lesson index
-  const currentIndex = allLessons.findIndex(item => item.lesson.slug === currentSlug);
-  
-  if (currentIndex > 0) {
-    previousLesson = allLessons[currentIndex - 1];
-  }
-  
-  if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
-    nextLesson = allLessons[currentIndex + 1];
-  }
-  
-  return { previousLesson, nextLesson };
-};
+        videoUrl: "https://vimeo.com/10832
