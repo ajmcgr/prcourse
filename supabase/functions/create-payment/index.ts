@@ -39,8 +39,19 @@ serve(async (req) => {
 
     // Parse request body to get returnUrl
     const { returnUrl } = await req.json();
-    const origin = returnUrl ? new URL(returnUrl).origin : req.headers.get("origin");
-    const defaultReturnUrl = `${origin}/payment-success`;
+    
+    // Determine the origin and success URL
+    const origin = req.headers.get("origin") || "https://prcourse.alexmacgregor.com";
+    
+    // For production site (prcourse.alexmacgregor.com) use /course/full-course
+    // For development site use /payment-success
+    const isProduction = origin.includes("prcourse.alexmacgregor.com");
+    const successPath = isProduction ? "/course/full-course" : "/payment-success";
+    
+    // If returnUrl is provided, use it, otherwise use the default
+    const defaultReturnUrl = returnUrl || `${origin}${successPath}`;
+    
+    console.log("Using success URL:", defaultReturnUrl);
     
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {

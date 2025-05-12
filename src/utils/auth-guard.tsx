@@ -44,8 +44,17 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         pathname: location.pathname
       });
       
-      if ((sessionId || isSuccessRedirect || location.pathname === '/course/full-course') && user) {
-        console.log("Detected Stripe redirect:", { sessionId, isSuccessRedirect, pathname: location.pathname });
+      // Handle both redirect patterns: /course/full-course (production) and /payment-success (development)
+      if ((sessionId || isSuccessRedirect || 
+           location.pathname === '/course/full-course' || 
+           location.pathname === '/payment-success') && user) {
+        
+        console.log("Detected Stripe redirect:", { 
+          sessionId, 
+          isSuccessRedirect, 
+          pathname: location.pathname 
+        });
+        
         toast.info("Verifying your payment...");
         
         try {
@@ -72,7 +81,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         const isPaid = await checkPaymentStatus(user.id);
         console.log("Payment check result:", isPaid);
         
-        // If we have a session ID in the URL or are on the full-course page, handle the Stripe redirect
+        // If we have a session ID in the URL or are on the full-course/payment-success page, handle the Stripe redirect
         handleStripeRedirect();
       }
       
@@ -95,8 +104,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
   
-  // Modified logic for handling full-course route (Stripe redirect)
-  if (location.pathname === '/course/full-course') {
+  // Modified logic for handling both redirect routes (Stripe redirect)
+  if (location.pathname === '/course/full-course' || location.pathname === '/payment-success') {
     console.log("Detected stripe redirect route");
     if (user) {
       // Since we're on the redirect page after payment, if user exists, mark as paid and redirect
@@ -107,7 +116,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           .catch(err => console.error("Failed to update payment status:", err));
       }
       
-      console.log("User is authenticated on full-course page, redirecting to course introduction");
+      console.log("User is authenticated on redirect page, redirecting to course introduction");
       return <Navigate to="/course/introduction" state={{ from: location }} replace />;
     } else {
       // If not logged in, redirect to signup
