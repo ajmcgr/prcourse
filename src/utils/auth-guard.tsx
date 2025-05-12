@@ -31,7 +31,18 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
                         searchParams.get('CHECKOUT_SESSION_ID');
       
       // Also check for success_url parameter which Stripe might add
-      const isSuccessRedirect = searchParams.get('success_url') || location.pathname.includes('/course/full-course');
+      const isSuccessRedirect = searchParams.get('checkout_session_completed') === 'true' || 
+                                searchParams.get('success_url') === 'true' || 
+                                location.pathname.includes('/course/full-course');
+      
+      const directLink = searchParams.get('direct_link') === 'true';
+      
+      console.log("Checking for payment redirect with params:", { 
+        sessionId, 
+        isSuccessRedirect,
+        directLink,
+        pathname: location.pathname
+      });
       
       if ((sessionId || isSuccessRedirect) && user) {
         console.log("Detected Stripe redirect:", { sessionId, isSuccessRedirect });
@@ -115,7 +126,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
 
   // User is signed in but hasn't paid, redirect to pricing
   // Skip this check for certain paths
-  const paymentExemptPaths = ['/pricing', '/signup'];
+  const paymentExemptPaths = ['/pricing', '/signup', '/payment-success'];
   
   if (user && !hasPaid && !paymentExemptPaths.includes(location.pathname)) {
     console.log("User authenticated but not paid, redirecting to pricing");
