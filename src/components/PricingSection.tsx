@@ -18,40 +18,14 @@ const PricingSection: React.FC = () => {
         return;
       }
       
-      toast.loading("Preparing checkout...");
-      
-      // Option 1: Use our edge function to create a checkout session
-      try {
-        const { data, error } = await supabase.functions.invoke('create-payment', {
-          body: { 
-            // Use current origin for the return URL to ensure it works in both dev and production
-            returnUrl: `${window.location.origin}/payment-success` 
-          },
-        });
-        
-        if (error) {
-          console.error("Error creating checkout session:", error);
-          toast.error("Failed to create checkout session. Please try again.");
-          return;
-        }
-        
-        if (data?.url) {
-          console.log("Redirecting to Stripe checkout URL:", data.url);
-          window.location.href = data.url;
-          return;
-        }
-      } catch (err) {
-        console.error("Edge function error:", err);
-        // Fall back to direct link if edge function fails
-      }
-      
-      // Option 2 (Fallback): Direct link approach if edge function fails
+      // Direct Stripe payment link - no edge function needed
       const stripeUrl = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
-      // Use current origin for success URL
-      const successUrl = encodeURIComponent(`${window.location.origin}/payment-success?checkout_session_completed=true&direct_link=true`);
+      
+      // Add success URL parameter for Stripe to redirect properly
+      const successUrl = encodeURIComponent(`https://prcourse.alexmacgregor.com/course/full-course`);
       const fullStripeUrl = `${stripeUrl}?success_url=${successUrl}`;
       
-      console.log("Fallback: Redirecting to Stripe payment URL:", fullStripeUrl);
+      console.log("Redirecting to Stripe payment URL:", fullStripeUrl);
       window.location.href = fullStripeUrl;
     } catch (err) {
       console.error('Purchase error:', err);
