@@ -26,18 +26,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasPaid, setHasPaid] = useState(false);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    // IMPORTANT: Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log("Auth state changed:", event);
+        
+        // Don't cause loops by making supabase calls inside this callback
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
         if (event === 'SIGNED_IN') {
           toast.success("Successfully signed in!");
-          // Check payment status when user signs in
+          
+          // Use timeout to avoid deadlock with Supabase auth listener
           if (currentSession?.user) {
-            checkPaymentStatus(currentSession.user.id);
+            setTimeout(() => {
+              checkPaymentStatus(currentSession.user.id);
+            }, 0);
           }
         }
         if (event === 'SIGNED_OUT') {
@@ -164,7 +169,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return { error };
     }
   };
-
+  
   const signInWithGoogle = async () => {
     try {
       console.log("Initializing Google sign in...");
@@ -175,7 +180,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/course/introduction`,
+          redirectTo: `${window.location.origin}/pricing`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -207,7 +212,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("Sign in successful, user:", data.user.id);
         setUser(data.user);
         setSession(data.session);
-        checkPaymentStatus(data.user.id);
+        
+        // Check payment status after login
+        setTimeout(() => {
+          checkPaymentStatus(data.user.id);
+        }, 0);
       }
       
       return data; // Return the data so it can be used by the caller if needed
@@ -363,15 +372,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Force refresh to ensure all auth state is cleared
+      setHasPaid(false);
+      setUser(null);
+      setSession(null);
+      
+      // Navigate to home page
       window.location.href = "/";
     } catch (error: any) {
       toast.error(error.message || "Failed to sign out");
       console.error("Sign out error:", error);
     }
   };
-  
-  // Removed the duplicate updatePaymentStatus function that was here
 
   const value = {
     session,

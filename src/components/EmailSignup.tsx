@@ -18,13 +18,11 @@ const EmailSignup: React.FC = () => {
   const location = useLocation();
   const { signInWithGoogle, signInWithEmail, signUp, user } = useAuth();
 
-  const from = location.state?.from?.pathname || '/course/introduction';
-
-  // Redirect if already logged in
+  // Redirect after successful authentication - important to check hasPaid here
   useEffect(() => {
     if (user) {
-      console.log("User already logged in, redirecting to course");
-      navigate('/course/introduction');
+      console.log("User detected in EmailSignup, redirecting to pricing page");
+      navigate('/pricing');
     }
   }, [user, navigate]);
 
@@ -39,6 +37,7 @@ const EmailSignup: React.FC = () => {
         if (result.success) {
           if (result.autoSignedIn) {
             toast.success(result.message);
+            // Redirect will happen via useEffect above
           } else {
             // Instead of showing a message about manual sign-in,
             // automatically switch to sign in mode with the email pre-filled
@@ -51,6 +50,7 @@ const EmailSignup: React.FC = () => {
       } else {
         // Handle sign in
         await signInWithEmail(email, password);
+        // Redirect will happen via useEffect above
       }
     } catch (error: any) {
       console.error("Auth error:", error);

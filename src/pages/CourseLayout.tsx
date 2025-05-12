@@ -7,7 +7,6 @@ import CourseSidebar from '@/components/CourseSidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { toast } from "sonner";
-import CourseLesson from '@/components/CourseLesson';
 import { getLessonBySlug, getFirstLesson } from '@/utils/course-data';
 
 const CourseLayout = () => {
@@ -24,14 +23,30 @@ const CourseLayout = () => {
     });
   }, [user, loading, location.pathname, hasPaid]);
   
-  // If not loading and not logged in, redirect to signup
-  if (!loading && !user) {
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="ml-3 text-gray-600">Loading course...</p>
+      </div>
+    );
+  }
+  
+  // User must be authenticated and have paid to access course
+  if (!user) {
+    console.log("No user in CourseLayout, redirecting to signup");
     return <Navigate to="/signup" state={{ from: { pathname: location.pathname } }} />;
+  }
+  
+  if (!hasPaid) {
+    console.log("User not paid in CourseLayout, redirecting to pricing");
+    toast.info("Please complete your payment to access course content");
+    return <Navigate to="/pricing" state={{ from: { pathname: location.pathname } }} />;
   }
   
   const isRootCoursePath = location.pathname === '/course' || location.pathname === '/course/';
   
-  if (isRootCoursePath && !loading) {
+  if (isRootCoursePath) {
     // Redirect to the first lesson if at the course root path
     const { lesson } = getFirstLesson();
     console.log("Redirecting from course root path to first lesson:", lesson.slug);
