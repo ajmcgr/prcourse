@@ -106,15 +106,9 @@ const CourseLesson = () => {
     return `https://player.vimeo.com/video/${vimeoId}`;
   };
 
-  // Get the correct video URL for each lesson
+  // Get the correct video URL
   const getVideoUrl = (lesson: any) => {
-    if (!lesson) return '';
-    
-    // Make sure we're using the correct URL in both places
-    if (slug === 'introduction') {
-      return "https://vimeo.com/1083271721";
-    }
-    
+    if (!lesson || !lesson.videoUrl) return '';
     return lesson.videoUrl;
   };
 
@@ -122,14 +116,40 @@ const CourseLesson = () => {
     <div className="flex flex-col h-full">
       {lessonData && chapterData ? (
         <>
-          <div className="mb-6">
-            <div className="text-sm text-gray-500 mb-2">Chapter: {chapterData.title}</div>
-            <h1 className="text-3xl font-bold">{lessonData.title}</h1>
+          {/* Header with lesson info and navigation */}
+          <div className="mb-6 flex justify-between items-center">
+            <div>
+              <div className="text-sm text-gray-500 mb-2">Chapter: {chapterData.title}</div>
+              <h1 className="text-3xl font-bold">{lessonData.title}</h1>
+            </div>
+            
+            {/* Navigation controls moved above and right-aligned */}
+            <Pagination className="mt-0">
+              <PaginationContent>
+                {adjacentLessons.previousLesson && (
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      as={Link} 
+                      to={`/course/${adjacentLessons.previousLesson.lesson.slug}`} 
+                    />
+                  </PaginationItem>
+                )}
+                
+                {adjacentLessons.nextLesson && (
+                  <PaginationItem>
+                    <PaginationNext 
+                      as={Link} 
+                      to={`/course/${adjacentLessons.nextLesson.lesson.slug}`} 
+                    />
+                  </PaginationItem>
+                )}
+              </PaginationContent>
+            </Pagination>
           </div>
           
           {/* Video container taking up most of available height */}
-          <div className="mx-auto max-w-3xl flex-grow flex flex-col justify-center mb-8">
-            <div className="bg-black rounded-lg overflow-hidden shadow-lg">
+          <div className="w-full flex-grow flex flex-col justify-center mb-8">
+            <div className="bg-black rounded-lg overflow-hidden shadow-lg w-full">
               <AspectRatio ratio={16 / 9}>
                 <iframe
                   src={getVimeoEmbedUrl(getVideoUrl(lessonData))}
@@ -147,29 +167,6 @@ const CourseLesson = () => {
             <h2>About This Lesson</h2>
             <p>This is part of Alex MacGregor's PR Masterclass. Watch this video to learn more about "{lessonData.title}" within the "{chapterData.title}" chapter.</p>
           </div>
-          
-          {/* Navigation controls */}
-          <Pagination className="mt-auto">
-            <PaginationContent>
-              {adjacentLessons.previousLesson && (
-                <PaginationItem>
-                  <PaginationPrevious 
-                    as={Link} 
-                    to={`/course/${adjacentLessons.previousLesson.lesson.slug}`} 
-                  />
-                </PaginationItem>
-              )}
-              
-              {adjacentLessons.nextLesson && (
-                <PaginationItem>
-                  <PaginationNext 
-                    as={Link} 
-                    to={`/course/${adjacentLessons.nextLesson.lesson.slug}`} 
-                  />
-                </PaginationItem>
-              )}
-            </PaginationContent>
-          </Pagination>
         </>
       ) : (
         <div className="text-center py-10 h-full flex items-center justify-center">
