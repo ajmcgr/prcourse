@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,8 +25,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasPaid, setHasPaid] = useState(false);
+  const [isInitialCheck, setIsInitialCheck] = useState(true);
 
   useEffect(() => {
+    console.log("AuthProvider initialized - setting up auth state listener");
+    
     // IMPORTANT: Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
@@ -41,6 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Use timeout to avoid deadlock with Supabase auth listener
           if (currentSession?.user) {
             setTimeout(() => {
+              console.log("Checking payment status after sign-in");
               checkPaymentStatus(currentSession.user.id);
             }, 0);
           }
@@ -54,14 +59,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log("Initial session check:", currentSession ? "Found session" : "No session");
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
       if (currentSession?.user) {
+        console.log("Found existing session, checking payment status");
         checkPaymentStatus(currentSession.user.id);
       }
       
       setLoading(false);
+      setIsInitialCheck(false);
     });
 
     return () => subscription.unsubscribe();
@@ -70,6 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkPaymentStatus = async (userId: string | undefined) => {
     if (!userId) {
       console.log("No user ID provided for payment check");
+      setHasPaid(false);
       return false;
     }
     
@@ -86,7 +95,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) {
         console.error("Error checking payment status:", error);
-        throw error;
+        setHasPaid(false);
+        return false;
       }
       
       const isPaid = !!data;
@@ -397,6 +407,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     updatePaymentStatus,
     checkPaymentStatus,
   };
+
+  console.log("AuthProvider current state:", { 
+    userId: user?.id, 
+    isAuthenticated: !!user, 
+    hasPaid, 
+    isLoading: loading,
+    isInitialCheck 
+  });
 
   return (
     <AuthContext.Provider value={value}>

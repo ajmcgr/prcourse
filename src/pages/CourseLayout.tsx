@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { Outlet, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CourseSidebar from '@/components/CourseSidebar';
@@ -12,6 +12,7 @@ import { getLessonBySlug, getFirstLesson } from '@/utils/course-data';
 const CourseLayout = () => {
   const { user, loading, hasPaid, checkPaymentStatus } = useAuth();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   
   // Debug logging
   useEffect(() => {
@@ -19,16 +20,18 @@ const CourseLayout = () => {
       path: location.pathname,
       user: user?.id, 
       loading, 
-      hasPaid 
+      hasPaid,
+      hasSearchParams: Array.from(searchParams.entries()).length > 0
     });
     
     // Verify payment status without causing auth loops
     if (user && !loading) {
+      console.log("Checking payment status in CourseLayout");
       setTimeout(() => {
         checkPaymentStatus(user.id);
       }, 0);
     }
-  }, [user, loading, location.pathname, hasPaid, checkPaymentStatus]);
+  }, [user, loading, location.pathname, hasPaid, checkPaymentStatus, searchParams]);
   
   if (loading) {
     return (

@@ -21,8 +21,11 @@ const PricingSection: React.FC = () => {
       // Direct Stripe payment link - no edge function needed
       const stripeUrl = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
       
+      // Get the current domain for proper redirect
+      const domain = window.location.origin;
+      
       // Add success URL parameter for Stripe to redirect properly
-      const successUrl = encodeURIComponent(`https://prcourse.alexmacgregor.com/course/full-course`);
+      const successUrl = encodeURIComponent(`${domain}/payment-success`);
       const fullStripeUrl = `${stripeUrl}?success_url=${successUrl}`;
       
       console.log("Redirecting to Stripe payment URL:", fullStripeUrl);
@@ -137,7 +140,7 @@ const PricingSection: React.FC = () => {
           </Card>
         </div>
         
-        {/* Image section - Adjusted width from md:w-1/2 to md:w-1/3 to balance with the wider pricing card */}
+        {/* Image section */}
         <div className="md:w-1/3">
           <div className="mb-6">
             <div className="mb-6 rounded-lg overflow-hidden">
