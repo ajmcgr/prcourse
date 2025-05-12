@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -126,7 +125,7 @@ const PricingSection: React.FC = () => {
                 <Button 
                   onClick={handlePurchase} 
                   disabled={isProcessing} 
-                  className="bg-black hover:bg-black/90 text-white py-3 text-lg px-10"
+                  className="bg-blue-500 hover:bg-blue-600 text-white py-3 text-lg px-10"
                 >
                   {isProcessing ? "Processing..." : "Buy Now — $99"}
                 </Button>
