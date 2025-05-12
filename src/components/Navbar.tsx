@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Menu, User, FileDown } from 'lucide-react';
+import { Menu, User, FileDown, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getFirstLesson } from '@/utils/course-data';
@@ -23,6 +24,9 @@ const Navbar: React.FC = () => {
   const isMobile = useIsMobile();
   const { lesson } = getFirstLesson();
   
+  // URL for discord community
+  const communityUrl = "https://discord.gg/7sbqZgesud";
+
   // Handle scroll event
   useEffect(() => {
     const handleScroll = () => {
@@ -123,6 +127,17 @@ const Navbar: React.FC = () => {
                       <Link to="/" className="w-full px-4 py-2">Home</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
+                      <a 
+                        href={communityUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-full px-4 py-2 flex items-center"
+                      >
+                        <Users className="h-4 w-4 mr-2" />
+                        Community
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/coursecontent" className="w-full px-4 py-2">Course Content</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -171,9 +186,20 @@ const Navbar: React.FC = () => {
                 )}
               </>
             ) : (
-              <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
-                Course Content
-              </Link>
+              <>
+                <a 
+                  href={communityUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass} flex items-center`}
+                >
+                  <Users className="h-4 w-4 mr-1" />
+                  Community
+                </a>
+                <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
+                  Course Content
+                </Link>
+              </>
             )}
             {user ? (
               <DropdownMenu>
