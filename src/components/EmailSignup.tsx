@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -88,30 +89,33 @@ const EmailSignup: React.FC = () => {
     
     try {
       console.log("Processing form submission:", isSignUp ? "signup" : "signin");
+      
       if (isSignUp) {
         console.log("Attempting signup with:", { email, name });
         const result = await signUp(email, password, name);
         
         if (result.success) {
+          // Show the signup completion message
           setSignupComplete(true);
           setSignupMessage(result.message);
           
-          // If user was automatically signed in (auto-confirmation is enabled)
-          if (user) {
+          // If message indicates automatic sign-in worked
+          if (result.message.includes("you're now logged in") && user) {
             setTimeout(() => {
               navigate('/course/introduction');
             }, 1500);
           }
-        } else if (result.message.includes('rate limit')) {
-          // Special handling for rate limit errors
-          toast.error("Email rate limit reached. Try again later or use a different email address.");
+        } else {
+          // Handle signup failure
+          toast.error(result.message || "Registration failed. Please try again.");
         }
       } else {
+        // Sign in flow
         console.log("Attempting signin with:", { email });
         await signInWithEmail(email, password);
         navigate('/course/introduction');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Authentication error:", error);
       // Error toasts are handled in the auth context
     } finally {
@@ -163,7 +167,7 @@ const EmailSignup: React.FC = () => {
           <div className="p-4 bg-green-50 rounded-md flex items-center gap-3">
             <AlertCircle className="h-5 w-5 text-green-500" />
             <p className="text-sm text-green-700">
-              {user 
+              {signupMessage.includes("you're now logged in") 
                 ? "You are now signed in and can access the course content."
                 : "We couldn't automatically sign you in. Please sign in manually with your new account."}
             </p>

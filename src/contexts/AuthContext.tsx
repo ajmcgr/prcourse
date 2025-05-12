@@ -150,6 +150,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log("Starting signup process with:", { email, name });
       
+      // First, try to sign up through Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -157,16 +158,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           data: {
             name,
           },
-          emailRedirectTo: `${window.location.origin}/course/introduction`,
+          // Don't use email redirect as it's causing issues
+          // emailRedirectTo: `${window.location.origin}/course/introduction`,
         },
       });
       
+      // Handle specific signup errors
       if (error) {
-        // Handle rate limit error specifically
-        if (error.message.includes('rate limit exceeded')) {
-          console.log("Rate limit error detected during signup");
+        // Check for rate limiting or already registered errors
+        if (error.message.includes('rate limit') || error.message.includes('already registered')) {
+          console.log(`Signup error: ${error.message}, attempting direct signin`);
           
-          // Try to sign in directly if the user might already exist
+          // Try to sign in directly if the error suggests the user might exist
           try {
             const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
               email,
@@ -179,120 +182,85 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               toast.success("Signed in successfully!");
               return { 
                 success: true, 
-                message: "Account accessed! Email confirmation rate limit was reached but you've been signed in."
+                message: "Account accessed successfully! You've been signed in."
               };
             } else {
-              toast.error("Email rate limit exceeded. Please try again later or use a different email.");
+              // If we get here, the user might exist but the password is wrong
               return { 
                 success: false, 
-                message: "Email rate limit exceeded. Please try again later or use a different email."
+                message: error.message
               };
             }
-          } catch (signInError) {
-            console.error("Error during signin attempt after rate limit:", signInError);
+          } catch (signInError: any) {
+            console.error("Error during signin attempt after signup error:", signInError);
             return { 
               success: false, 
-              message: "Email rate limit exceeded and couldn't sign you in. Please try again later."
+              message: error.message
             };
           }
         }
         
-        // Handle other email sending errors
-        if (error.message.includes('sending confirmation email')) {
-          console.log("Email confirmation error, attempting direct signin");
-
-          // Attempt to sign in directly after signup
-          try {
-            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-              email,
-              password,
-            });
-
-            if (!signInError && signInData.user) {
-              setUser(signInData.user);
-              setSession(signInData.session);
-              toast.success("Account created successfully!");
-              toast.info("Email confirmation is temporarily disabled", {
-                duration: 6000
-              });
-              return { 
-                success: true, 
-                message: "Account created! Email confirmation is temporarily disabled but you can proceed."
-              };
-            } else {
-              return { 
-                success: true, 
-                message: "Account created but we couldn't sign you in. Please try signing in manually."
-              };
-            }
-          } catch (signInError) {
-            console.error("Error during signin attempt after email error:", signInError);
-            return {
-              success: true,
-              message: "Account created successfully but we couldn't sign you in. Please try manually."
-            };
-          }
-        } else {
-          throw error;
-        }
+        // For other errors, return the error message
+        return { success: false, message: error.message };
       }
       
       console.log("Signup response:", data);
       
-      // Check if email confirmation is enabled
-      if (data.user) {
-        console.log("User created:", data.user.id);
+      // If signup is successful but we need email verification
+      if (data.user && !data.session) {
+        console.log("User created but needs email verification:", data.user.id);
         
-        if (data.session) {
-          // Auto-confirmation is enabled (development mode)
-          console.log("Session created, auto-confirmation is enabled");
-          setUser(data.user);
-          setSession(data.session);
-          toast.success("Successfully signed up! You're now logged in.");
-          return { success: true, message: "Account created and you're now logged in!" };
-        } else {
-          // Email confirmation required
-          console.log("No session, email confirmation is required");
+        // Try to sign in directly anyway - this is a workaround for email verification issues
+        try {
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
           
-          // Try to sign in directly
-          try {
-            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-              email,
-              password,
-            });
-            
-            if (!signInError && signInData.user) {
-              setUser(signInData.user);
-              setSession(signInData.session);
-              return { success: true, message: "Account created and you're now logged in!" };
-            } else {
-              // Couldn't sign in automatically
-              toast.success("Account created! Check your email to confirm your registration.");
-              toast.info("If you don't see the email, check your spam folder or try signing in directly.", {
-                duration: 6000
-              });
-              return { success: true, message: "Account created! Please check your email or sign in directly." };
-            }
-          } catch (signInError) {
-            console.error("Error during signin attempt after signup:", signInError);
-            toast.success("Check your email to confirm your registration!");
-            return { success: true, message: "Account created! Please check your email to confirm registration." };
+          if (!signInError && signInData.user) {
+            setUser(signInData.user);
+            setSession(signInData.session);
+            return { 
+              success: true, 
+              message: "Account created and you're now logged in!" 
+            };
+          } else {
+            // If auto sign-in fails, return success but let the user know they need to sign in manually
+            return { 
+              success: true, 
+              message: "Account created! Please sign in manually." 
+            };
           }
+        } catch (signInError: any) {
+          console.error("Auto sign-in failed after signup:", signInError);
+          return { 
+            success: true, 
+            message: "Account created! Please sign in manually."
+          };
         }
-      } else {
-        console.warn("Signup successful but no user returned");
-        return { success: false, message: "Something went wrong during signup, but you can try signing in." };
       }
+      
+      // If signup returns both user and session (auto-confirmation)
+      if (data.user && data.session) {
+        console.log("User created with auto-confirmation:", data.user.id);
+        setUser(data.user);
+        setSession(data.session);
+        return { 
+          success: true, 
+          message: "Account created and you're now logged in!" 
+        };
+      }
+      
+      // Fallback for unknown cases
+      return { 
+        success: true, 
+        message: "Account created! Please check your email or sign in manually." 
+      };
+      
     } catch (error: any) {
-      // Handle specific known errors
-      if (error.message?.includes('already registered')) {
-        toast.error("This email is already registered. Try signing in instead.");
-        return { success: false, message: "This email is already registered. Try signing in instead." };
-      } else {
-        toast.error(error.message || "Failed to sign up");
-        console.error("Sign up error:", error);
-        return { success: false, message: error.message || "Failed to sign up" };
-      }
+      console.error("Unhandled signup error:", error);
+      toast.error(error.message || "Failed to sign up");
+      return { success: false, message: error.message || "Failed to sign up" };
     }
   };
 
