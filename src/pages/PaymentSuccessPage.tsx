@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -11,11 +11,14 @@ import { toast } from "sonner";
 const PaymentSuccessPage = () => {
   const { user, updatePaymentStatus } = useAuth();
   const [isProcessing, setIsProcessing] = useState(true);
+  const [isComplete, setIsComplete] = useState(false);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  
   useEffect(() => {
     const updateUserPaymentStatus = async () => {
       if (!user) {
+        console.log("No user found, cannot update payment status");
         setIsProcessing(false);
         return;
       }
@@ -23,6 +26,26 @@ const PaymentSuccessPage = () => {
       try {
         console.log("Processing payment success for user:", user.id);
         setIsProcessing(true);
+        
+        // Check if payment record already exists for this user
+        const { data: existingPayment, error: fetchError } = await supabase
+          .from('user_payments')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('payment_status', 'completed')
+          .maybeSingle();
+          
+        if (fetchError) {
+          console.error('Error fetching payment status:', fetchError);
+        }
+        
+        if (existingPayment) {
+          console.log("User already has a completed payment record:", existingPayment);
+          updatePaymentStatus(true);
+          setIsComplete(true);
+          setIsProcessing(false);
+          return;
+        }
         
         // Record successful payment in database
         const { error } = await supabase
@@ -46,17 +69,30 @@ const PaymentSuccessPage = () => {
         
         // Update context state to reflect successful payment
         updatePaymentStatus(true);
+        setIsComplete(true);
         toast.success("Payment successful! You now have full access to the course.");
-        setIsProcessing(false);
       } catch (err) {
         console.error('Error in payment success handling:', err);
         toast.error("There was an error processing your payment confirmation.");
+      } finally {
         setIsProcessing(false);
       }
     };
 
     updateUserPaymentStatus();
   }, [user, updatePaymentStatus]);
+
+  // Redirect to course intro if payment completed and processing finished
+  useEffect(() => {
+    if (isComplete && !isProcessing) {
+      // Short delay before redirecting to ensure context is updated
+      const redirectTimer = setTimeout(() => {
+        navigate('/course/introduction');
+      }, 2000);
+      
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [isComplete, isProcessing, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -86,7 +122,7 @@ const PaymentSuccessPage = () => {
           ) : (
             <p className="text-gray-600 mb-8">
               Your payment was successful. You now have full access to the PR Masterclass course.
-              All content is now available in your account.
+              {isComplete ? " Redirecting you to the course now..." : " All content is now available in your account."}
             </p>
           )}
           
