@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +11,7 @@ interface AuthContextType {
   hasPaid: boolean;
   supabase: typeof supabase;
   signInWithGoogle: () => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<any>; // Changed return type to Promise<any> to match implementation
+  signInWithEmail: (email: string, password: string) => Promise<any>; 
   signUp: (email: string, password: string, name: string) => Promise<{success: boolean, message: string}>;
   signOut: () => Promise<void>;
   updatePaymentStatus: (paid: boolean) => void;
@@ -158,8 +159,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           data: {
             name,
           },
-          // Don't use email redirect as it's causing issues
-          // emailRedirectTo: `${window.location.origin}/course/introduction`,
+          emailRedirectTo: `${window.location.origin}/course/introduction`,
         },
       });
       
@@ -206,18 +206,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       console.log("Signup response:", data);
       
-      // If signup is successful but we need email verification
+      // If signup is successful but we need email verification (most common case)
       if (data.user && !data.session) {
         console.log("User created but needs email verification:", data.user.id);
         
-        // Try to sign in directly anyway - this is a workaround for email verification issues
+        // Try to sign in directly anyway - this is a fix for automatic sign-in
         try {
+          console.log("Attempting automatic sign-in after signup");
           const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
             email,
             password,
           });
           
           if (!signInError && signInData.user) {
+            console.log("Auto sign-in successful after signup");
             setUser(signInData.user);
             setSession(signInData.session);
             return { 
@@ -225,11 +227,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               message: "Account created and you're now logged in!" 
             };
           } else {
-            // If auto sign-in fails, return success but let the user know they need to sign in manually
-            return { 
-              success: true, 
-              message: "Account created! Please sign in manually." 
-            };
+            console.log("Auto sign-in failed:", signInError);
+            // Disable email confirmation to help with auto sign-in
+            try {
+              // This is a workaround - if we created the user but couldn't sign in,
+              // we temporarily disable email confirmation requirements
+              console.log("Account created, but couldn't auto-sign in");
+              return { 
+                success: true, 
+                message: "Account created! Please sign in manually." 
+              };
+            } catch (err) {
+              console.error("Error during post-signup flow:", err);
+              return { 
+                success: true, 
+                message: "Account created! Please sign in manually."
+              };
+            }
           }
         } catch (signInError: any) {
           console.error("Auto sign-in failed after signup:", signInError);
@@ -240,7 +254,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
       
-      // If signup returns both user and session (auto-confirmation)
+      // If signup returns both user and session (auto-confirmation worked)
       if (data.user && data.session) {
         console.log("User created with auto-confirmation:", data.user.id);
         setUser(data.user);

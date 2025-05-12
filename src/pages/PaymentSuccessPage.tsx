@@ -60,8 +60,7 @@ const PaymentSuccessPage = () => {
             throw new Error(fetchError.message);
           }
           
-          // Safely cast to array first, then check if we have any records
-          const existingPayments = fetchData as PaymentRecord[] || [];
+          const existingPayments = fetchData || [];
           const existingPayment = existingPayments.length > 0 ? existingPayments[0] : null;
           
           if (existingPayment) {
@@ -82,8 +81,7 @@ const PaymentSuccessPage = () => {
             console.error('Error fetching pending payment:', pendingError);
           }
           
-          // Safely cast to array first, then check if we have any records
-          const pendingPayments = pendingData as PaymentRecord[] || [];
+          const pendingPayments = pendingData || [];
           const pendingPayment = pendingPayments.length > 0 ? pendingPayments[0] : null;
           
           if (pendingPayment) {
@@ -123,8 +121,7 @@ const PaymentSuccessPage = () => {
           console.error('Error checking completed payments:', completeError);
         }
         
-        // Safely cast to array first, then check if we have any records
-        const completedPayments = completeData as PaymentRecord[] || [];
+        const completedPayments = completeData || [];
         const completedPayment = completedPayments.length > 0 ? completedPayments[0] : null;
         
         if (completedPayment) {

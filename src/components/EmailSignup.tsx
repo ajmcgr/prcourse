@@ -99,11 +99,25 @@ const EmailSignup: React.FC = () => {
           setSignupComplete(true);
           setSignupMessage(result.message);
           
-          // If message indicates automatic sign-in worked
-          if (result.message.includes("you're now logged in") && user) {
-            setTimeout(() => {
-              navigate('/course/introduction');
-            }, 1500);
+          // If message indicates automatic sign-in should work
+          if (result.message.includes("you're now logged in")) {
+            // Try direct sign in if signup was successful but user isn't set yet
+            if (!user) {
+              console.log("Attempting automatic sign in after successful signup");
+              try {
+                await signInWithEmail(email, password);
+                setTimeout(() => {
+                  navigate('/course/introduction');
+                }, 500);
+              } catch (signInError) {
+                console.error("Auto sign-in failed:", signInError);
+              }
+            } else {
+              // If user is already set, navigate
+              setTimeout(() => {
+                navigate('/course/introduction');
+              }, 500);
+            }
           }
         } else {
           // Handle signup failure
