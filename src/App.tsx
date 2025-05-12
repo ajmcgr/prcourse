@@ -1,21 +1,24 @@
+
 import React from 'react';
 import {
   BrowserRouter as Router,
   Route,
   Routes,
 } from "react-router-dom";
-import HomePage from '@/pages/HomePage';
-import CourseContentPage from '@/pages/CourseContentPage';
-import PricingPage from '@/pages/PricingPage';
-import SignupPage from '@/pages/SignupPage';
-import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
-import AuthGuard from '@/utils/auth-guard';
-import CourseIntroduction from '@/pages/CourseIntroduction';
-import LessonPage from '@/pages/LessonPage';
-import ModulePage from '@/pages/ModulePage';
-import NotFoundPage from '@/pages/NotFoundPage';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from 'sonner';
+import SignupPage from '@/pages/SignupPage';
+import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
+import PricingPage from '@/pages/PricingPage';
+import AuthGuard from '@/utils/auth-guard';
+
+// Import pages from the correct locations
+import HomePage from '@/pages/Index';  // Changed from @/pages/HomePage
+import CourseContentPage from '@/pages/CourseContent'; // Changed from @/pages/CourseContentPage
+import CourseIntroduction from '@/pages/CourseLayout'; // Changed from @/pages/CourseIntroduction
+import LessonPage from '@/pages/ContentDetailPage'; // Changed from @/pages/LessonPage
+import ModulePage from '@/pages/ContentLibrary'; // Changed from @/pages/ModulePage
+import NotFoundPage from '@/pages/NotFound'; // Changed from @/pages/NotFoundPage
 
 // Wrap the entire application with the AuthProvider
 function App() {
