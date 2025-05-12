@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Menu, User } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getFirstLesson } from '@/utils/course-data';
@@ -200,8 +200,9 @@ const Navbar: React.FC = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className={`rounded-full ${textColorClass}`}>
-                    <User className="h-5 w-5" />
+                  {/* Changed from icon to text "Account" */}
+                  <Button variant="ghost" className={`${textColorClass}`}>
+                    Account
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
