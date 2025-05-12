@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
+import { getLessonBySlug, getFirstLesson, getPreviousLesson, getNextLesson } from '@/utils/course-data';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
@@ -37,7 +37,8 @@ const CourseLesson = () => {
   }, [slug, navigate, user]);
 
   const { lesson, chapter } = slug ? getLessonBySlug(slug) : { lesson: null, chapter: null };
-  const { previousLesson, nextLesson } = slug ? getAdjacentLessons(slug) : { previousLesson: null, nextLesson: null };
+  const previousLesson = slug ? getPreviousLesson(slug) : null;
+  const nextLesson = slug ? getNextLesson(slug) : null;
 
   if (loading) {
     return <div className="flex justify-center items-center h-[60vh]">Loading...</div>;
