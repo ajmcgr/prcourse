@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   BrowserRouter as Router,
@@ -10,6 +11,7 @@ import SignupPage from '@/pages/SignupPage';
 import PricingPage from '@/pages/PricingPage';
 import AuthGuard from '@/utils/auth-guard';
 import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
+import About from '@/pages/About';
 
 // Import pages from the correct locations
 import HomePage from '@/pages/Index';
@@ -29,6 +31,7 @@ function App() {
         <Routes>
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<About />} />
           <Route path="/coursecontent" element={<CourseContentPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
