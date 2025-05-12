@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -333,10 +334,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
   
-  const updatePaymentStatus = (paid: boolean) => {
-    console.log("Updating payment status to:", paid ? "PAID" : "NOT PAID");
-    setHasPaid(paid);
-  };
+  // Removed the duplicate updatePaymentStatus function that was here
 
   const value = {
     session,
