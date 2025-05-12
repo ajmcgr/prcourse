@@ -15,7 +15,8 @@ const Hero: React.FC = () => {
           Made for PR & Social Media Pros, Agencies and Freelancers
         </p>
         <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold leading-tight animate-fade-in text-pr-dark">
-          Master the Art of Public Relations
+          Master the Art of <br />
+          Public Relations
         </h1>
         <p className="mt-4 md:mt-6 text-lg md:text-xl lg:text-2xl max-w-3xl animate-fade-in text-gray-700" style={{animationDelay: '0.2s'}}>
           A comprehensive course from Alex MacGregor featuring essays and video lessons to elevate your PR strategy and execution.
