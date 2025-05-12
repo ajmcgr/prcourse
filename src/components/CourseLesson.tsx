@@ -60,6 +60,7 @@ const CourseLesson = () => {
         console.log("Found lesson data:", { 
           lessonTitle: lesson?.title, 
           chapterTitle: chapter?.title,
+          videoUrl: lesson?.videoUrl,
           hasPrevious: !!adjacentLessons.previousLesson,
           hasNext: !!adjacentLessons.nextLesson
         });
@@ -104,6 +105,16 @@ const CourseLesson = () => {
     return `https://player.vimeo.com/video/${vimeoId}`;
   };
 
+  // Special handling for Introduction lesson
+  const getVideoUrl = (lesson: any) => {
+    // Force the correct URL for the Introduction lesson
+    if (slug === 'introduction') {
+      console.log("Using fixed URL for Introduction lesson");
+      return "https://vimeo.com/1083271721";
+    }
+    return lesson.videoUrl;
+  };
+
   return (
     <div className="px-8 py-10">
       {lessonData && chapterData ? (
@@ -115,7 +126,7 @@ const CourseLesson = () => {
           
           <div className="aspect-video mb-10 bg-black rounded-lg overflow-hidden shadow-lg">
             <iframe
-              src={getVimeoEmbedUrl(lessonData.videoUrl)}
+              src={getVimeoEmbedUrl(getVideoUrl(lessonData))}
               className="w-full h-full"
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture"
