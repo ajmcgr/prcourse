@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EmailSignup from '@/components/EmailSignup';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { Toaster } from "sonner";
 
 const SignupPage = () => {
   return (
@@ -23,6 +24,7 @@ const SignupPage = () => {
       </main>
       
       <Footer />
+      <Toaster position="top-center" richColors />
     </div>
   );
 };

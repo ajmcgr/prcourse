@@ -124,6 +124,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
+      console.log("Starting signup process for:", email);
+      
+      // Check if the user already exists
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select()
+        .eq('email', email)
+        .maybeSingle();
+      
+      if (existingUser) {
+        console.log("User already exists with this email");
+        toast.error("This email is already registered. Try signing in instead.");
+        return { error: { message: "User already exists" } };
+      }
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -135,6 +150,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
       
+      console.log("Signup response:", data ? "Success" : "Failed", error || "");
+      
       if (error) throw error;
       
       // Check if email confirmation is enabled
@@ -143,6 +160,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         toast.success("Successfully signed up! You're now logged in.");
       } else {
         // Email confirmation required
+        console.log("Email confirmation required, check for confirmation email");
         toast.success("Check your email to confirm your registration!");
         toast.info("If you don't see the email, check your spam folder or contact support.", {
           duration: 6000
@@ -152,13 +170,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return data; // Return data so component can check if session exists
     } catch (error: any) {
       // Handle specific known errors
+      console.error("Sign up error details:", error);
+      
       if (error.message?.includes('already registered')) {
         toast.error("This email is already registered. Try signing in instead.");
       } else {
         toast.error(error.message || "Failed to sign up");
       }
-      console.error("Sign up error:", error);
-      throw error; // Re-throw so component can handle it
+      
+      return { error };
     }
   };
 

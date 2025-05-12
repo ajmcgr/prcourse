@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const EmailSignup: React.FC = () => {
@@ -19,6 +18,7 @@ const EmailSignup: React.FC = () => {
   const [isResetPassword, setIsResetPassword] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
+  const [showResendOption, setShowResendOption] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithEmail, signUp, signInWithGoogle, user } = useAuth();
@@ -74,14 +74,21 @@ const EmailSignup: React.FC = () => {
     
     try {
       if (isSignUp) {
-        const { data, error } = await signUp(email, password, name);
+        console.log("Submitting signup for", email);
+        const result = await signUp(email, password, name);
         
-        if (error) throw error;
+        if (result.error) {
+          console.error("Signup error:", result.error);
+          throw result.error;
+        }
         
-        // Check if email confirmation is required - this is determined by 
-        // whether a session was created immediately or not
-        if (!data?.session) {
+        // Check if email confirmation is required
+        if (!result.session) {
           setConfirmationEmailSent(true);
+          // Show resend option after 30 seconds
+          setTimeout(() => {
+            setShowResendOption(true);
+          }, 30000);
         } else {
           // Auto-confirmation is enabled (development mode)
           navigate('/course/introduction');
@@ -90,9 +97,31 @@ const EmailSignup: React.FC = () => {
         await signInWithEmail(email, password);
         navigate('/course/introduction');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Authentication error:", error);
       // Error toasts are handled in the auth context
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/course/introduction`,
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Confirmation email resent. Please check your inbox and spam folder.");
+    } catch (error: any) {
+      console.error("Failed to resend confirmation email:", error);
+      toast.error(error.message || "Failed to resend confirmation email");
     } finally {
       setIsLoading(false);
     }
@@ -139,19 +168,36 @@ const EmailSignup: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
+          <div className="flex justify-center my-6">
+            <Mail className="h-16 w-16 text-blue-500" />
+          </div>
+          
           <div className="p-4 bg-blue-50 rounded-md flex items-center gap-3">
             <AlertCircle className="h-5 w-5 text-blue-500" />
             <p className="text-sm text-blue-700">
               Please click the link in the email to verify your account before signing in.
             </p>
           </div>
+          
           <div className="p-4 bg-amber-50 rounded-md">
             <p className="text-sm text-amber-700">
               If you don't see the email in your inbox, check your spam folder.
             </p>
           </div>
+          
+          {showResendOption && (
+            <Button 
+              variant="outline"
+              className="w-full mt-2"
+              onClick={handleResendConfirmation}
+              disabled={isLoading}
+            >
+              {isLoading ? "Sending..." : "Resend confirmation email"}
+            </Button>
+          )}
+          
           <Button 
-            className="w-full"
+            className="w-full mt-4"
             onClick={() => {
               setIsSignUp(false);
               setConfirmationEmailSent(false);
