@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { getFirstLesson } from '@/utils/course-data';
 
 const CourseLayout = () => {
-  const { user, loading, hasPaid } = useAuth();
+  const { user, loading, hasPaid, checkPaymentStatus } = useAuth();
   const location = useLocation();
   
   // Debug logging
@@ -21,7 +21,15 @@ const CourseLayout = () => {
       loading, 
       hasPaid,
     });
-  }, [user, loading, location.pathname, hasPaid]);
+    
+    // Force check payment status on course access
+    if (user && !loading) {
+      console.log("Force checking payment status in CourseLayout");
+      checkPaymentStatus(user.id).then(isPaid => {
+        console.log("CourseLayout payment check result:", isPaid ? "PAID" : "NOT PAID");
+      });
+    }
+  }, [user, loading, location.pathname, hasPaid, checkPaymentStatus]);
   
   if (loading) {
     return (

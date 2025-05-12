@@ -36,14 +36,20 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     const checkAuth = async () => {
       if (user) {
         console.log("Checking payment status in AuthGuard");
-        await checkPaymentStatus(user.id);
+        try {
+          // Force payment status refresh
+          const isPaid = await checkPaymentStatus(user.id);
+          console.log("AuthGuard payment status check result:", isPaid ? "PAID" : "NOT PAID");
+        } catch (err) {
+          console.error("Error checking payment status in AuthGuard:", err);
+        }
       }
       
       // Short delay to ensure state updates properly
-      setTimeout(() => setIsChecking(false), 200);
+      setTimeout(() => setIsChecking(false), 300);
     };
     
-    // Only check auth if we're not on a public path or we're on payment success
+    // Always check auth status for non-public paths
     if (!isPublicPath || isPaymentSuccess || hasSessionId) {
       checkAuth();
     } else {

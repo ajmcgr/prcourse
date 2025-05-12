@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +26,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [hasPaid, setHasPaid] = useState(false);
   const [isInitialCheck, setIsInitialCheck] = useState(true);
 
+  // Improved payment status checking function with better error handling
+  const checkPaymentStatus = async (userId: string | undefined) => {
+    if (!userId) {
+      console.log("No user ID provided for payment check");
+      setHasPaid(false);
+      return false;
+    }
+    
+    try {
+      console.log("Checking payment status for user:", userId);
+      
+      // Query the payments table to check if this user has a successful payment
+      const { data, error } = await supabase
+        .from('user_payments')
+        .select('payment_status, updated_at, stripe_session_id')
+        .eq('user_id', userId)
+        .eq('payment_status', 'completed')
+        .order('updated_at', { ascending: false })
+        .maybeSingle();
+      
+      if (error) {
+        console.error("Error checking payment status:", error);
+        setHasPaid(false);
+        return false;
+      }
+      
+      const isPaid = !!data;
+      console.log("Payment status check result:", isPaid ? "PAID" : "NOT PAID", data);
+      
+      // Update the hasPaid state
+      setHasPaid(isPaid);
+      return isPaid;
+    } catch (error) {
+      console.error("Error checking payment status:", error);
+      setHasPaid(false);
+      return false;
+    }
+  };
+
   useEffect(() => {
     console.log("AuthProvider initialized - setting up auth state listener");
     
@@ -35,7 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       (event, currentSession) => {
         console.log("Auth state changed:", event);
         
-        // Don't cause loops by making supabase calls inside this callback
+        // Update session and user state
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
@@ -65,7 +103,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (currentSession?.user) {
         console.log("Found existing session, checking payment status");
-        checkPaymentStatus(currentSession.user.id);
+        // Force immediate payment status check
+        checkPaymentStatus(currentSession.user.id)
+          .then(isPaid => {
+            console.log("Initial payment status check:", isPaid ? "PAID" : "NOT PAID");
+          })
+          .catch(err => {
+            console.error("Error during initial payment check:", err);
+          });
       }
       
       setLoading(false);
@@ -75,42 +120,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
   
-  const checkPaymentStatus = async (userId: string | undefined) => {
-    if (!userId) {
-      console.log("No user ID provided for payment check");
-      setHasPaid(false);
-      return false;
-    }
-    
-    try {
-      console.log("Checking payment status for user:", userId);
-      
-      // Query the payments table to check if this user has a successful payment
-      const { data, error } = await supabase
-        .from('user_payments')
-        .select('payment_status, updated_at')
-        .eq('user_id', userId)
-        .eq('payment_status', 'completed')
-        .order('updated_at', { ascending: false })
-        .maybeSingle();
-      
-      if (error) {
-        console.error("Error checking payment status:", error);
-        setHasPaid(false);
-        return false;
-      }
-      
-      const isPaid = !!data;
-      console.log("Payment status check result:", isPaid ? "PAID" : "NOT PAID", data);
-      setHasPaid(isPaid);
-      return isPaid;
-    } catch (error) {
-      console.error("Error checking payment status:", error);
-      setHasPaid(false);
-      return false;
-    }
-  };
-
   const updatePaymentStatus = async (paid: boolean) => {
     try {
       if (!user) {
@@ -223,13 +232,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(data.user);
         setSession(data.session);
         
-        // Check payment status after login
-        setTimeout(() => {
-          checkPaymentStatus(data.user.id);
+        // Force immediate payment status check after login
+        setTimeout(async () => {
+          const isPaid = await checkPaymentStatus(data.user.id);
+          console.log("Payment status after login:", isPaid ? "PAID" : "NOT PAID");
         }, 0);
       }
       
-      return data; // Return the data so it can be used by the caller if needed
+      return data;
     } catch (error: any) {
       console.error("Email sign in error:", error);
       toast.error(error.message || "Failed to sign in");
