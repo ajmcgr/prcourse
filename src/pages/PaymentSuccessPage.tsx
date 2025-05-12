@@ -8,6 +8,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
 
+// Define explicit types to avoid excessive type recursion
+type PaymentRecord = {
+  id: string;
+  user_id: string;
+  payment_status: string;
+  stripe_session_id: string | null;
+  amount: number;
+  created_at: string;
+  updated_at: string;
+  stripe_customer_id?: string | null;
+};
+
 const PaymentSuccessPage = () => {
   const { user, updatePaymentStatus } = useAuth();
   const [isProcessing, setIsProcessing] = useState(true);
