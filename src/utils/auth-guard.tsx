@@ -10,20 +10,28 @@ interface AuthGuardProps {
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const location = useLocation();
-  const { user, loading, hasPaid } = useAuth();
+  const { user, loading, hasPaid, checkPaymentStatus } = useAuth();
   const [isChecking, setIsChecking] = useState(true);
   
   useEffect(() => {
     // Log auth status for debugging
     console.log("AuthGuard state:", { user, loading, hasPaid, path: location.pathname });
     
-    // Give a short delay to ensure auth and payment status are properly loaded
-    const timer = setTimeout(() => {
-      setIsChecking(false);
-    }, 1000);
+    // Force a payment status check when the component mounts or when path changes
+    const checkPayment = async () => {
+      if (user && user.id) {
+        console.log("Forcing payment status check for user:", user.id);
+        await checkPaymentStatus(user.id);
+      }
+      
+      // Give a short delay to ensure auth and payment status are properly loaded
+      setTimeout(() => {
+        setIsChecking(false);
+      }, 1000);
+    };
     
-    return () => clearTimeout(timer);
-  }, [user, loading, hasPaid, location.pathname]);
+    checkPayment();
+  }, [user, loading, location.pathname, checkPaymentStatus]);
   
   // If we're loading auth state or checking payment, show loading indicator
   if (loading || isChecking) {
@@ -42,9 +50,10 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     return <Navigate to="/signup" state={{ from: location }} replace />;
   }
 
-  // Special case for payment-success page - always allow access if authenticated
-  if (location.pathname === '/payment-success') {
-    console.log("On payment-success page, allowing access");
+  // Special case for paths that should always be allowed when authenticated
+  const alwaysAllowedPaths = ['/payment-success', '/course/full-course'];
+  if (user && alwaysAllowedPaths.includes(location.pathname)) {
+    console.log("Allowing access to special path:", location.pathname);
     return <>{children}</>;
   }
 

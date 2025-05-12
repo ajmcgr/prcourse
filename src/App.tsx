@@ -13,12 +13,12 @@ import PricingPage from '@/pages/PricingPage';
 import AuthGuard from '@/utils/auth-guard';
 
 // Import pages from the correct locations
-import HomePage from '@/pages/Index';  // Changed from @/pages/HomePage
-import CourseContentPage from '@/pages/CourseContent'; // Changed from @/pages/CourseContentPage
-import CourseIntroduction from '@/pages/CourseLayout'; // Changed from @/pages/CourseIntroduction
-import LessonPage from '@/pages/ContentDetailPage'; // Changed from @/pages/LessonPage
-import ModulePage from '@/pages/ContentLibrary'; // Changed from @/pages/ModulePage
-import NotFoundPage from '@/pages/NotFound'; // Changed from @/pages/NotFoundPage
+import HomePage from '@/pages/Index';
+import CourseContentPage from '@/pages/CourseContent';
+import CourseIntroduction from '@/pages/CourseLayout';
+import LessonPage from '@/pages/ContentDetailPage';
+import ModulePage from '@/pages/ContentLibrary';
+import NotFoundPage from '@/pages/NotFound';
 
 // Wrap the entire application with the AuthProvider
 function App() {
@@ -36,6 +36,7 @@ function App() {
           {/* Protected Routes */}
           <Route path="/course/introduction" element={<AuthGuard><CourseIntroduction /></AuthGuard>} />
           <Route path="/course/:courseSlug" element={<AuthGuard><CourseIntroduction /></AuthGuard>} />
+          <Route path="/course/full-course" element={<AuthGuard><CourseIntroduction /></AuthGuard>} />
           <Route path="/module/:moduleSlug" element={<AuthGuard><ModulePage /></AuthGuard>} />
           <Route path="/lesson/:lessonSlug" element={<AuthGuard><LessonPage /></AuthGuard>} />
           

@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -12,13 +12,19 @@ const PaymentSuccessPage = () => {
   const { user, updatePaymentStatus } = useAuth();
   const [isProcessing, setIsProcessing] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  
+  // Get redirect_status from URL if it exists (from Stripe)
+  const redirectStatus = searchParams.get('redirect_status');
   
   useEffect(() => {
     const updateUserPaymentStatus = async () => {
       if (!user) {
         console.log("No user found, cannot update payment status");
+        setError("You must be signed in to verify your payment.");
         setIsProcessing(false);
         return;
       }
@@ -37,6 +43,7 @@ const PaymentSuccessPage = () => {
           
         if (fetchError) {
           console.error('Error fetching payment status:', fetchError);
+          throw new Error(fetchError.message);
         }
         
         if (existingPayment) {
@@ -50,19 +57,17 @@ const PaymentSuccessPage = () => {
         // Record successful payment in database
         const { error } = await supabase
           .from('user_payments')
-          .upsert({
+          .insert({
             user_id: user.id,
             payment_status: 'completed',
             amount: 9900, // $99.00 in cents
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          }, { onConflict: 'user_id' });
+          });
 
         if (error) {
           console.error('Error updating payment status:', error);
-          toast.error("There was an issue updating your payment status. Please contact support.");
-          setIsProcessing(false);
-          return;
+          throw new Error(error.message);
         }
 
         console.log("Payment status updated successfully in database");
@@ -71,16 +76,22 @@ const PaymentSuccessPage = () => {
         updatePaymentStatus(true);
         setIsComplete(true);
         toast.success("Payment successful! You now have full access to the course.");
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error in payment success handling:', err);
+        setError(err.message || "There was an error processing your payment confirmation.");
         toast.error("There was an error processing your payment confirmation.");
       } finally {
         setIsProcessing(false);
       }
     };
 
-    updateUserPaymentStatus();
-  }, [user, updatePaymentStatus]);
+    // Check if we've been redirected from Stripe with a successful payment
+    if (redirectStatus === 'succeeded' || location.pathname === '/payment-success') {
+      updateUserPaymentStatus();
+    } else {
+      setIsProcessing(false);
+    }
+  }, [user, updatePaymentStatus, location.pathname, redirectStatus]);
 
   // Redirect to course intro if payment completed and processing finished
   useEffect(() => {
@@ -100,49 +111,69 @@ const PaymentSuccessPage = () => {
       
       <main className="flex-grow flex items-center justify-center py-12">
         <div className="max-w-md w-full px-4 sm:px-6 text-center">
-          <div className="mb-8">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-          </div>
-          
-          <h1 className="text-3xl font-bold text-pr-dark mb-4">Thank You for Your Purchase!</h1>
-          
-          {isProcessing ? (
+          {error ? (
             <div className="mb-8">
-              <p className="text-gray-600 mb-4">
-                Processing your payment...
-              </p>
-              <div className="flex justify-center">
-                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </div>
+              <h1 className="text-3xl font-bold text-pr-dark mt-4 mb-2">Payment Verification Error</h1>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <Button 
+                asChild 
+                className="w-full bg-black hover:bg-black/90 mb-2"
+              >
+                <Link to="/pricing">Return to Pricing</Link>
+              </Button>
             </div>
           ) : (
-            <p className="text-gray-600 mb-8">
-              Your payment was successful. You now have full access to the PR Masterclass course.
-              {isComplete ? " Redirecting you to the course now..." : " All content is now available in your account."}
-            </p>
+            <>
+              <div className="mb-8">
+                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+              
+              <h1 className="text-3xl font-bold text-pr-dark mb-4">Thank You for Your Purchase!</h1>
+              
+              {isProcessing ? (
+                <div className="mb-8">
+                  <p className="text-gray-600 mb-4">
+                    Processing your payment...
+                  </p>
+                  <div className="flex justify-center">
+                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-600 mb-8">
+                  Your payment was successful. You now have full access to the PR Masterclass course.
+                  {isComplete ? " Redirecting you to the course now..." : " All content is now available in your account."}
+                </p>
+              )}
+              
+              <div className="space-y-4">
+                <Button 
+                  asChild 
+                  className="w-full bg-black hover:bg-black/90"
+                  disabled={isProcessing}
+                >
+                  <Link to="/course/introduction">Access Course Content</Link>
+                </Button>
+                <Button 
+                  asChild 
+                  variant="outline" 
+                  className="w-full"
+                  disabled={isProcessing}
+                >
+                  <Link to="/">Return to Homepage</Link>
+                </Button>
+              </div>
+            </>
           )}
-          
-          <div className="space-y-4">
-            <Button 
-              asChild 
-              className="w-full bg-black hover:bg-black/90"
-              disabled={isProcessing}
-            >
-              <Link to="/course/introduction">Access Course Content</Link>
-            </Button>
-            <Button 
-              asChild 
-              variant="outline" 
-              className="w-full"
-              disabled={isProcessing}
-            >
-              <Link to="/">Return to Homepage</Link>
-            </Button>
-          </div>
         </div>
       </main>
       

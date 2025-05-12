@@ -14,6 +14,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, name: string) => Promise<{success: boolean, message: string}>;
   signOut: () => Promise<void>;
   updatePaymentStatus: (paid: boolean) => void;
+  checkPaymentStatus: (userId: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -60,7 +61,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
   
   const checkPaymentStatus = async (userId: string | undefined) => {
-    if (!userId) return;
+    if (!userId) {
+      console.log("No user ID provided for payment check");
+      return false;
+    }
     
     try {
       console.log("Checking payment status for user:", userId);
@@ -81,9 +85,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const isPaid = !!data;
       console.log("Payment status check result:", isPaid ? "PAID" : "NOT PAID");
       setHasPaid(isPaid);
+      return isPaid;
     } catch (error) {
       console.error("Error checking payment status:", error);
       setHasPaid(false);
+      return false;
     }
   };
 
@@ -262,6 +268,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signOut,
     updatePaymentStatus,
+    checkPaymentStatus,
   };
 
   return (
