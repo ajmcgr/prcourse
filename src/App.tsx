@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   BrowserRouter as Router,
@@ -15,7 +14,8 @@ import PaymentSuccessPage from '@/pages/PaymentSuccessPage';
 // Import pages from the correct locations
 import HomePage from '@/pages/Index';
 import CourseContentPage from '@/pages/CourseContent';
-import CourseIntroduction from '@/pages/CourseLayout';
+import CourseLayout from '@/pages/CourseLayout';
+import CourseLesson from '@/components/CourseLesson';
 import LessonPage from '@/pages/ContentDetailPage';
 import ModulePage from '@/pages/ContentLibrary';
 import NotFoundPage from '@/pages/NotFound';
@@ -33,10 +33,14 @@ function App() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/payment-success" element={<PaymentSuccessPage />} />
           
-          {/* Protected Routes */}
-          <Route path="/course/introduction" element={<AuthGuard><CourseIntroduction /></AuthGuard>} />
-          <Route path="/course/:courseSlug" element={<AuthGuard><CourseIntroduction /></AuthGuard>} />
-          <Route path="/course/full-course" element={<AuthGuard><CourseIntroduction /></AuthGuard>} />
+          {/* Protected Routes - Course layout with nested routes */}
+          <Route path="/course" element={<AuthGuard><CourseLayout /></AuthGuard>}>
+            <Route path="" element={<CourseLesson />} />
+            <Route path="introduction" element={<CourseLesson />} />
+            <Route path=":slug" element={<CourseLesson />} />
+          </Route>
+          
+          {/* Other protected routes */}
           <Route path="/module/:moduleSlug" element={<AuthGuard><ModulePage /></AuthGuard>} />
           <Route path="/lesson/:lessonSlug" element={<AuthGuard><LessonPage /></AuthGuard>} />
           

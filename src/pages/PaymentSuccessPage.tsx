@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "sonner";
+import { getFirstLesson } from '@/utils/course-data';
 
 const PaymentSuccessPage = () => {
   const [searchParams] = useSearchParams();
@@ -30,10 +31,15 @@ const PaymentSuccessPage = () => {
           console.log("Payment already recorded for user:", user.id);
           toast.success("Payment already verified! You have full access to the course.");
           
+          // Get first lesson to ensure we have a valid path
+          const { lesson } = getFirstLesson();
+          const redirectPath = `/course/${lesson.slug}`;
+          
+          console.log("Redirecting to:", redirectPath);
+          
           // Add a short delay before redirecting to ensure toast is visible
           setTimeout(() => {
-            // Redirect directly to the first lesson instead of introduction
-            navigate('/course/introduction', { replace: true });
+            navigate(redirectPath, { replace: true });
           }, 2000);
           
           setProcessing(false);
@@ -51,9 +57,13 @@ const PaymentSuccessPage = () => {
             console.log("This appears to be a duplicate record - payment likely already recorded");
             toast.success("Payment verified! You now have full access to the course.");
             
-            // Redirect to course introduction
+            // Get first lesson to ensure we have a valid path
+            const { lesson } = getFirstLesson();
+            const redirectPath = `/course/${lesson.slug}`;
+            
+            // Redirect to course lesson
             setTimeout(() => {
-              navigate('/course/introduction', { replace: true });
+              navigate(redirectPath, { replace: true });
             }, 2000);
           } else {
             toast.error("There was an issue recording your payment. Please contact support.");
@@ -62,9 +72,13 @@ const PaymentSuccessPage = () => {
           console.log("Payment recorded successfully");
           toast.success("Payment successful! You now have full access to the course.");
           
-          // Redirect to course introduction
+          // Get first lesson to ensure we have a valid path
+          const { lesson } = getFirstLesson();
+          const redirectPath = `/course/${lesson.slug}`;
+          
+          // Redirect to course lesson
           setTimeout(() => {
-            navigate('/course/introduction', { replace: true });
+            navigate(redirectPath, { replace: true });
           }, 2000);
         }
       } catch (err) {
@@ -112,7 +126,10 @@ const PaymentSuccessPage = () => {
         {!processing && (
           <div className="mt-6">
             <button 
-              onClick={() => navigate('/course/introduction')}
+              onClick={() => {
+                const { lesson } = getFirstLesson();
+                navigate(`/course/${lesson.slug}`);
+              }}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors"
             >
               Go to Course

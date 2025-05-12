@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,6 +21,7 @@ const CourseLesson = () => {
   const navigate = useNavigate();
   const { user, loading, hasPaid } = useAuth();
   const { toggleSidebar } = useSidebar();
+  const [pageError, setPageError] = useState<string | null>(null);
   
   useEffect(() => {
     // Debug logging
@@ -38,7 +39,7 @@ const CourseLesson = () => {
       console.log("No slug provided, finding first lesson");
       const { lesson } = getFirstLesson();
       console.log("Redirecting to first lesson:", lesson.slug);
-      navigate(`/course/${lesson.slug}`);
+      navigate(`/course/${lesson.slug}`, { replace: true });
     }
   }, [slug, navigate, user]);
 
@@ -52,16 +53,23 @@ const CourseLesson = () => {
       const { lesson, chapter } = getLessonBySlug(slug);
       lessonData = lesson;
       chapterData = chapter;
-      adjacentLessons = getAdjacentLessons(slug);
       
-      console.log("Found lesson data:", { 
-        lessonTitle: lesson?.title, 
-        chapterTitle: chapter?.title,
-        hasPrevious: !!adjacentLessons.previousLesson,
-        hasNext: !!adjacentLessons.nextLesson
-      });
+      if (lesson && chapter) {
+        adjacentLessons = getAdjacentLessons(slug);
+        
+        console.log("Found lesson data:", { 
+          lessonTitle: lesson?.title, 
+          chapterTitle: chapter?.title,
+          hasPrevious: !!adjacentLessons.previousLesson,
+          hasNext: !!adjacentLessons.nextLesson
+        });
+      } else {
+        console.warn("Lesson or chapter not found for slug:", slug);
+        setPageError("Lesson not found");
+      }
     } catch (error) {
       console.error("Error loading lesson:", error);
+      setPageError("Failed to load lesson content");
       toast.error("Failed to load lesson content");
     }
   }
@@ -70,11 +78,11 @@ const CourseLesson = () => {
     return <div className="flex justify-center items-center h-[60vh]">Loading...</div>;
   }
 
-  if (!lessonData && !loading && user) {
+  if ((pageError || !lessonData) && !loading && user) {
     return (
       <div className="px-8 py-10">
         <h1 className="text-3xl font-bold mb-6">Lesson Not Found</h1>
-        <p>The requested lesson could not be found. Please select another lesson from the menu.</p>
+        <p className="mb-6">The requested lesson could not be found. Please select another lesson from the menu.</p>
         <Button 
           onClick={() => {
             const { lesson } = getFirstLesson();
@@ -98,7 +106,7 @@ const CourseLesson = () => {
 
   return (
     <div className="px-8 py-10">
-      {lessonData && chapterData && (
+      {lessonData && chapterData ? (
         <>
           <div className="mb-8">
             <div className="text-sm text-gray-500 mb-2">Chapter: {chapterData.title}</div>
@@ -144,6 +152,11 @@ const CourseLesson = () => {
             </PaginationContent>
           </Pagination>
         </>
+      ) : (
+        <div className="text-center py-10">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading course content...</p>
+        </div>
       )}
     </div>
   );
