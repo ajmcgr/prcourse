@@ -114,9 +114,9 @@ const PricingSection: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-background">
-      <div className="flex flex-col md:flex-row gap-8 items-stretch">
-        {/* Pricing Card - updated to match image width */}
-        <div className="md:w-1/2">
+      <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
+        {/* Pricing Card - reduced width */}
+        <div className="md:w-2/5 max-w-md">
           <Card className="border shadow-sm h-full">
             <CardContent className="p-6">
               <div className="text-center mb-6">
@@ -204,8 +204,8 @@ const PricingSection: React.FC = () => {
           </Card>
         </div>
         
-        {/* Image section - updated to match width */}
-        <div className="md:w-1/2">
+        {/* Image section - reduced width */}
+        <div className="md:w-2/5 max-w-md">
           <div className="rounded-lg overflow-hidden h-full">
             <img 
               src="/lovable-uploads/b901b1d3-44f5-41f3-b4e2-64eede3ed545.png" 
