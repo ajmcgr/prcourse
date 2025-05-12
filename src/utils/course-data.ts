@@ -1,3 +1,4 @@
+
 export interface VideoLesson {
   id: string;
   title: string;
@@ -366,4 +367,52 @@ export const courseData: CourseChapter[] = [
         title: "How to Conduct a Media Interview",
         videoUrl: "https://vimeo.com/1083265212",
         slug: "media-interview"
-      },
+      }
+    ]
+  }
+];
+
+export const getFirstLesson = (): { lesson: VideoLesson, chapter: CourseChapter } => {
+  const firstChapter = courseData[0];
+  const firstLesson = firstChapter.lessons[0];
+  return { lesson: firstLesson, chapter: firstChapter };
+};
+
+export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null, chapter: CourseChapter | null } => {
+  for (const chapter of courseData) {
+    const lesson = chapter.lessons.find(l => l.slug === slug);
+    if (lesson) {
+      return { lesson, chapter };
+    }
+  }
+  return { lesson: null, chapter: null };
+};
+
+export const getAdjacentLessons = (currentSlug: string): { 
+  previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null, 
+  nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null
+} => {
+  let previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
+  let nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
+  
+  // Flatten all lessons with their chapters for easier navigation
+  const allLessons: { lesson: VideoLesson, chapter: CourseChapter }[] = [];
+  courseData.forEach(chapter => {
+    chapter.lessons.forEach(lesson => {
+      allLessons.push({ lesson, chapter });
+    });
+  });
+  
+  // Find current lesson index
+  const currentIndex = allLessons.findIndex(item => item.lesson.slug === currentSlug);
+  
+  if (currentIndex > 0) {
+    previousLesson = allLessons[currentIndex - 1];
+  }
+  
+  if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
+    nextLesson = allLessons[currentIndex + 1];
+  }
+  
+  return { previousLesson, nextLesson };
+};
