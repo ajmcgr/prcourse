@@ -56,28 +56,47 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
             pathname: location.pathname 
           });
           
-          toast.info("Verifying your payment...");
-          
-          try {
-            // Create a payment record in the database
-            const result = await updatePaymentStatus(true);
+          if (!hasPaid) {
+            toast.info("Verifying your payment...");
             
-            if (result.error) {
-              console.error("Error updating payment status:", result.error);
-              toast.error("Failed to verify payment. Please contact support.", {
-                description: `Error: ${result.error.message || "Unknown error"}`,
-                duration: 10000, // Show for 10 seconds to ensure user sees it
+            try {
+              // Check if a payment record already exists first
+              const paymentStatus = await checkPaymentStatus(user.id);
+              
+              // Only update if not already paid
+              if (!paymentStatus) {
+                console.log("No existing payment record found, creating new one");
+                const result = await updatePaymentStatus(true);
+                
+                if (result.error) {
+                  console.error("Error updating payment status:", result.error);
+                  // Check if it's a duplicate record error
+                  if (result.error.message?.includes("duplicate key value")) {
+                    console.log("This appears to be a duplicate record - payment already recorded");
+                    toast.success("Payment verified! You now have full access to the course.");
+                  } else {
+                    toast.error("Failed to verify payment. Please contact support.", {
+                      description: `Error: ${result.error.message || "Unknown error"}`,
+                      duration: 10000, // Show for 10 seconds to ensure user sees it
+                    });
+                  }
+                } else {
+                  console.log("Payment status updated successfully");
+                  toast.success("Payment verified! You now have full access to the course.");
+                }
+              } else {
+                console.log("Payment already verified in database");
+                toast.success("Payment verified! You now have full access to the course.");
+              }
+            } catch (err) {
+              console.error("Error handling Stripe redirect:", err);
+              toast.error("Failed to process payment verification. Please try refreshing the page.", {
+                description: err instanceof Error ? err.message : "Unknown error occurred",
+                duration: 10000,
               });
-            } else {
-              console.log("Payment status updated successfully");
-              toast.success("Payment verified! You now have full access to the course.");
             }
-          } catch (err) {
-            console.error("Error handling Stripe redirect:", err);
-            toast.error("Failed to process payment verification. Please try refreshing the page.", {
-              description: err instanceof Error ? err.message : "Unknown error occurred",
-              duration: 10000,
-            });
+          } else {
+            console.log("User already marked as paid, skipping payment update");
           }
         }
       } catch (err) {
@@ -111,7 +130,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     };
     
     checkPayment();
-  }, [user, loading, location.pathname, checkPaymentStatus, searchParams, updatePaymentStatus]);
+  }, [user, loading, location.pathname, checkPaymentStatus, searchParams, updatePaymentStatus, hasPaid]);
   
   // If we're loading auth state or checking payment, show loading indicator
   if (loading || isChecking) {
@@ -134,9 +153,14 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           .then(() => console.log("Payment status updated from redirect page"))
           .catch(err => {
             console.error("Failed to update payment status:", err);
-            toast.error("Could not update payment status", {
-              description: err instanceof Error ? err.message : "Unknown error",
-            });
+            // Check if it's a duplicate key error (payment already recorded)
+            if (err.message?.includes("duplicate key value")) {
+              console.log("This appears to be a duplicate record - payment likely already recorded");
+            } else {
+              toast.error("Could not update payment status", {
+                description: err instanceof Error ? err.message : "Unknown error",
+              });
+            }
           });
       }
       

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 const PaymentSuccessPage = () => {
   const [searchParams] = useSearchParams();
-  const { updatePaymentStatus, user } = useAuth();
+  const { updatePaymentStatus, user, hasPaid, checkPaymentStatus } = useAuth();
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(true);
   
@@ -23,12 +23,37 @@ const PaymentSuccessPage = () => {
           return;
         }
         
+        // First check if payment is already recorded
+        const alreadyPaid = await checkPaymentStatus(user.id);
+        
+        if (alreadyPaid) {
+          console.log("Payment already recorded for user:", user.id);
+          toast.success("Payment already verified! You have full access to the course.");
+          setTimeout(() => {
+            navigate('/course/introduction', { replace: true });
+          }, 2000);
+          setProcessing(false);
+          return;
+        }
+        
         console.log("Recording payment for user:", user.id);
         const result = await updatePaymentStatus(true);
         
         if (result.error) {
           console.error("Failed to record payment:", result.error);
-          toast.error("There was an issue recording your payment. Please contact support.");
+          
+          // Check if it's a duplicate record error
+          if (result.error.message?.includes("duplicate key value")) {
+            console.log("This appears to be a duplicate record - payment likely already recorded");
+            toast.success("Payment verified! You now have full access to the course.");
+            
+            // Redirect to course introduction
+            setTimeout(() => {
+              navigate('/course/introduction', { replace: true });
+            }, 2000);
+          } else {
+            toast.error("There was an issue recording your payment. Please contact support.");
+          }
         } else {
           console.log("Payment recorded successfully");
           toast.success("Payment successful! You now have full access to the course.");
@@ -47,7 +72,7 @@ const PaymentSuccessPage = () => {
     };
     
     recordPayment();
-  }, [searchParams, updatePaymentStatus, user, navigate]);
+  }, [searchParams, updatePaymentStatus, checkPaymentStatus, user, navigate, hasPaid]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
