@@ -4,11 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 const PricingSection: React.FC = () => {
-  // Direct link to Stripe payment page
-  const stripePaymentLink = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
+  // Base Stripe payment link
+  const stripePaymentBase = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
   
   const handlePurchase = () => {
-    window.location.href = stripePaymentLink;
+    // Create success URL with the current domain
+    const successUrl = `${window.location.origin}/payment-success`;
+    
+    // Append success_url parameter to the Stripe payment link
+    const paymentLink = `${stripePaymentBase}?success_url=${encodeURIComponent(successUrl)}`;
+    
+    // Redirect to Stripe checkout
+    window.location.href = paymentLink;
   };
 
   return (
