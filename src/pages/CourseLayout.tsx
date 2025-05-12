@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { getLessonBySlug, getFirstLesson } from '@/utils/course-data';
 
 const CourseLayout = () => {
-  const { user, loading, hasPaid } = useAuth();
+  const { user, loading, hasPaid, checkPaymentStatus } = useAuth();
   const location = useLocation();
   
   // Debug logging
@@ -21,7 +21,14 @@ const CourseLayout = () => {
       loading, 
       hasPaid 
     });
-  }, [user, loading, location.pathname, hasPaid]);
+    
+    // Verify payment status without causing auth loops
+    if (user && !loading) {
+      setTimeout(() => {
+        checkPaymentStatus(user.id);
+      }, 0);
+    }
+  }, [user, loading, location.pathname, hasPaid, checkPaymentStatus]);
   
   if (loading) {
     return (
@@ -32,22 +39,24 @@ const CourseLayout = () => {
     );
   }
   
-  // User must be authenticated and have paid to access course
+  // User must be authenticated to access course
   if (!user) {
     console.log("No user in CourseLayout, redirecting to signup");
-    return <Navigate to="/signup" state={{ from: { pathname: location.pathname } }} />;
+    toast.error("Please sign in to access the course");
+    return <Navigate to="/signup" replace />;
   }
   
+  // User must have paid to access course
   if (!hasPaid) {
     console.log("User not paid in CourseLayout, redirecting to pricing");
     toast.info("Please complete your payment to access course content");
-    return <Navigate to="/pricing" state={{ from: { pathname: location.pathname } }} />;
+    return <Navigate to="/pricing" replace />;
   }
   
+  // Handle root course path by redirecting to first lesson
   const isRootCoursePath = location.pathname === '/course' || location.pathname === '/course/';
   
   if (isRootCoursePath) {
-    // Redirect to the first lesson if at the course root path
     const { lesson } = getFirstLesson();
     console.log("Redirecting from course root path to first lesson:", lesson.slug);
     return <Navigate to={`/course/${lesson.slug}`} replace />;

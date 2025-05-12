@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu,
@@ -15,8 +16,9 @@ import { getFirstLesson } from '@/utils/course-data';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const Navbar: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, hasPaid } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const isHomePage = location.pathname === '/';
   const isMobile = useIsMobile();
@@ -49,6 +51,23 @@ const Navbar: React.FC = () => {
   // Always set text color to black
   const textColorClass = "text-black";
   
+  const handleAccessCourse = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (!user) {
+      navigate('/signup');
+      return;
+    }
+    
+    if (!hasPaid) {
+      navigate('/pricing');
+      return;
+    }
+    
+    // If user is authenticated and has paid, navigate to the course
+    navigate(`/course/${lesson.slug}`);
+  };
+  
   return (
     <nav className={navbarClasses()}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -77,7 +96,9 @@ const Navbar: React.FC = () => {
               <DropdownMenuContent align="end" className="w-screen max-w-[250px] mr-2 bg-white">
                 {user ? (
                   <DropdownMenuItem asChild>
-                    <Link to={`/course/${lesson.slug}`} className="w-full px-4 py-2">Access Course Content</Link>
+                    <button className="w-full px-4 py-2 text-left" onClick={handleAccessCourse}>
+                      Access Course Content
+                    </button>
                   </DropdownMenuItem>
                 ) : (
                   <>
@@ -113,9 +134,12 @@ const Navbar: React.FC = () => {
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-2">
             {user ? (
-              <Link to={`/course/${lesson.slug}`} className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
+              <button 
+                onClick={handleAccessCourse}
+                className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+              >
                 Access Course Content
-              </Link>
+              </button>
             ) : (
               <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
                 Course Content

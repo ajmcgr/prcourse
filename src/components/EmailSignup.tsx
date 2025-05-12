@@ -16,15 +16,15 @@ const EmailSignup: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { signInWithGoogle, signInWithEmail, signUp, user } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUp, user, hasPaid } = useAuth();
 
-  // Redirect after successful authentication - important to check hasPaid here
   useEffect(() => {
+    // Only redirect if we have a user and authentication is complete
     if (user) {
-      console.log("User detected in EmailSignup, redirecting to pricing page");
-      navigate('/pricing');
+      console.log("User authenticated in EmailSignup, redirecting to pricing", { hasPaid });
+      navigate('/pricing', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, hasPaid, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

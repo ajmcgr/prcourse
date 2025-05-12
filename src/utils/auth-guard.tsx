@@ -10,8 +10,7 @@ interface AuthGuardProps {
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const location = useLocation();
-  const [searchParams] = useSearchParams();
-  const { user, loading, hasPaid, checkPaymentStatus } = useAuth();
+  const { user, loading, hasPaid } = useAuth();
   const [isChecking, setIsChecking] = useState(true);
   
   useEffect(() => {
@@ -23,26 +22,13 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       path: location.pathname 
     });
     
-    // Force a payment status check when the component mounts or when path changes
-    const checkPayment = async () => {
-      if (user && user.id) {
-        console.log("Forcing payment status check for user:", user.id);
-        try {
-          await checkPaymentStatus(user.id);
-        } catch (error) {
-          console.error("Error in checkPayment:", error);
-          toast.error("Error checking payment status");
-        }
-      }
-      
-      // Give a short delay to ensure auth and payment status are properly loaded
-      setTimeout(() => {
-        setIsChecking(false);
-      }, 500);
-    };
+    // Simple timeout to ensure UI updates properly
+    const timer = setTimeout(() => {
+      setIsChecking(false);
+    }, 500);
     
-    checkPayment();
-  }, [user, loading, location.pathname, checkPaymentStatus]);
+    return () => clearTimeout(timer);
+  }, [user, loading, location.pathname, hasPaid]);
   
   // If we're loading auth state or checking payment, show loading indicator
   if (loading || isChecking) {
@@ -54,35 +40,26 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
   
-  // Payment Success Page special handling
-  if (location.pathname === '/payment-success') {
-    // Allow access to payment success page regardless of payment status
-    // The component itself will handle verification and redirection
-    if (!user) {
-      console.log("User not authenticated on payment success page, redirecting to signup");
-      return <Navigate to="/signup" state={{ from: { pathname: location.pathname } }} />;
-    }
-    return <>{children}</>;
-  }
+  // Simple paths that don't need authentication or payment checks
+  const publicPaths = ['/signup', '/', '/pricing', '/payment-success', '/coursecontent'];
+  const isPublicPath = publicPaths.includes(location.pathname);
   
   // User is not signed in, redirect to signup
-  if (!user) {
+  if (!user && !isPublicPath) {
     console.log("User not authenticated, redirecting to signup");
     toast.error("Please sign up to access course content.");
-    return <Navigate to="/signup" state={{ from: { pathname: location.pathname } }} />;
+    return <Navigate to="/signup" state={{ from: { pathname: location.pathname } }} replace />;
   }
 
   // User is signed in but hasn't paid, redirect to pricing
-  // Skip this check for paths that don't require payment
-  const paymentExemptPaths = ['/pricing', '/signup', '/payment-success', '/'];
-  
-  if (!hasPaid && !paymentExemptPaths.includes(location.pathname)) {
+  if (user && !hasPaid && !isPublicPath) {
     console.log("User authenticated but not paid, redirecting to pricing");
     toast.info("Please complete your payment to access course content.");
     return <Navigate to="/pricing" state={{ from: { pathname: location.pathname } }} replace />;
   }
 
-  console.log("Authorization successful, rendering protected content:", location.pathname);
+  // All checks passed, render the protected component
+  console.log("Authorization successful, rendering content");
   return <>{children}</>;
 };
 
