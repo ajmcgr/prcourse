@@ -55,7 +55,7 @@ const PaymentSuccessPage = () => {
             .select('*')
             .eq('user_id', user.id)
             .eq('payment_status', 'completed')
-            .maybeSingle();
+            .maybeSingle<PaymentRecord>();
             
           if (fetchError) {
             console.error('Error fetching payment status:', fetchError);
@@ -75,7 +75,7 @@ const PaymentSuccessPage = () => {
             .from('user_payments')
             .select('*')
             .eq('stripe_session_id', sessionId)
-            .maybeSingle();
+            .maybeSingle<PaymentRecord>();
             
           if (pendingError) {
             console.error('Error fetching pending payment:', pendingError);
@@ -113,7 +113,7 @@ const PaymentSuccessPage = () => {
           .select('*')
           .eq('user_id', user.id)
           .eq('payment_status', 'completed')
-          .maybeSingle();
+          .maybeSingle<PaymentRecord>();
           
         if (completeError) {
           console.error('Error checking completed payments:', completeError);
