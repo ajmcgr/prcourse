@@ -1,4 +1,3 @@
-
 export interface VideoLesson {
   id: string;
   title: string;
@@ -83,7 +82,8 @@ export const courseData: CourseChapter[] = [
         id: "2-2",
         title: "Things That Make a Great PR Person",
         videoUrl: "https://vimeo.com/1083270265",
-        slug: "great-pr-person"
+        slug: "great-pr-person",
+        transcript: "So, things that make a great PR person, I really like this title. I think it's really, you know, and the imagery as well, Swiss Army Knife, that is basically what a PR person is in many ways. They have a lot of different kind of tasks and things to do. But again, going back to the EQ side, slightly more EQ than IQ for me. That's just my opinion. I think being good with people, either written, verbally, whatever you want to look at, the people side is so, so important. Psychology, emotional intelligence, because you're basically working with people everywhere, inside your company, externally, media, journalists, influencers, executives, you name it. You're working with people. And I think all the PR people I work with are exceptionally good at, you know, exceptionally good at working with people. We talked about a news obsession before. We'll kind of skip past that. Low ego, I put here, high resilience, because again, most people I work with have these qualities. And you know, you're working with high ego people in this job, so you don't want to be a high ego person, because obviously that causes some trouble. So, better to be low ego.\n\nHaving the taste, the curation, you need to be very good at picking out angles and picking out stories and picking out, you know, things that kind of are interesting from a company, because other people aren't doing that. No one else is doing that job. Like, that's the PR people's job, is to make the company interesting in many ways, or deflect in a crisis situation. Another thing is storytelling. So storytelling's really, really important, obviously. A lot of the job is, you know, verbally or written stories. So that's obviously key. And understanding how stories are put together and the impact they can have, and the medium and all that kind of thing is super important. And love of the grind I put here, because I feel, One of these jobs where you don't really have like... gatekeeper, like there's not really, like you know a lot of different jobs have very set kind of KPIs, like salespeople have revenue targets and of course PR people have KPIs and OKRs and whatever else, but a lot of it is just putting out fires, literally just putting out fires and thinking about like all of the kind of minute details that a lot of other people might not look at, so I think these things are pretty, these things make a good PR person."
       },
       {
         id: "2-3",
@@ -157,140 +157,4 @@ export const courseData: CourseChapter[] = [
       {
         id: "3-8",
         title: "Case Study",
-        videoUrl: "https://vimeo.com/1083268437",
-        slug: "influencer-case-study"
-      }
-    ]
-  },
-  {
-    id: "chapter-4",
-    title: "Crisis Management",
-    lessons: [
-      {
-        id: "4-1",
-        title: "Crisis Management",
-        videoUrl: "https://vimeo.com/1083268308",
-        slug: "crisis-management"
-      },
-      {
-        id: "4-2",
-        title: "Handling a Crisis",
-        videoUrl: "https://vimeo.com/1083268181",
-        slug: "handling-crisis"
-      },
-      {
-        id: "4-3",
-        title: "Top PR Crisis Mistakes to Avoid",
-        videoUrl: "https://vimeo.com/1083268052",
-        slug: "crisis-mistakes"
-      },
-      {
-        id: "4-4",
-        title: "Case Study",
-        videoUrl: "https://vimeo.com/1083267991",
-        slug: "crisis-case-study"
-      }
-    ]
-  },
-  {
-    id: "chapter-5",
-    title: "Social Media",
-    lessons: [
-      {
-        id: "5-1",
-        title: "Social Media Management",
-        videoUrl: "https://vimeo.com/1083267943",
-        slug: "social-media-management"
-      },
-      {
-        id: "5-2",
-        title: "Why Social Media is Essential for PR",
-        videoUrl: "https://vimeo.com/1083267859",
-        slug: "social-media-essential"
-      },
-      {
-        id: "5-3",
-        title: "Ranking Social Media For PR",
-        videoUrl: "https://vimeo.com/1083267643",
-        slug: "ranking-social-media"
-      },
-      {
-        id: "5-4",
-        title: "Optimal Social Media Posting Times for PR",
-        videoUrl: "https://vimeo.com/1083267385",
-        slug: "optimal-posting-times"
-      }
-    ]
-  }
-];
-
-/**
- * Find a lesson by its slug
- */
-export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null, chapter: CourseChapter | null } => {
-  for (const chapter of courseData) {
-    for (const lesson of chapter.lessons) {
-      if (lesson.slug === slug) {
-        return { lesson, chapter };
-      }
-    }
-  }
-  
-  return { lesson: null, chapter: null };
-};
-
-/**
- * Get the first lesson in the course
- */
-export const getFirstLesson = (): { lesson: VideoLesson, chapter: CourseChapter } => {
-  // If there's a chapter-1, start there (skip the full course)
-  if (courseData.length > 1) {
-    const firstChapter = courseData[1];
-    if (firstChapter.lessons.length > 0) {
-      return { 
-        lesson: firstChapter.lessons[0],
-        chapter: firstChapter
-      };
-    }
-  }
-  
-  // Fallback to the very first chapter and lesson
-  return {
-    lesson: courseData[0].lessons[0],
-    chapter: courseData[0]
-  };
-};
-
-/**
- * Find the previous and next lessons relative to a given lesson
- */
-export const getAdjacentLessons = (currentSlug: string): {
-  previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null,
-  nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null
-} => {
-  let previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
-  let nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
-  let foundCurrent = false;
-  
-  // Flatten the course structure for easier navigation
-  const allLessons: Array<{ lesson: VideoLesson, chapter: CourseChapter }> = [];
-  
-  courseData.forEach(chapter => {
-    chapter.lessons.forEach(lesson => {
-      allLessons.push({ lesson, chapter });
-    });
-  });
-  
-  // Find the current lesson's index
-  const currentIndex = allLessons.findIndex(item => item.lesson.slug === currentSlug);
-  
-  if (currentIndex > 0) {
-    previousLesson = allLessons[currentIndex - 1];
-  }
-  
-  if (currentIndex < allLessons.length - 1 && currentIndex !== -1) {
-    nextLesson = allLessons[currentIndex + 1];
-  }
-  
-  return { previousLesson, nextLesson };
-};
+        videoUrl: "https://vimeo.com/108326843
