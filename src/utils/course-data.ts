@@ -1,3 +1,4 @@
+
 export interface VideoLesson {
   id: string;
   title: string;
@@ -412,4 +413,57 @@ export const courseData: CourseChapter[] = [
         id: "13-3",
         title: "Case Study",
         videoUrl: "https://vimeo.com/1083264887",
-        slug
+        slug: "reputation-case-study"
+      }
+    ]
+  }
+];
+
+// Helper function to get a lesson by its slug
+export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null, chapter: CourseChapter | null } => {
+  for (const chapter of courseData) {
+    for (const lesson of chapter.lessons) {
+      if (lesson.slug === slug) {
+        return { lesson, chapter };
+      }
+    }
+  }
+  return { lesson: null, chapter: null };
+};
+
+// Helper function to get the first lesson for initial navigation
+export const getFirstLesson = (): { lesson: VideoLesson, chapter: CourseChapter } => {
+  const firstChapter = courseData[0];
+  const firstLesson = firstChapter.lessons[0];
+  return { lesson: firstLesson, chapter: firstChapter };
+};
+
+// Helper function to get adjacent lessons for navigation
+export const getAdjacentLessons = (currentSlug: string): { previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null, nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null } => {
+  let previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
+  let nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
+  
+  // Flatten the lessons array to find adjacent lessons
+  const allLessons: { lesson: VideoLesson, chapter: CourseChapter }[] = [];
+  courseData.forEach(chapter => {
+    chapter.lessons.forEach(lesson => {
+      allLessons.push({ lesson, chapter });
+    });
+  });
+  
+  // Find the current lesson index
+  const currentIndex = allLessons.findIndex(item => item.lesson.slug === currentSlug);
+  
+  // If the lesson was found, determine adjacent lessons
+  if (currentIndex !== -1) {
+    if (currentIndex > 0) {
+      previousLesson = allLessons[currentIndex - 1];
+    }
+    
+    if (currentIndex < allLessons.length - 1) {
+      nextLesson = allLessons[currentIndex + 1];
+    }
+  }
+  
+  return { previousLesson, nextLesson };
+};
