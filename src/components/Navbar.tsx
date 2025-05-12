@@ -40,8 +40,8 @@ const Navbar: React.FC = () => {
   
   // Determine navbar background classes based on scroll state, page, and user login status
   const navbarClasses = () => {
-    // Add border for logged-in users (except on homepage when not scrolled)
-    const borderClass = user && (!isHomePage || scrolled) ? "border-b border-[#e5e7eb]" : "";
+    // Only add border for logged-in users
+    const borderClass = user ? "border-b border-[#e5e7eb]" : "";
     
     if (isHomePage) {
       return scrolled
