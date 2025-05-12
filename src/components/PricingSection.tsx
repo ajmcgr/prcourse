@@ -53,7 +53,7 @@ const PricingSection: React.FC = () => {
           <div className="mb-6">
             <div className="mb-6 rounded-lg overflow-hidden">
               <img 
-                src="/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" 
+                src="/lovable-uploads/b448d17b-1318-4e45-99ec-e548b4abc6c1.png" 
                 alt="Alex MacGregor" 
                 className="w-1/3 h-auto object-cover rounded-lg mx-auto" 
               />
@@ -107,19 +107,19 @@ const PricingSection: React.FC = () => {
                   <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>All video lessons</span>
+                  <span>The full blueprint to learn the A-Z of PR</span>
                 </div>
                 <div className="flex items-center">
                   <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>All written materials</span>
+                  <span>Full chapter content; text, audio and videos</span>
                 </div>
                 <div className="flex items-center">
                   <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Future updates</span>
+                  <span>Suitable for both beginners and professionals</span>
                 </div>
                 <div className="flex items-center">
                   <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
