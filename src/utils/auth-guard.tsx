@@ -4,6 +4,7 @@ import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { getFirstLesson } from '@/utils/course-data';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -85,6 +86,14 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         <p className="ml-3 text-gray-600">Authenticating...</p>
       </div>
     );
+  }
+
+  // For paths that should immediately go to course content if logged in
+  const shouldRedirectToCourse = location.pathname === '/signup' && user && hasPaid;
+  if (shouldRedirectToCourse) {
+    const { lesson } = getFirstLesson();
+    console.log("User is paid and trying to access signup, redirecting to course");
+    return <Navigate to={`/course/${lesson.slug}`} replace />;
   }
   
   // User is not signed in, redirect to signup

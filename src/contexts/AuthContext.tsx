@@ -107,13 +107,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         checkPaymentStatus(currentSession.user.id)
           .then(isPaid => {
             console.log("Initial payment status check:", isPaid ? "PAID" : "NOT PAID");
+            setLoading(false); // Move this inside to ensure hasPaid is set before loading is complete
           })
           .catch(err => {
             console.error("Error during initial payment check:", err);
+            setLoading(false);
           });
+      } else {
+        setLoading(false);
       }
       
-      setLoading(false);
       setIsInitialCheck(false);
     });
 
@@ -199,7 +202,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/pricing`,
+          redirectTo: `${window.location.origin}/course`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -233,10 +236,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(data.session);
         
         // Force immediate payment status check after login
-        setTimeout(async () => {
+        try {
           const isPaid = await checkPaymentStatus(data.user.id);
           console.log("Payment status after login:", isPaid ? "PAID" : "NOT PAID");
-        }, 0);
+          
+          // Redirect based on payment status
+          if (isPaid) {
+            console.log("User has paid, redirecting to course");
+            window.location.href = "/course";
+          } else {
+            console.log("User has not paid, redirecting to pricing");
+            // No need to redirect here, auth guard will handle this
+          }
+        } catch (err) {
+          console.error("Error checking payment status after login:", err);
+        }
       }
       
       return data;

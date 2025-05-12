@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Menu, User, FileArrowDown } from 'lucide-react';
+import { Menu, User, FileDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getFirstLesson } from '@/utils/course-data';
@@ -112,7 +111,7 @@ const Navbar: React.FC = () => {
                           rel="noopener noreferrer"
                           className="w-full px-4 py-2 flex items-center"
                         >
-                          <FileArrowDown className="h-4 w-4 mr-2" />
+                          <FileDown className="h-4 w-4 mr-2" />
                           Download Slides
                         </a>
                       </DropdownMenuItem>
@@ -166,7 +165,7 @@ const Navbar: React.FC = () => {
                     rel="noopener noreferrer"
                     className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass} flex items-center`}
                   >
-                    <FileArrowDown className="h-4 w-4 mr-1" />
+                    <FileDown className="h-4 w-4 mr-1" />
                     Download Slides
                   </a>
                 )}
