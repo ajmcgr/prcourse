@@ -106,7 +106,7 @@ const PricingSection: React.FC = () => {
           <div className="mb-6">
             <div className="mb-6 rounded-lg overflow-hidden">
               <img 
-                src="/public/lovable-uploads/4a77d3e3-0cd6-4a01-8d12-e40f80854178.png" 
+                src="/public/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" 
                 alt="Alex MacGregor" 
                 className="w-full object-cover rounded-lg" 
               />
