@@ -80,13 +80,6 @@ const PricingSection: React.FC = () => {
               </li>
             </ul>
           </div>
-          <div className="bg-white border rounded-lg p-4">
-            <p className="text-gray-700 italic text-sm">
-              "This course completely transformed our company's PR approach. The practical strategies were 
-              incredibly valuable and immediately applicable."
-            </p>
-            <p className="mt-2 font-medium text-pr-dark text-sm">— David Miller, Communications Director</p>
-          </div>
         </div>
         
         {/* Pricing Card - Now on the right */}
@@ -137,6 +130,15 @@ const PricingSection: React.FC = () => {
                 >
                   {isProcessing ? "Processing..." : "Buy Now — $99"}
                 </Button>
+              </div>
+              
+              {/* Moved testimonial */}
+              <div className="mt-6 bg-white border rounded-lg p-4">
+                <p className="text-gray-700 italic text-sm">
+                  "This course completely transformed our company's PR approach. The practical strategies were 
+                  incredibly valuable and immediately applicable."
+                </p>
+                <p className="mt-2 font-medium text-pr-dark text-sm">— David Miller, Communications Director</p>
               </div>
             </CardContent>
           </Card>
