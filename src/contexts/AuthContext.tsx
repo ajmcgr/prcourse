@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -64,6 +65,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event === 'SIGNED_OUT') {
         // Handle sign-out event
         setHasPaid(false);
+        setUser(null);
+        setSession(null);
         navigate('/');
       }
     });
@@ -175,8 +178,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        toast.error(error.message || 'Failed to sign out');
+        return;
+      }
+      
+      // Manually clear user state
+      setUser(null);
+      setSession(null);
+      setHasPaid(false);
+      
       toast.info('Signed out successfully');
+      navigate('/');
     } catch (error: any) {
       console.error('Sign out error:', error);
       toast.error(error.message || 'Failed to sign out');

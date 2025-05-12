@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu,
@@ -17,6 +18,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const isHomePage = location.pathname === '/';
   const isMobile = useIsMobile();
@@ -49,6 +51,11 @@ const Navbar: React.FC = () => {
   // Always set text color to black
   const textColorClass = "text-black";
   
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await signOut();
+  };
+
   return (
     <nav className={navbarClasses()}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,10 +105,7 @@ const Navbar: React.FC = () => {
                 {user ? (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={(e) => {
-                      e.preventDefault();
-                      signOut();
-                    }}>
+                    <DropdownMenuItem onClick={handleSignOut}>
                       Sign Out
                     </DropdownMenuItem>
                   </>
@@ -133,10 +137,7 @@ const Navbar: React.FC = () => {
                     {user.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={(e) => {
-                    e.preventDefault();
-                    signOut();
-                  }}>
+                  <DropdownMenuItem onClick={handleSignOut}>
                     Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
