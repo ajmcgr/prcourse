@@ -48,7 +48,8 @@ export const courseData: CourseChapter[] = [
         id: "1-3",
         title: "Why PR is More Than Editorial",
         videoUrl: "https://vimeo.com/1083271288",
-        slug: "why-pr-more-than-editorial"
+        slug: "why-pr-more-than-editorial",
+        transcript: "So first of all, I want to like set the scene and kind of like preface the whole course by saying, you know, let's look at what PR is today. And if you think about what PR is, um, and if you ask that the average person on the street, they would probably say like PR is like, um, like madmen, you know, it's like, uh, you know, typical kind of ad agency vibe. They're there to cover up. They're there to do propaganda. You know, if you think back to the kind of, um, the height of like the so-called bad industries, like the tobacco industry, oil and gas, nuclear, um, all the, all the frauds and scams and you know, health coverups and all that stuff. PR was heavily involved in that. Like a lot of these big companies retained PR agencies and a lot of the big agencies today were built off the back of that business, um, long before the internet and you know, a lot of the transparency we have today. So when you think about it like that, PR has kind of got a bad rep and it still has a lingering bad rep to a degree, but things are changing, things are changing.\n\nAnd those kind of traditional, um, gatekeepers, you could say, um, you know, from PR agencies and news wires, um, you know, to, you know, the lobbyists, all that kind of stuff, the internet has kind of really changed the way we, um, we look at that, um, from a, from a kind of, uh, overall perspective. And I think also like, um, some of the people that we look at today, they, they don't even bother hiring a PR agency. Like a lot of the, now, the famous founders and celebrities and TikTok, uh, like influencers, they just go direct. They don't even bother having PR. So, you know, you throw all that into the mix. You also talk about like, you know, um, some of the other things like, you know, how do you, um, how do you manage all this with this information and AI? Like there's so much information being pumped out now as well. Um,  it 's a very different field to what it was, you know, years ago.\n\nAnd I think that is, if I could rank like the things on this, this, um, this slide, like in terms of like what's, what's most important today is probably the information flow. The fact that,  you know,  think back to like back in a day when, you know, one story would be written in a newspaper and newspaper will go out and it'd be a couple of days before other newspapers pick up on it. Like the information just moved very slowly. And now like,  we 're just constantly bombarded with information. Like it's, it's crazy the amount of information we have available at our fingertips. It's, it's all around us. Um, and that's basically, you know, change the game for PR. It's made a lot of the things that PR people used to do and agencies, uh, obsolete.  It 's made a lot of the gatekeepers obsolete and it's brought in new people and new forces from, uh, from other areas like social media. So just what does set the scene like that's like a backdrop of kind of where I see PR, um, as it is, uh, in 2025, mid 2025. So, um, yeah, I think that's where we're at with, with PR."
       },
       {
         id: "1-4",
@@ -482,46 +483,4 @@ export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null; cha
 };
 
 // Helper function to get the first lesson for initial navigation
-export const getFirstLesson = (): { lesson: VideoLesson; chapter: CourseChapter } => {
-  return {
-    lesson: courseData[0].lessons[0],
-    chapter: courseData[0]
-  };
-};
-
-// Helper function to get next and previous lessons
-export const getAdjacentLessons = (
-  currentSlug: string
-): { 
-  previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
-  nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
-} => {
-  let previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
-  let nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
-  let foundCurrent = false;
-  
-  // Create a flat list of all lessons
-  const allLessons: Array<{ lesson: VideoLesson; chapter: CourseChapter }> = [];
-  
-  courseData.forEach(chapter => {
-    chapter.lessons.forEach(lesson => {
-      allLessons.push({ lesson, chapter });
-    });
-  });
-  
-  // Find the current, previous and next lessons
-  for (let i = 0; i < allLessons.length; i++) {
-    if (allLessons[i].lesson.slug === currentSlug) {
-      foundCurrent = true;
-      if (i > 0) {
-        previousLesson = allLessons[i - 1];
-      }
-      if (i < allLessons.length - 1) {
-        nextLesson = allLessons[i + 1];
-      }
-      break;
-    }
-  }
-  
-  return { previousLesson, nextLesson };
-};
+export const getFirstLesson = (): { lesson: VideoLesson
