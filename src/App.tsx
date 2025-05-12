@@ -24,7 +24,7 @@ import NotFoundPage from '@/pages/NotFound';
 function App() {
   return (
     <AuthProvider>
-      <Toaster position="top-right" />
+      <Toaster position="bottom-right" />
       <Router>
         <Routes>
           <Route path="/signup" element={<SignupPage />} />
