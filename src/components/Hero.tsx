@@ -56,7 +56,7 @@ const Hero: React.FC = () => {
         <div className="w-full mt-6 md:mt-12 px-2 md:px-6 animate-fade-in" style={{animationDelay: '0.6s'}}>
           <div className="max-w-5xl mx-auto">
             <img 
-              src="/lovable-uploads/20f5c56e-788c-491b-a855-c7b028cad49f.png" 
+              src="/lovable-uploads/a6d36b7c-e8e5-45eb-b2e6-2816d5da2318.png" 
               alt="Things That Make a Great PR Person" 
               className="w-full rounded-lg shadow-md"
             />
