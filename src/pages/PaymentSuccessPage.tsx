@@ -49,7 +49,7 @@ const PaymentSuccessPage = () => {
           console.log("Processing payment with session ID:", sessionId);
           
           // First check if we already have a completed payment for this user
-          const { data: fetchData, error: fetchError } = await supabase
+          const { data: existingPayments, error: fetchError } = await supabase
             .from('user_payments')
             .select()
             .eq('user_id', user.id)
@@ -60,11 +60,8 @@ const PaymentSuccessPage = () => {
             throw new Error(fetchError.message);
           }
           
-          const existingPayments = fetchData || [];
-          const existingPayment = existingPayments.length > 0 ? existingPayments[0] : null;
-          
-          if (existingPayment) {
-            console.log("User already has a completed payment record:", existingPayment);
+          if (existingPayments && existingPayments.length > 0) {
+            console.log("User already has a completed payment record:", existingPayments[0]);
             updatePaymentStatus(true);
             setIsComplete(true);
             setIsProcessing(false);
@@ -72,7 +69,7 @@ const PaymentSuccessPage = () => {
           }
           
           // Update payment status in database if we found a pending payment with this session ID
-          const { data: pendingData, error: pendingError } = await supabase
+          const { data: pendingPayments, error: pendingError } = await supabase
             .from('user_payments')
             .select()
             .eq('stripe_session_id', sessionId);
@@ -81,11 +78,8 @@ const PaymentSuccessPage = () => {
             console.error('Error fetching pending payment:', pendingError);
           }
           
-          const pendingPayments = pendingData || [];
-          const pendingPayment = pendingPayments.length > 0 ? pendingPayments[0] : null;
-          
-          if (pendingPayment) {
-            console.log("Found pending payment to update:", pendingPayment);
+          if (pendingPayments && pendingPayments.length > 0) {
+            console.log("Found pending payment to update:", pendingPayments[0]);
             
             // Mark payment as completed
             const { error: updateError } = await supabase
@@ -111,7 +105,7 @@ const PaymentSuccessPage = () => {
         }
         
         // If no session ID or no pending payment found, check if this user has any completed payments
-        const { data: completeData, error: completeError } = await supabase
+        const { data: completedPayments, error: completeError } = await supabase
           .from('user_payments')
           .select()
           .eq('user_id', user.id)
@@ -121,11 +115,8 @@ const PaymentSuccessPage = () => {
           console.error('Error checking completed payments:', completeError);
         }
         
-        const completedPayments = completeData || [];
-        const completedPayment = completedPayments.length > 0 ? completedPayments[0] : null;
-        
-        if (completedPayment) {
-          console.log("User has a completed payment:", completedPayment);
+        if (completedPayments && completedPayments.length > 0) {
+          console.log("User has a completed payment:", completedPayments[0]);
           updatePaymentStatus(true);
           setIsComplete(true);
           setIsProcessing(false);

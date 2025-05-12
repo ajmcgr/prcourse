@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const EmailSignup: React.FC = () => {
@@ -20,6 +20,7 @@ const EmailSignup: React.FC = () => {
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [signupComplete, setSignupComplete] = useState(false);
   const [signupMessage, setSignupMessage] = useState('');
+  const [autoSignIn, setAutoSignIn] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithEmail, signUp, signInWithGoogle, user } = useAuth();
@@ -56,6 +57,7 @@ const EmailSignup: React.FC = () => {
     
     setIsLoading(true);
     try {
+      console.log("Attempting manual sign in with:", email);
       await signInWithEmail(email, password);
       navigate('/course/introduction');
     } catch (error) {
@@ -98,26 +100,20 @@ const EmailSignup: React.FC = () => {
           // Show the signup completion message
           setSignupComplete(true);
           setSignupMessage(result.message);
+          setAutoSignIn(result.autoSignedIn);
           
-          // If message indicates automatic sign-in should work
-          if (result.message.includes("you're now logged in")) {
-            // Try direct sign in if signup was successful but user isn't set yet
-            if (!user) {
-              console.log("Attempting automatic sign in after successful signup");
-              try {
-                await signInWithEmail(email, password);
-                setTimeout(() => {
-                  navigate('/course/introduction');
-                }, 500);
-              } catch (signInError) {
-                console.error("Auto sign-in failed:", signInError);
-              }
-            } else {
-              // If user is already set, navigate
-              setTimeout(() => {
-                navigate('/course/introduction');
-              }, 500);
-            }
+          console.log("Signup result:", { 
+            success: result.success, 
+            message: result.message, 
+            autoSignedIn: result.autoSignedIn 
+          });
+          
+          // If auto-signed in, navigate after a short delay
+          if (result.autoSignedIn) {
+            console.log("Auto-signed in, navigating to course in 1 second...");
+            setTimeout(() => {
+              navigate('/course/introduction');
+            }, 1000);
           }
         } else {
           // Handle signup failure
@@ -178,21 +174,27 @@ const EmailSignup: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <div className="p-4 bg-green-50 rounded-md flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-green-500" />
-            <p className="text-sm text-green-700">
-              {signupMessage.includes("you're now logged in") 
-                ? "You are now signed in and can access the course content."
-                : "We couldn't automatically sign you in. Please sign in manually with your new account."}
-            </p>
-          </div>
-          {user ? (
-            <Button 
-              className="w-full"
-              onClick={() => navigate('/course/introduction')}
-            >
-              Go to Course
-            </Button>
+          {autoSignIn ? (
+            <div className="p-4 bg-green-50 rounded-md flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-green-500" />
+              <p className="text-sm text-green-700">
+                You've been signed in automatically! Redirecting you to the course...
+              </p>
+            </div>
+          ) : (
+            <div className="p-4 bg-yellow-50 rounded-md flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-500" />
+              <p className="text-sm text-yellow-700">
+                We couldn't automatically sign you in. Please sign in manually with your new account.
+              </p>
+            </div>
+          )}
+          
+          {autoSignIn ? (
+            <div className="flex justify-center my-4">
+              <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+              <span className="ml-2">Redirecting to course...</span>
+            </div>
           ) : (
             <div className="grid gap-4">
               <Button 
@@ -400,7 +402,14 @@ const EmailSignup: React.FC = () => {
             )}
             
             <Button className="w-full bg-black hover:bg-black/90 text-white" type="submit" disabled={isLoading}>
-              {isLoading ? "Processing..." : isSignUp ? "Create Account" : "Sign In"}
+              {isLoading ? (
+                <span className="flex items-center">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </span>
+              ) : (
+                isSignUp ? "Create Account" : "Sign In"
+              )}
             </Button>
           </div>
         </form>

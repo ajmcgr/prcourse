@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,7 +11,7 @@ interface AuthContextType {
   supabase: typeof supabase;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<any>; 
-  signUp: (email: string, password: string, name: string) => Promise<{success: boolean, message: string}>;
+  signUp: (email: string, password: string, name: string) => Promise<{success: boolean, message: string, autoSignedIn: boolean}>;
   signOut: () => Promise<void>;
   updatePaymentStatus: (paid: boolean) => void;
   checkPaymentStatus: (userId: string) => Promise<boolean>;
@@ -125,6 +124,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
+      console.log("Attempting to sign in with email:", email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -134,6 +134,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // If sign in is successful, check if we have a user
       if (data.user) {
+        console.log("Sign in successful, user:", data.user.id);
         setUser(data.user);
         setSession(data.session);
         checkPaymentStatus(data.user.id);
@@ -141,13 +142,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       return data; // Return the data so it can be used by the caller if needed
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in");
       console.error("Email sign in error:", error);
+      toast.error(error.message || "Failed to sign in");
       throw error;
     }
   };
 
-  const signUp = async (email: string, password: string, name: string): Promise<{success: boolean, message: string}> => {
+  const signUp = async (email: string, password: string, name: string): Promise<{success: boolean, message: string, autoSignedIn: boolean}> => {
     try {
       console.log("Starting signup process with:", { email, name });
       
@@ -171,37 +172,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           // Try to sign in directly if the error suggests the user might exist
           try {
+            console.log("Attempting direct sign-in after error:", error.message);
             const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
               email,
               password,
             });
 
             if (!signInError && signInData.user) {
+              console.log("Direct sign-in successful after signup error");
               setUser(signInData.user);
               setSession(signInData.session);
               toast.success("Signed in successfully!");
               return { 
                 success: true, 
-                message: "Account accessed successfully! You've been signed in."
+                message: "Account accessed successfully! You've been signed in.",
+                autoSignedIn: true
               };
             } else {
+              console.log("Direct sign-in failed after signup error:", signInError);
               // If we get here, the user might exist but the password is wrong
               return { 
                 success: false, 
-                message: error.message
+                message: error.message,
+                autoSignedIn: false
               };
             }
           } catch (signInError: any) {
             console.error("Error during signin attempt after signup error:", signInError);
             return { 
               success: false, 
-              message: error.message
+              message: error.message,
+              autoSignedIn: false
             };
           }
         }
         
         // For other errors, return the error message
-        return { success: false, message: error.message };
+        return { success: false, message: error.message, autoSignedIn: false };
       }
       
       console.log("Signup response:", data);
@@ -212,44 +219,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         // Try to sign in directly anyway - this is a fix for automatic sign-in
         try {
-          console.log("Attempting automatic sign-in after signup");
+          console.log("Attempting automatic sign-in immediately after signup");
           const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
             email,
             password,
           });
           
           if (!signInError && signInData.user) {
-            console.log("Auto sign-in successful after signup");
+            console.log("Auto sign-in successful after signup!");
             setUser(signInData.user);
             setSession(signInData.session);
             return { 
               success: true, 
-              message: "Account created and you're now logged in!" 
+              message: "Account created and you're now logged in!", 
+              autoSignedIn: true
             };
           } else {
-            console.log("Auto sign-in failed:", signInError);
-            // Disable email confirmation to help with auto sign-in
-            try {
-              // This is a workaround - if we created the user but couldn't sign in,
-              // we temporarily disable email confirmation requirements
-              console.log("Account created, but couldn't auto-sign in");
-              return { 
-                success: true, 
-                message: "Account created! Please sign in manually." 
-              };
-            } catch (err) {
-              console.error("Error during post-signup flow:", err);
-              return { 
-                success: true, 
-                message: "Account created! Please sign in manually."
-              };
-            }
+            console.log("Auto sign-in failed after signup:", signInError);
+            return { 
+              success: true, 
+              message: "Account created! Please sign in manually.", 
+              autoSignedIn: false
+            };
           }
         } catch (signInError: any) {
           console.error("Auto sign-in failed after signup:", signInError);
           return { 
             success: true, 
-            message: "Account created! Please sign in manually."
+            message: "Account created! Please sign in manually.",
+            autoSignedIn: false
           };
         }
       }
@@ -261,20 +259,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(data.session);
         return { 
           success: true, 
-          message: "Account created and you're now logged in!" 
+          message: "Account created and you're now logged in!", 
+          autoSignedIn: true
         };
       }
       
       // Fallback for unknown cases
       return { 
         success: true, 
-        message: "Account created! Please check your email or sign in manually." 
+        message: "Account created! Please check your email or sign in manually.", 
+        autoSignedIn: false
       };
       
     } catch (error: any) {
       console.error("Unhandled signup error:", error);
       toast.error(error.message || "Failed to sign up");
-      return { success: false, message: error.message || "Failed to sign up" };
+      return { success: false, message: error.message || "Failed to sign up", autoSignedIn: false };
     }
   };
 
