@@ -14,24 +14,23 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const { user, loading, hasPaid, checkPaymentStatus } = useAuth();
   const [isChecking, setIsChecking] = useState(true);
   
+  // Define public paths outside of the effect to avoid re-creating on each render
+  const publicPaths = ['/signup', '/', '/pricing', '/payment-success'];
+  const isPublicPath = publicPaths.includes(location.pathname);
+  const isPaymentSuccess = location.pathname === '/payment-success';
+  
   useEffect(() => {
     // Log auth status for debugging
     console.log("AuthGuard state:", { 
       user: user?.id, 
       loading, 
       hasPaid, 
-      path: location.pathname 
+      path: location.pathname,
+      isPublicPath
     });
     
-    // Check if we're on the payment success path
-    const isPaymentSuccess = 
-      location.pathname === '/payment-success' || 
-      searchParams.has('session_id') || 
-      searchParams.has('CHECKOUT_SESSION_ID');
-    
-    // Simple paths that don't need authentication or payment checks
-    const publicPaths = ['/signup', '/', '/pricing'];
-    const isPublicPath = publicPaths.includes(location.pathname);
+    // Check if we're on payment success or there's a session_id parameter
+    const hasSessionId = searchParams.has('session_id') || searchParams.has('CHECKOUT_SESSION_ID');
     
     // Force a payment status check when auth guard mounts or path changes
     const checkAuth = async () => {
@@ -44,8 +43,13 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       setTimeout(() => setIsChecking(false), 200);
     };
     
-    checkAuth();
-  }, [user, loading, location.pathname, searchParams, checkPaymentStatus, hasPaid]);
+    // Only check auth if we're not on a public path or we're on payment success
+    if (!isPublicPath || isPaymentSuccess || hasSessionId) {
+      checkAuth();
+    } else {
+      setIsChecking(false);
+    }
+  }, [user, loading, location.pathname, searchParams, checkPaymentStatus, hasPaid, isPublicPath, isPaymentSuccess]);
   
   // If we're loading auth state or checking payment, show loading indicator
   if (loading || isChecking) {
@@ -57,10 +61,6 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
   
-  // Simple paths that don't need authentication or payment checks
-  const publicPaths = ['/signup', '/', '/pricing', '/payment-success'];
-  const isPublicPath = publicPaths.includes(location.pathname);
-  
   // User is not signed in, redirect to signup
   if (!user && !isPublicPath) {
     console.log("User not authenticated, redirecting to signup");
@@ -70,7 +70,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
 
   // User is signed in but hasn't paid, redirect to pricing
   // Skip this check for payment-success page to avoid redirect loops
-  if (user && !hasPaid && !isPublicPath) {
+  if (user && !hasPaid && !isPublicPath && !isPaymentSuccess) {
     console.log("User authenticated but not paid, redirecting to pricing");
     toast.info("Please complete your payment to access course content.");
     return <Navigate to="/pricing" state={{ from: location.pathname }} replace />;

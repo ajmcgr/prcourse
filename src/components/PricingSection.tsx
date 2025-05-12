@@ -24,6 +24,7 @@ const PricingSection: React.FC = () => {
       // Create payment session using our edge function
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
+          // Ensure we're using the full origin (including protocol) for the success URL
           returnUrl: `${window.location.origin}/payment-success`
         }
       });
@@ -41,6 +42,7 @@ const PricingSection: React.FC = () => {
       }
       
       console.log("Redirecting to Stripe payment URL:", data.url);
+      // Redirect to Stripe checkout page
       window.location.href = data.url;
     } catch (err) {
       console.error('Purchase error:', err);

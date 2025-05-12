@@ -88,9 +88,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Query the payments table to check if this user has a successful payment
       const { data, error } = await supabase
         .from('user_payments')
-        .select('payment_status')
+        .select('payment_status, updated_at')
         .eq('user_id', userId)
         .eq('payment_status', 'completed')
+        .order('updated_at', { ascending: false })
         .maybeSingle();
       
       if (error) {
@@ -100,7 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       const isPaid = !!data;
-      console.log("Payment status check result:", isPaid ? "PAID" : "NOT PAID");
+      console.log("Payment status check result:", isPaid ? "PAID" : "NOT PAID", data);
       setHasPaid(isPaid);
       return isPaid;
     } catch (error) {
@@ -125,7 +126,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .from('user_payments')
           .select('id')
           .eq('user_id', user.id)
-          .eq('payment_status', paid ? 'completed' : 'pending')
           .maybeSingle();
           
         if (fetchError) {

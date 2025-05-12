@@ -43,15 +43,17 @@ serve(async (req) => {
     // Determine the origin and success URL
     const origin = req.headers.get("origin") || "https://prcourse.alexmacgregor.com";
     
-    // For production site (prcourse.alexmacgregor.com) use /course/full-course
-    // For development site use /payment-success
-    const isProduction = origin.includes("prcourse.alexmacgregor.com");
-    const successPath = isProduction ? "/course/full-course" : "/payment-success";
-    
     // If returnUrl is provided, use it, otherwise use the default
-    const defaultReturnUrl = returnUrl || `${origin}${successPath}`;
+    let successUrl = returnUrl || `${origin}/payment-success`;
     
-    console.log("Using success URL:", defaultReturnUrl);
+    // Ensure the success URL has the query parameter placeholder
+    if (!successUrl.includes('?')) {
+      successUrl = `${successUrl}?session_id={CHECKOUT_SESSION_ID}`;
+    } else if (!successUrl.includes('session_id=')) {
+      successUrl = `${successUrl}&session_id={CHECKOUT_SESSION_ID}`;
+    }
+    
+    console.log("Using success URL:", successUrl);
     
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -79,7 +81,7 @@ serve(async (req) => {
     }
 
     // Create a one-time payment session
-    console.log("Creating checkout session with return URL:", defaultReturnUrl);
+    console.log("Creating checkout session with return URL:", successUrl);
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -96,7 +98,7 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${defaultReturnUrl}?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: successUrl,
       cancel_url: `${origin}/pricing`,
     });
 

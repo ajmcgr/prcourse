@@ -35,89 +35,76 @@ const PaymentSuccessPage = () => {
           return;
         }
 
-        // Even if no session ID is present, try to verify the payment
-        // This handles cases where the user returns directly to the site after payment
-        console.log("Verifying payment status for user:", user.id);
-        
-        // First check if payment is already recorded in database
-        await checkPaymentStatus(user.id);
-        
-        if (hasPaid) {
-          console.log("Payment already verified for user:", user.id);
-          toast.success("Payment verified! You now have full access to the course.");
-          
-          // Get first lesson to ensure we have a valid path
-          const { lesson } = getFirstLesson();
-          const redirectPath = `/course/${lesson.slug}`;
-          
-          console.log("Redirecting to:", redirectPath);
-          setTimeout(() => {
-            navigate(redirectPath, { replace: true });
-          }, 1500);
-          
-          setProcessing(false);
-          return;
-        }
-        
-        // If there's a session ID, try to verify with Stripe directly
+        // If session ID is present, try to verify with Stripe directly
         if (sessionId) {
           console.log("Verifying session with Stripe:", sessionId);
           
-          // Use our edge function to verify the payment with Stripe
-          const { data, error } = await supabase.functions.invoke("verify-payment", {
-            body: { 
-              sessionId,
-              userId: user.id
-            }
-          });
-          
-          if (error) {
-            console.error("Payment verification failed:", error);
-            setError("Unable to verify payment with Stripe. Please contact support.");
-            setProcessing(false);
-            return;
-          }
-          
-          if (data?.verified) {
-            console.log("Payment verified with Stripe, updating status");
-            const result = await updatePaymentStatus(true);
+          try {
+            // Use our edge function to verify the payment with Stripe
+            const { data, error } = await supabase.functions.invoke("verify-payment", {
+              body: { 
+                sessionId,
+                userId: user.id
+              }
+            });
             
-            if (result.error) {
-              console.error("Failed to update payment status:", result.error);
-              setError("Payment verified but failed to update your account. Please contact support.");
-            } else {
-              console.log("Payment recorded successfully");
-              toast.success("Payment successful! You now have full access to the course.");
-              
-              // Force a re-check of payment status
-              await checkPaymentStatus(user.id);
-              
-              // Get first lesson for redirect
-              const { lesson } = getFirstLesson();
-              navigate(`/course/${lesson.slug}`, { replace: true });
+            if (error) {
+              console.error("Payment verification failed:", error);
+              setError(`Unable to verify payment: ${error.message}`);
+              setProcessing(false);
+              return;
             }
-          } else {
-            console.log("Payment could not be verified with Stripe");
-            setError("Payment could not be verified. Please contact support.");
+            
+            if (data?.verified) {
+              console.log("Payment verified with Stripe, updating status");
+              const result = await updatePaymentStatus(true);
+              
+              if (result.error) {
+                console.error("Failed to update payment status:", result.error);
+                setError(`Payment verified but failed to update your account: ${result.error.message}`);
+              } else {
+                console.log("Payment recorded successfully");
+                toast.success("Payment successful! You now have full access to the course.");
+                
+                // Force a re-check of payment status
+                await checkPaymentStatus(user.id);
+                
+                // Get first lesson for redirect
+                const { lesson } = getFirstLesson();
+                navigate(`/course/${lesson.slug}`, { replace: true });
+              }
+            } else {
+              console.log("Payment could not be verified with Stripe:", data);
+              setError("Payment could not be verified. Please contact support.");
+            }
+          } catch (verifyError: any) {
+            console.error("Error during payment verification:", verifyError);
+            setError(`Verification error: ${verifyError.message}`);
           }
         } else {
-          // No session ID but the user is here - try one last time to record payment anyway
-          console.log("No session ID, trying to force record payment");
-          const result = await updatePaymentStatus(true);
+          // Even if no session ID is present, try to verify the payment
+          // This handles cases where the user returns directly to the site after payment
+          console.log("No session ID, checking payment status in database");
           
-          if (result.error) {
-            console.error("Failed to record payment:", result.error);
-            setError("Failed to record your payment. Please contact support.");
-          } else {
-            console.log("Payment force-recorded successfully");
-            toast.success("Payment recorded! You now have full access to the course.");
+          // First check if payment is already recorded in database
+          const isPaid = await checkPaymentStatus(user.id);
+          
+          if (isPaid) {
+            console.log("Payment already verified for user:", user.id);
+            toast.success("Payment verified! You now have full access to the course.");
             
-            // Force a re-check of payment status
-            await checkPaymentStatus(user.id);
-            
-            // Redirect to course
+            // Get first lesson to ensure we have a valid path
             const { lesson } = getFirstLesson();
-            navigate(`/course/${lesson.slug}`, { replace: true });
+            const redirectPath = `/course/${lesson.slug}`;
+            
+            console.log("Redirecting to:", redirectPath);
+            setTimeout(() => {
+              navigate(redirectPath, { replace: true });
+            }, 1000);
+          } else {
+            // No payment record found and no session ID to verify
+            console.log("No payment record found, manual verification needed");
+            setError("We couldn't find your payment. Please try again or contact support if you've already made a payment.");
           }
         }
       } catch (err) {
@@ -216,7 +203,7 @@ const PaymentSuccessPage = () => {
             <h3 className="font-bold mb-1">Debug Info:</h3>
             <p>User ID: {user?.id || 'Not logged in'}</p>
             <p>Has Paid: {hasPaid ? 'Yes' : 'No'}</p>
-            <p>Session ID: {searchParams.get('session_id') || 'None'}</p>
+            <p>Session ID: {searchParams.get('session_id') || searchParams.get('CHECKOUT_SESSION_ID') || 'None'}</p>
           </div>
         )}
       </div>

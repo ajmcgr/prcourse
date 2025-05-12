@@ -1,18 +1,17 @@
 
 import React, { useEffect } from 'react';
-import { Outlet, Navigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CourseSidebar from '@/components/CourseSidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { toast } from "sonner";
-import { getLessonBySlug, getFirstLesson } from '@/utils/course-data';
+import { getFirstLesson } from '@/utils/course-data';
 
 const CourseLayout = () => {
-  const { user, loading, hasPaid, checkPaymentStatus } = useAuth();
+  const { user, loading, hasPaid } = useAuth();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
   
   // Debug logging
   useEffect(() => {
@@ -21,25 +20,8 @@ const CourseLayout = () => {
       user: user?.id, 
       loading, 
       hasPaid,
-      hasSearchParams: Array.from(searchParams.entries()).length > 0
     });
-    
-    // Verify payment status when needed
-    const verifyPaymentIfNeeded = async () => {
-      if (user && !loading) {
-        console.log("Checking payment status in CourseLayout");
-        const isPaid = await checkPaymentStatus(user.id);
-        
-        // If still not paid after checking, redirect to pricing
-        if (!isPaid && !loading) {
-          console.log("User not paid after verification, redirecting to pricing");
-          toast.info("Please complete your payment to access the course");
-        }
-      }
-    };
-    
-    verifyPaymentIfNeeded();
-  }, [user, loading, location.pathname, checkPaymentStatus]);
+  }, [user, loading, location.pathname, hasPaid]);
   
   if (loading) {
     return (
@@ -69,8 +51,8 @@ const CourseLayout = () => {
   
   if (isRootCoursePath) {
     const { lesson } = getFirstLesson();
-    console.log("Redirecting from course root path to first lesson:", lesson.slug);
-    return <Navigate to={`/course/${lesson.slug}`} replace />;
+    console.log("Redirecting from course root path to first lesson:", lesson?.slug);
+    return <Navigate to={`/course/${lesson?.slug}`} replace />;
   }
   
   return (
