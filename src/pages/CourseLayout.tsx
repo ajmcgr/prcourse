@@ -63,6 +63,7 @@ const CourseLayout = () => {
   }
   
   // Handle root course path by redirecting to first lesson
+  // Only redirect if it's exactly /course or /course/ - not for /course/introduction
   const isRootCoursePath = location.pathname === '/course' || location.pathname === '/course/';
   
   if (isRootCoursePath) {
