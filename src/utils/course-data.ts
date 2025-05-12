@@ -142,3 +142,106 @@ export const courseData: CourseChapter[] = [
     ]
   }
 ];
+
+// Helper functions that need to be implemented
+
+/**
+ * Get the first available lesson in the course
+ */
+export const getFirstLesson = () => {
+  const firstChapter = courseData[0];
+  const firstLesson = firstChapter.lessons[0];
+  return {
+    chapter: firstChapter,
+    lesson: firstLesson
+  };
+};
+
+/**
+ * Find a lesson by its slug and return both the lesson and its chapter
+ */
+export const getLessonBySlug = (slug: string) => {
+  for (const chapter of courseData) {
+    for (const lesson of chapter.lessons) {
+      if (lesson.slug === slug) {
+        return {
+          chapter,
+          lesson
+        };
+      }
+    }
+  }
+  return { chapter: null, lesson: null };
+};
+
+/**
+ * Find the previous lesson in the course sequence
+ */
+export const getPreviousLesson = (currentSlug: string) => {
+  let previousLesson: VideoLesson | null = null;
+  let previousChapter: CourseChapter | null = null;
+  
+  for (const chapter of courseData) {
+    for (let i = 0; i < chapter.lessons.length; i++) {
+      const lesson = chapter.lessons[i];
+      
+      if (lesson.slug === currentSlug) {
+        // If not the first lesson in the chapter
+        if (i > 0) {
+          return {
+            chapter,
+            lesson: chapter.lessons[i - 1]
+          };
+        } 
+        // If first lesson in chapter but not first chapter
+        else if (previousChapter) {
+          const prevChapterLastLessonIndex = previousChapter.lessons.length - 1;
+          return {
+            chapter: previousChapter,
+            lesson: previousChapter.lessons[prevChapterLastLessonIndex]
+          };
+        }
+        // If first lesson in first chapter, no previous lesson
+        return null;
+      }
+    }
+    previousChapter = chapter;
+  }
+  
+  return null;
+};
+
+/**
+ * Find the next lesson in the course sequence
+ */
+export const getNextLesson = (currentSlug: string) => {
+  for (let chapterIndex = 0; chapterIndex < courseData.length; chapterIndex++) {
+    const chapter = courseData[chapterIndex];
+    
+    for (let lessonIndex = 0; lessonIndex < chapter.lessons.length; lessonIndex++) {
+      const lesson = chapter.lessons[lessonIndex];
+      
+      if (lesson.slug === currentSlug) {
+        // If not the last lesson in the chapter
+        if (lessonIndex < chapter.lessons.length - 1) {
+          return {
+            chapter,
+            lesson: chapter.lessons[lessonIndex + 1]
+          };
+        } 
+        // If last lesson in chapter but not last chapter
+        else if (chapterIndex < courseData.length - 1) {
+          const nextChapter = courseData[chapterIndex + 1];
+          return {
+            chapter: nextChapter,
+            lesson: nextChapter.lessons[0]
+          };
+        }
+        // If last lesson in last chapter, no next lesson
+        return null;
+      }
+    }
+  }
+  
+  return null;
+};
