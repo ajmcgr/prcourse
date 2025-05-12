@@ -47,51 +47,56 @@ serve(async (req) => {
       if (userId) {
         console.log("Updating payment record for user:", userId);
         
-        // First check if a payment record already exists
-        const { data: existingPayment } = await supabaseClient
-          .from('user_payments')
-          .select('id')
-          .eq('user_id', userId)
-          .maybeSingle();
+        try {
+          // First check if a payment record already exists
+          const { data: existingPayment, error: fetchError } = await supabaseClient
+            .from('user_payments')
+            .select('id')
+            .eq('user_id', userId)
+            .maybeSingle();
 
-        if (existingPayment) {
-          // Update existing record
-          console.log("Updating existing payment record");
-          const { error } = await supabaseClient
-            .from('user_payments')
-            .update({
-              stripe_session_id: session.id,
-              payment_status: 'completed',
-              amount: session.amount_total || 9900,
-              updated_at: new Date().toISOString()
-            })
-            .eq('user_id', userId);
-            
-          if (error) {
-            console.error("Error updating payment record:", error);
-            throw new Error(`Failed to update payment record: ${error.message}`);
-          } else {
-            console.log("Payment record updated successfully");
+          if (fetchError) {
+            console.error("Error checking for existing payment:", fetchError);
+            throw new Error(`Failed to check existing payment: ${fetchError.message}`);
           }
-        } else {
-          // Create new record
-          console.log("Creating new payment record");
-          const { error } = await supabaseClient
-            .from('user_payments')
-            .insert({
-              user_id: userId,
-              stripe_session_id: session.id,
-              payment_status: 'completed',
-              amount: session.amount_total || 9900,
-              updated_at: new Date().toISOString()
-            });
-            
-          if (error) {
-            console.error("Error creating payment record:", error);
-            throw new Error(`Failed to create payment record: ${error.message}`);
+
+          let updateResult;
+          
+          if (existingPayment) {
+            // Update existing record
+            console.log("Updating existing payment record for ID:", existingPayment.id);
+            updateResult = await supabaseClient
+              .from('user_payments')
+              .update({
+                stripe_session_id: session.id,
+                payment_status: 'completed',
+                amount: session.amount_total || 9900,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', existingPayment.id);
           } else {
-            console.log("Payment record created successfully");
+            // Create new record
+            console.log("Creating new payment record");
+            updateResult = await supabaseClient
+              .from('user_payments')
+              .insert({
+                user_id: userId,
+                stripe_session_id: session.id,
+                payment_status: 'completed',
+                amount: session.amount_total || 9900,
+                updated_at: new Date().toISOString()
+              });
           }
+          
+          if (updateResult.error) {
+            console.error("Database operation failed:", updateResult.error);
+            throw new Error(`Failed to update payment record: ${updateResult.error.message}`);
+          } else {
+            console.log("Payment record successfully updated/created in database");
+          }
+        } catch (dbError: any) {
+          console.error("Database operation error:", dbError);
+          throw new Error(`Database error: ${dbError.message}`);
         }
       }
       
