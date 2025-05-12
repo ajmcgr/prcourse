@@ -25,52 +25,66 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     
     // Handle Stripe redirects - check for multiple possible parameters
     const handleStripeRedirect = async () => {
-      // Check for various Stripe parameters
-      const sessionId = searchParams.get('checkout_session_id') || 
-                        searchParams.get('session_id') || 
-                        searchParams.get('CHECKOUT_SESSION_ID');
-      
-      // Also check for success_url parameter which Stripe might add
-      const isSuccessRedirect = searchParams.get('checkout_session_completed') === 'true' || 
-                                searchParams.get('success_url') === 'true' || 
-                                location.pathname.includes('/course/full-course');
-      
-      const directLink = searchParams.get('direct_link') === 'true';
-      
-      console.log("Checking for payment redirect with params:", { 
-        sessionId, 
-        isSuccessRedirect,
-        directLink,
-        pathname: location.pathname
-      });
-      
-      // Handle both redirect patterns: /course/full-course (production) and /payment-success (development)
-      if ((sessionId || isSuccessRedirect || 
-           location.pathname === '/course/full-course' || 
-           location.pathname === '/payment-success') && user) {
+      try {
+        // Check for various Stripe parameters
+        const sessionId = searchParams.get('checkout_session_id') || 
+                          searchParams.get('session_id') || 
+                          searchParams.get('CHECKOUT_SESSION_ID');
         
-        console.log("Detected Stripe redirect:", { 
+        // Also check for success_url parameter which Stripe might add
+        const isSuccessRedirect = searchParams.get('checkout_session_completed') === 'true' || 
+                                  searchParams.get('success_url') === 'true' || 
+                                  location.pathname.includes('/course/full-course');
+        
+        const directLink = searchParams.get('direct_link') === 'true';
+        
+        console.log("Checking for payment redirect with params:", { 
           sessionId, 
-          isSuccessRedirect, 
-          pathname: location.pathname 
+          isSuccessRedirect,
+          directLink,
+          pathname: location.pathname
         });
         
-        toast.info("Verifying your payment...");
-        
-        try {
-          // Create a payment record in the database
-          const { error } = await updatePaymentStatus(true);
+        // Handle both redirect patterns: /course/full-course (production) and /payment-success (development)
+        if ((sessionId || isSuccessRedirect || 
+             location.pathname === '/course/full-course' || 
+             location.pathname === '/payment-success') && user) {
           
-          if (error) {
-            console.error("Error updating payment status:", error);
-            toast.error("Failed to verify payment. Please contact support.");
-          } else {
-            console.log("Payment status updated successfully");
-            toast.success("Payment verified! You now have full access to the course.");
+          console.log("Detected Stripe redirect:", { 
+            sessionId, 
+            isSuccessRedirect, 
+            pathname: location.pathname 
+          });
+          
+          toast.info("Verifying your payment...");
+          
+          try {
+            // Create a payment record in the database
+            const result = await updatePaymentStatus(true);
+            
+            if (result.error) {
+              console.error("Error updating payment status:", result.error);
+              toast.error("Failed to verify payment. Please contact support.", {
+                description: `Error: ${result.error.message || "Unknown error"}`,
+                duration: 10000, // Show for 10 seconds to ensure user sees it
+              });
+            } else {
+              console.log("Payment status updated successfully");
+              toast.success("Payment verified! You now have full access to the course.");
+            }
+          } catch (err) {
+            console.error("Error handling Stripe redirect:", err);
+            toast.error("Failed to process payment verification. Please try refreshing the page.", {
+              description: err instanceof Error ? err.message : "Unknown error occurred",
+              duration: 10000,
+            });
           }
-        } catch (err) {
-          console.error("Error handling Stripe redirect:", err);
         }
+      } catch (err) {
+        console.error("Exception in handleStripeRedirect:", err);
+        toast.error("An error occurred during payment verification", {
+          description: err instanceof Error ? err.message : "Unknown error occurred",
+        });
       }
     };
     
@@ -78,11 +92,16 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     const checkPayment = async () => {
       if (user && user.id) {
         console.log("Forcing payment status check for user:", user.id);
-        const isPaid = await checkPaymentStatus(user.id);
-        console.log("Payment check result:", isPaid);
-        
-        // If we have a session ID in the URL or are on the full-course/payment-success page, handle the Stripe redirect
-        handleStripeRedirect();
+        try {
+          const isPaid = await checkPaymentStatus(user.id);
+          console.log("Payment check result:", isPaid);
+          
+          // If we have a session ID in the URL or are on the full-course/payment-success page, handle the Stripe redirect
+          await handleStripeRedirect();
+        } catch (error) {
+          console.error("Error in checkPayment:", error);
+          toast.error("Error checking payment status");
+        }
       }
       
       // Give a short delay to ensure auth and payment status are properly loaded
@@ -113,7 +132,12 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         console.log("User on redirect page but not marked as paid - updating payment status");
         updatePaymentStatus(true)
           .then(() => console.log("Payment status updated from redirect page"))
-          .catch(err => console.error("Failed to update payment status:", err));
+          .catch(err => {
+            console.error("Failed to update payment status:", err);
+            toast.error("Could not update payment status", {
+              description: err instanceof Error ? err.message : "Unknown error",
+            });
+          });
       }
       
       console.log("User is authenticated on redirect page, redirecting to course introduction");

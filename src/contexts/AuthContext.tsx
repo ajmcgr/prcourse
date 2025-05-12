@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -104,19 +103,57 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       console.log("Updating payment status to:", paid ? "PAID" : "NOT PAID");
       
-      // Insert or update payment record in database
-      const { error } = await supabase
-        .from('user_payments')
-        .upsert({
-          user_id: user.id,
-          payment_status: paid ? 'completed' : 'pending',
-          amount: 9900, // $99.00
-          updated_at: new Date().toISOString()
-        });
+      // Insert or update payment record in database with better error handling
+      try {
+        // Check if a payment record already exists to avoid duplicate key errors
+        const { data: existingPayment, error: fetchError } = await supabase
+          .from('user_payments')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('payment_status', paid ? 'completed' : 'pending')
+          .maybeSingle();
+          
+        if (fetchError) {
+          console.error("Error checking existing payment record:", fetchError);
+          return { error: new Error(`Database error: ${fetchError.message}`) };
+        }
         
-      if (error) {
-        console.error("Error updating payment record:", error);
-        return { error };
+        let error;
+        
+        if (existingPayment) {
+          // Update existing record
+          console.log("Updating existing payment record");
+          const result = await supabase
+            .from('user_payments')
+            .update({
+              payment_status: paid ? 'completed' : 'pending',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingPayment.id);
+            
+          error = result.error;
+        } else {
+          // Insert new record
+          console.log("Creating new payment record");
+          const result = await supabase
+            .from('user_payments')
+            .insert({
+              user_id: user.id,
+              payment_status: paid ? 'completed' : 'pending',
+              amount: 9900, // $99.00
+              updated_at: new Date().toISOString()
+            });
+            
+          error = result.error;
+        }
+        
+        if (error) {
+          console.error("Database operation failed:", error);
+          return { error: new Error(`Failed to save payment: ${error.message}`) };
+        }
+      } catch (dbError: any) {
+        console.error("Exception during database operation:", dbError);
+        return { error: new Error(`Database exception: ${dbError.message}`) };
       }
       
       // Update local state
