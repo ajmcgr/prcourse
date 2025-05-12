@@ -1,48 +1,14 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from "sonner";
-import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 
 const PricingSection: React.FC = () => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { user, updatePaymentStatus } = useAuth();
-  const navigate = useNavigate();
+  // Direct link to Stripe payment page
+  const stripePaymentLink = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
   
-  const handlePurchase = async () => {
-    setIsProcessing(true);
-    
-    try {
-      if (!user) {
-        // Redirect to signup if not logged in
-        navigate('/signup', { state: { returnTo: '/pricing' } });
-        return;
-      }
-
-      // Call Supabase function to create payment session
-      const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: { userId: user.id }
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data?.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL returned');
-      }
-    } catch (error) {
-      console.error('Payment error:', error);
-      toast.error("There was a problem starting your payment. Please try again.");
-    } finally {
-      setIsProcessing(false);
-    }
+  const handlePurchase = () => {
+    window.location.href = stripePaymentLink;
   };
 
   return (
@@ -91,10 +57,9 @@ const PricingSection: React.FC = () => {
               <div className="flex justify-center">
                 <Button 
                   onClick={handlePurchase} 
-                  disabled={isProcessing} 
                   className="bg-blue-500 hover:bg-blue-600 text-white py-3 text-lg px-10"
                 >
-                  {isProcessing ? "Processing..." : "Buy Now — $99"}
+                  Buy Now — $99
                 </Button>
               </div>
               
