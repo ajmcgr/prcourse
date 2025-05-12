@@ -71,7 +71,32 @@ const CourseLesson = () => {
         <>
           <div className="mb-10 md:mb-12">
             <div className="text-sm text-gray-500 mb-2">Chapter: {chapter.title}</div>
-            <h1 className="text-3xl font-bold">{lesson.title}</h1>
+            <div className="flex justify-between items-center">
+              <h1 className="text-3xl font-bold">{lesson.title}</h1>
+              
+              {/* Navigation controls moved here and aligned right */}
+              <Pagination className="mt-0">
+                <PaginationContent>
+                  {previousLesson && (
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        as={Link} 
+                        to={`/course/${previousLesson.lesson.slug}`} 
+                      />
+                    </PaginationItem>
+                  )}
+                  
+                  {nextLesson && (
+                    <PaginationItem>
+                      <PaginationNext 
+                        as={Link} 
+                        to={`/course/${nextLesson.lesson.slug}`} 
+                      />
+                    </PaginationItem>
+                  )}
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
           
           <div className="aspect-video mb-12 md:mb-14 bg-black rounded-lg overflow-hidden shadow-lg">
@@ -93,28 +118,7 @@ const CourseLesson = () => {
           {/* Add the transcript component */}
           <VideoTranscript transcript={lesson.transcript} />
           
-          {/* Navigation controls */}
-          <Pagination className="mt-14 md:mt-16">
-            <PaginationContent>
-              {previousLesson && (
-                <PaginationItem>
-                  <PaginationPrevious 
-                    as={Link} 
-                    to={`/course/${previousLesson.lesson.slug}`} 
-                  />
-                </PaginationItem>
-              )}
-              
-              {nextLesson && (
-                <PaginationItem>
-                  <PaginationNext 
-                    as={Link} 
-                    to={`/course/${nextLesson.lesson.slug}`} 
-                  />
-                </PaginationItem>
-              )}
-            </PaginationContent>
-          </Pagination>
+          {/* Navigation controls removed from here */}
         </>
       )}
     </div>
