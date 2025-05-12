@@ -43,8 +43,8 @@ const PricingSection: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-background">
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Pricing Card - Now on the left */}
-        <div className="md:w-1/2">
+        {/* Pricing Card - Increased width from md:w-1/2 to md:w-2/3 */}
+        <div className="md:w-2/3">
           <Card className="border shadow-sm h-full">
             <CardContent className="p-6">
               <div className="text-center mb-6">
@@ -104,14 +104,14 @@ const PricingSection: React.FC = () => {
           </Card>
         </div>
         
-        {/* Image and content section - Now on the right */}
-        <div className="md:w-1/2">
+        {/* Image section - Adjusted width from md:w-1/2 to md:w-1/3 to balance with the wider pricing card */}
+        <div className="md:w-1/3">
           <div className="mb-6">
             <div className="mb-6 rounded-lg overflow-hidden">
               <img 
                 src="/lovable-uploads/b448d17b-1318-4e45-99ec-e548b4abc6c1.png" 
                 alt="Alex MacGregor" 
-                className="w-2/3 h-auto object-cover rounded-lg mx-auto" 
+                className="w-full h-auto object-cover rounded-lg mx-auto" 
               />
             </div>
           </div>
