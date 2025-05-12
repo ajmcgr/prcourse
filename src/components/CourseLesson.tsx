@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
@@ -81,7 +82,7 @@ const CourseLesson = () => {
 
   if ((pageError || !lessonData) && !loading && user) {
     return (
-      <div className="px-8 py-10">
+      <div className="px-8 py-10 h-full">
         <h1 className="text-3xl font-bold mb-6">Lesson Not Found</h1>
         <p className="mb-6">The requested lesson could not be found. Please select another lesson from the menu.</p>
         <Button 
@@ -118,7 +119,7 @@ const CourseLesson = () => {
   };
 
   return (
-    <div className="mb-8">
+    <div className="flex flex-col h-full">
       {lessonData && chapterData ? (
         <>
           <div className="mb-6">
@@ -126,8 +127,8 @@ const CourseLesson = () => {
             <h1 className="text-3xl font-bold">{lessonData.title}</h1>
           </div>
           
-          {/* Video container with adjusted size - increased from 2xl to 3xl */}
-          <div className="mx-auto max-w-3xl mb-8">
+          {/* Video container taking up most of available height */}
+          <div className="mx-auto max-w-3xl flex-grow flex flex-col justify-center mb-8">
             <div className="bg-black rounded-lg overflow-hidden shadow-lg">
               <AspectRatio ratio={16 / 9}>
                 <iframe
@@ -148,7 +149,7 @@ const CourseLesson = () => {
           </div>
           
           {/* Navigation controls */}
-          <Pagination className="mt-8">
+          <Pagination className="mt-auto">
             <PaginationContent>
               {adjacentLessons.previousLesson && (
                 <PaginationItem>
@@ -171,7 +172,7 @@ const CourseLesson = () => {
           </Pagination>
         </>
       ) : (
-        <div className="text-center py-10">
+        <div className="text-center py-10 h-full flex items-center justify-center">
           <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-gray-500">Loading course content...</p>
         </div>
