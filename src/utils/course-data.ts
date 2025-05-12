@@ -1,3 +1,4 @@
+
 export interface VideoLesson {
   id: string;
   title: string;
@@ -269,4 +270,162 @@ export const courseData: CourseChapter[] = [
       {
         id: "7-2",
         title: "Unconventional PR Strategies",
-        videoUrl: "https://vimeo.com/10832
+        videoUrl: "https://vimeo.com/1083266139",
+        slug: "unconventional-pr"
+      },
+      {
+        id: "7-3",
+        title: "Case Study",
+        videoUrl: "https://vimeo.com/1083290328",
+        slug: "creative-case-study"
+      }
+    ]
+  },
+  {
+    id: "chapter-8",
+    title: "Strategic Communication",
+    lessons: [
+      {
+        id: "8-1",
+        title: "Strategic Communication",
+        videoUrl: "https://vimeo.com/1083266102",
+        slug: "strategic-communication"
+      },
+      {
+        id: "8-2",
+        title: "Effective PR Strategies for Founders",
+        videoUrl: "https://vimeo.com/1083265920",
+        slug: "pr-strategies-founders"
+      },
+      {
+        id: "8-3",
+        title: "Case Study",
+        videoUrl: "https://vimeo.com/1083265861",
+        slug: "strategic-case-study"
+      }
+    ]
+  },
+  {
+    id: "chapter-9",
+    title: "Brand Management",
+    lessons: [
+      {
+        id: "9-1",
+        title: "Brand Management",
+        videoUrl: "https://vimeo.com/1083265820",
+        slug: "brand-management"
+      },
+      {
+        id: "9-2",
+        title: "Measuring Brand",
+        videoUrl: "https://vimeo.com/1083265734",
+        slug: "measuring-brand"
+      },
+      {
+        id: "9-3",
+        title: "Case Study",
+        videoUrl: "https://vimeo.com/1083265557",
+        slug: "brand-case-study"
+      }
+    ]
+  },
+  {
+    id: "chapter-10",
+    title: "Events And Community",
+    lessons: [
+      {
+        id: "10-1",
+        title: "Events And Community",
+        videoUrl: "https://vimeo.com/1083265407",
+        slug: "events-community"
+      },
+      {
+        id: "10-2",
+        title: "Building a Thriving Community",
+        videoUrl: "https://vimeo.com/1083265331",
+        slug: "thriving-community"
+      },
+      {
+        id: "10-3",
+        title: "Case Study",
+        videoUrl: "https://vimeo.com/1083265288",
+        slug: "community-case-study"
+      }
+    ]
+  },
+  {
+    id: "chapter-11",
+    title: "Public Speaking",
+    lessons: [
+      {
+        id: "11-1",
+        title: "Public Speaking",
+        videoUrl: "https://vimeo.com/1083265244",
+        slug: "public-speaking"
+      },
+      {
+        id: "11-2",
+        title: "How to Conduct a Media Interview",
+        videoUrl: "https://vimeo.com/1083265212",
+        slug: "media-interview"
+      }
+    ]
+  }
+];
+
+// Helper functions to work with course data
+
+/**
+ * Get a lesson by its slug
+ */
+export function getLessonBySlug(slug: string): { lesson: VideoLesson | null; chapter: CourseChapter | null } {
+  for (const chapter of courseData) {
+    const lesson = chapter.lessons.find(lesson => lesson.slug === slug);
+    if (lesson) {
+      return { lesson, chapter };
+    }
+  }
+  return { lesson: null, chapter: null };
+}
+
+/**
+ * Get the first lesson in the course
+ */
+export function getFirstLesson(): { lesson: VideoLesson; chapter: CourseChapter } {
+  const firstChapter = courseData[0];
+  const firstLesson = firstChapter.lessons[0];
+  return { lesson: firstLesson, chapter: firstChapter };
+}
+
+/**
+ * Get the previous and next lessons relative to a given lesson
+ */
+export function getAdjacentLessons(currentSlug: string): { 
+  previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
+  nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
+} {
+  let previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
+  let nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
+  
+  // Flatten all lessons with their corresponding chapters
+  const allLessons: Array<{ lesson: VideoLesson; chapter: CourseChapter }> = [];
+  
+  for (const chapter of courseData) {
+    for (const lesson of chapter.lessons) {
+      allLessons.push({ lesson, chapter });
+    }
+  }
+  
+  // Find the current lesson's index
+  const currentIndex = allLessons.findIndex(item => item.lesson.slug === currentSlug);
+  
+  if (currentIndex > 0) {
+    previousLesson = allLessons[currentIndex - 1];
+  }
+  
+  if (currentIndex < allLessons.length - 1 && currentIndex !== -1) {
+    nextLesson = allLessons[currentIndex + 1];
+  }
+  
+  return { previousLesson, nextLesson };
+}
