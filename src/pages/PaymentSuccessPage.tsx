@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -50,20 +49,20 @@ const PaymentSuccessPage = () => {
           console.log("Processing payment with session ID:", sessionId);
           
           // First check if we already have a completed payment for this user
-          const { data, error: fetchError } = await supabase
+          const { data: fetchData, error: fetchError } = await supabase
             .from('user_payments')
             .select()
             .eq('user_id', user.id)
-            .eq('payment_status', 'completed')
-            .single();
+            .eq('payment_status', 'completed');
             
-          if (fetchError && fetchError.code !== 'PGRST116') {
+          if (fetchError) {
             console.error('Error fetching payment status:', fetchError);
             throw new Error(fetchError.message);
           }
           
-          // Cast data to our interface
-          const existingPayment = data as PaymentRecord | null;
+          // Safely cast to array first, then check if we have any records
+          const existingPayments = fetchData as PaymentRecord[] || [];
+          const existingPayment = existingPayments.length > 0 ? existingPayments[0] : null;
           
           if (existingPayment) {
             console.log("User already has a completed payment record:", existingPayment);
@@ -77,15 +76,15 @@ const PaymentSuccessPage = () => {
           const { data: pendingData, error: pendingError } = await supabase
             .from('user_payments')
             .select()
-            .eq('stripe_session_id', sessionId)
-            .single();
+            .eq('stripe_session_id', sessionId);
             
-          if (pendingError && pendingError.code !== 'PGRST116') {
+          if (pendingError) {
             console.error('Error fetching pending payment:', pendingError);
           }
           
-          // Cast pending data to our interface
-          const pendingPayment = pendingData as PaymentRecord | null;
+          // Safely cast to array first, then check if we have any records
+          const pendingPayments = pendingData as PaymentRecord[] || [];
+          const pendingPayment = pendingPayments.length > 0 ? pendingPayments[0] : null;
           
           if (pendingPayment) {
             console.log("Found pending payment to update:", pendingPayment);
@@ -118,15 +117,15 @@ const PaymentSuccessPage = () => {
           .from('user_payments')
           .select()
           .eq('user_id', user.id)
-          .eq('payment_status', 'completed')
-          .single();
+          .eq('payment_status', 'completed');
           
-        if (completeError && completeError.code !== 'PGRST116') {
+        if (completeError) {
           console.error('Error checking completed payments:', completeError);
         }
         
-        // Cast complete data to our interface
-        const completedPayment = completeData as PaymentRecord | null;
+        // Safely cast to array first, then check if we have any records
+        const completedPayments = completeData as PaymentRecord[] || [];
+        const completedPayment = completedPayments.length > 0 ? completedPayments[0] : null;
         
         if (completedPayment) {
           console.log("User has a completed payment:", completedPayment);
