@@ -160,7 +160,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           data: {
             name,
           },
-          emailRedirectTo: `${window.location.origin}/course/introduction`,
+          // Explicitly set this to undefined to avoid email redirect conflicts
+          emailRedirectTo: undefined,
         },
       });
       
@@ -236,6 +237,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             };
           } else {
             console.log("Auto sign-in failed after signup:", signInError);
+            // For the case where auto-confirmation is disabled but auto-signin works
+            if (signInError && signInError.message.includes('Email not confirmed')) {
+              return { 
+                success: true, 
+                message: "Account created! Please check your email for a confirmation link.", 
+                autoSignedIn: false
+              };
+            }
             return { 
               success: true, 
               message: "Account created! Please sign in manually.", 
