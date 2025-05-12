@@ -49,9 +49,10 @@ const PaymentSuccessPage = () => {
           console.log("Processing payment with session ID:", sessionId);
           
           // First check if we already have a completed payment for this user
+          // Fix TypeScript error by explicitly defining return type as an array
           const { data: existingPayments, error: fetchError } = await supabase
             .from('user_payments')
-            .select()
+            .select<'*', PaymentRecord[]>('*')
             .eq('user_id', user.id)
             .eq('payment_status', 'completed');
             
@@ -69,9 +70,10 @@ const PaymentSuccessPage = () => {
           }
           
           // Update payment status in database if we found a pending payment with this session ID
+          // Fix TypeScript error by explicitly defining return type as an array
           const { data: pendingPayments, error: pendingError } = await supabase
             .from('user_payments')
-            .select()
+            .select<'*', PaymentRecord[]>('*')
             .eq('stripe_session_id', sessionId);
             
           if (pendingError) {
@@ -105,9 +107,10 @@ const PaymentSuccessPage = () => {
         }
         
         // If no session ID or no pending payment found, check if this user has any completed payments
+        // Fix TypeScript error by explicitly defining return type as an array
         const { data: completedPayments, error: completeError } = await supabase
           .from('user_payments')
-          .select()
+          .select<'*', PaymentRecord[]>('*')
           .eq('user_id', user.id)
           .eq('payment_status', 'completed');
           
