@@ -1,4 +1,3 @@
-
 export interface VideoLesson {
   id: string;
   title: string;
@@ -76,7 +75,8 @@ export const courseData: CourseChapter[] = [
         id: "2-1",
         title: "Hiring And Agencies",
         videoUrl: "https://vimeo.com/1083270452",
-        slug: "hiring-agencies"
+        slug: "hiring-agencies",
+        transcript: "So the next chapter is really important and it's kind of related to like starting a career in PR and we're going to look at hiring and agencies. And hiring as in hiring PR people for your team or your company or whatnot and then agencies as in obviously like a team versus you know individual. Slightly different but also slightly similar because at the end of the day it's still core, you're hiring core PR people. The top level, the kind of top line thing is like PR people are usually, um, slightly more EQ than IQ. Um, you want probably a bit of both, but at the same time, um, you know, the EQ thing for me is more important. And I'll talk about that more detail. Um, when I look at the hiring, uh, a PR person, um, news obsessed, we talked about that before, um, and also good at storytelling and curating stories. Agencies we'll go into, um, essentially, you know, you, uh, you don't have time. You don't have resources. You don't have expertise. You need certain, um, help. That's typically why you have an agency.\n\nUm, usually bigger companies have agencies, um, due to the resource constraint, smaller company, and also the scope involved. Um, and then we'll talk a bit, a little bit more about like the vetting of an engineer, uh, vetting PR people like an engineer, um, and like why you need to kind of think about certain things and goals, but, uh, I just wanted to include this photo here, this image, because when people think about an agency, it's very typical, they think of brainstorming. They think about an agency is just about ideas, but actually it's a, it's a lot more than that and, you know, we'll go into detail, detail on that."
       },
       {
         id: "2-2",
@@ -367,103 +367,3 @@ export const courseData: CourseChapter[] = [
         videoUrl: "https://vimeo.com/1083265212",
         slug: "media-interview"
       },
-      {
-        id: "11-3",
-        title: "Case Study",
-        videoUrl: "https://vimeo.com/1083265143",
-        slug: "speaking-case-study"
-      }
-    ]
-  },
-  {
-    id: "chapter-12",
-    title: "Internal Communications",
-    lessons: [
-      {
-        id: "12-1",
-        title: "Internal Communications",
-        videoUrl: "https://vimeo.com/1083265122",
-        slug: "internal-communications"
-      },
-      {
-        id: "12-2",
-        title: "Trust, Relationships and More",
-        videoUrl: "https://vimeo.com/1083265076",
-        slug: "trust-relationships"
-      }
-    ]
-  },
-  {
-    id: "chapter-13",
-    title: "Reputation Management",
-    lessons: [
-      {
-        id: "13-1",
-        title: "Reputation",
-        videoUrl: "https://vimeo.com/1083265046",
-        slug: "reputation"
-      },
-      {
-        id: "13-2",
-        title: "How to Win Friends And Influence People",
-        videoUrl: "https://vimeo.com/1083264972",
-        slug: "win-friends-influence"
-      },
-      {
-        id: "13-3",
-        title: "Case Study",
-        videoUrl: "https://vimeo.com/1083264887",
-        slug: "reputation-case-study"
-      }
-    ]
-  }
-];
-
-// Helper function to get a lesson by its slug
-export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null, chapter: CourseChapter | null } => {
-  for (const chapter of courseData) {
-    for (const lesson of chapter.lessons) {
-      if (lesson.slug === slug) {
-        return { lesson, chapter };
-      }
-    }
-  }
-  return { lesson: null, chapter: null };
-};
-
-// Helper function to get the first lesson for initial navigation
-export const getFirstLesson = (): { lesson: VideoLesson, chapter: CourseChapter } => {
-  const firstChapter = courseData[0];
-  const firstLesson = firstChapter.lessons[0];
-  return { lesson: firstLesson, chapter: firstChapter };
-};
-
-// Helper function to get adjacent lessons for navigation
-export const getAdjacentLessons = (currentSlug: string): { previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null, nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null } => {
-  let previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
-  let nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
-  
-  // Flatten the lessons array to find adjacent lessons
-  const allLessons: { lesson: VideoLesson, chapter: CourseChapter }[] = [];
-  courseData.forEach(chapter => {
-    chapter.lessons.forEach(lesson => {
-      allLessons.push({ lesson, chapter });
-    });
-  });
-  
-  // Find the current lesson index
-  const currentIndex = allLessons.findIndex(item => item.lesson.slug === currentSlug);
-  
-  // If the lesson was found, determine adjacent lessons
-  if (currentIndex !== -1) {
-    if (currentIndex > 0) {
-      previousLesson = allLessons[currentIndex - 1];
-    }
-    
-    if (currentIndex < allLessons.length - 1) {
-      nextLesson = allLessons[currentIndex + 1];
-    }
-  }
-  
-  return { previousLesson, nextLesson };
-};
