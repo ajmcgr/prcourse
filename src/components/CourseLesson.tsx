@@ -70,32 +70,36 @@ const CourseLesson = () => {
       {lesson && chapter && (
         <>
           <div className="mb-10 md:mb-12">
-            <div className="text-sm text-gray-500 mb-2">Chapter: {chapter.title}</div>
-            <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold">{lesson.title}</h1>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+              <div className="mb-4 md:mb-0">
+                <div className="text-sm text-gray-500 mb-2">Chapter: {chapter.title}</div>
+                <h1 className="text-3xl font-bold">{lesson.title}</h1>
+              </div>
               
-              {/* Navigation controls moved here and aligned right */}
-              <Pagination className="mt-0">
-                <PaginationContent>
-                  {previousLesson && (
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        as={Link} 
-                        to={`/course/${previousLesson.lesson.slug}`} 
-                      />
-                    </PaginationItem>
-                  )}
-                  
-                  {nextLesson && (
-                    <PaginationItem>
-                      <PaginationNext 
-                        as={Link} 
-                        to={`/course/${nextLesson.lesson.slug}`} 
-                      />
-                    </PaginationItem>
-                  )}
-                </PaginationContent>
-              </Pagination>
+              {/* Navigation controls with more right alignment */}
+              <div className="ml-auto">
+                <Pagination className="justify-end mt-0">
+                  <PaginationContent>
+                    {previousLesson && (
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          as={Link} 
+                          to={`/course/${previousLesson.lesson.slug}`} 
+                        />
+                      </PaginationItem>
+                    )}
+                    
+                    {nextLesson && (
+                      <PaginationItem>
+                        <PaginationNext 
+                          as={Link} 
+                          to={`/course/${nextLesson.lesson.slug}`} 
+                        />
+                      </PaginationItem>
+                    )}
+                  </PaginationContent>
+                </Pagination>
+              </div>
             </div>
           </div>
           
@@ -117,8 +121,6 @@ const CourseLesson = () => {
           
           {/* Add the transcript component */}
           <VideoTranscript transcript={lesson.transcript} />
-          
-          {/* Navigation controls removed from here */}
         </>
       )}
     </div>
