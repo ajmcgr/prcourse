@@ -35,7 +35,7 @@ const CourseLesson = () => {
 
   useEffect(() => {
     if (!slug && user) {
-      // If no lesson is specified, redirect to the first lesson
+      // If no lesson is specified, redirect to the introduction lesson
       console.log("No slug provided, finding first lesson");
       const { lesson } = getFirstLesson();
       console.log("Redirecting to first lesson:", lesson.slug);
@@ -107,12 +107,14 @@ const CourseLesson = () => {
 
   // Get the correct video URL for each lesson
   const getVideoUrl = (lesson: any) => {
-    // Use the correct URL for the Introduction lesson
+    if (!lesson) return '';
+    
+    // Make sure we're using the correct URL in both places
     if (slug === 'introduction') {
-      console.log("Using fixed URL for Introduction lesson");
-      return "https://vimeo.com/1083271721"; // Updated to the correct URL
+      return "https://vimeo.com/1083271721";
     }
-    return lesson?.videoUrl || '';
+    
+    return lesson.videoUrl;
   };
 
   return (

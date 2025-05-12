@@ -477,9 +477,10 @@ export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null; cha
 
 // Helper function to get the first lesson for initial navigation
 export const getFirstLesson = (): { lesson: VideoLesson; chapter: CourseChapter } => {
+  // Return the Introduction lesson instead of the full course video
   return {
-    lesson: courseData[0].lessons[0],
-    chapter: courseData[0]
+    lesson: courseData[1].lessons[0], // Chapter 1 (Introduction), Lesson 0
+    chapter: courseData[1]
   };
 };
 

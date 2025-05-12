@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   BrowserRouter as Router,
@@ -38,8 +37,9 @@ function App() {
           
           {/* Protected Routes - Course layout with nested routes */}
           <Route path="/course" element={<AuthGuard><CourseLayout /></AuthGuard>}>
-            <Route path="" element={<CourseLesson />} />
-            <Route path="introduction" element={<CourseLesson />} />
+            {/* The empty path will be handled by CourseLayout which redirects to the introduction lesson */}
+            <Route index element={<CourseLesson />} />
+            {/* Make sure the introduction route is properly handled */}
             <Route path=":slug" element={<CourseLesson />} />
           </Route>
           
