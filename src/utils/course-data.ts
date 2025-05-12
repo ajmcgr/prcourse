@@ -1,4 +1,3 @@
-
 export interface VideoLesson {
   id: string;
   title: string;
@@ -94,7 +93,8 @@ export const courseData: CourseChapter[] = [
         id: "2-4",
         title: "Client Relationships in PR",
         videoUrl: "https://vimeo.com/1083269791",
-        slug: "client-relationships"
+        slug: "client-relationships",
+        transcript: "We'll move on. We'll talk about client relationships because this is more focused on people who deal with agencies or people inside agencies. And this is important because when you hire an agency, you Obviously, you don't just sort of put down the money and say, hey, like, you know, let's you deliver our work now and then that's it. We'll go off and we'll do our thing. And no, the agency client relationship is really important and most kind of agencies are pitching on resources. So the client will give them like a RFP request for proposal, the other budget or ballpark figure and scope, like scope of work, different markets, for example, and then the agencies will pitch that. Obviously, a big mistake is pitching resources you don't have and you see that quite common. So imagine you're a PR agency and you're pitching this company and then they say, oh, can you do a website? Can you do creative? And a lot of agencies probably just say, yes, yes, yes, we can do it right. We want to get the work. And maybe the better route is to say, no, we're going to be fully focused on media relations or advertising. And you can let other agencies do that work.\n\nBut that's kind of not how it works in the agency world. Like, you know, a lot of agencies want to scoop up as much business as they can. The content calendar piece is. Even though... companies are kind of really competitive and different industries like most industries have a content calendar. So for example in the travel industry or in the cryptocurrency industry or in the tech industry there's like a circuit of events that happen every year roughly but at the same time. So if you can map those out for clients as an agency then that's going to help you. I do talk here about the client expertise some agencies are very very good with specific verticals. You know they might be very good at consumer tech or B2B tech. So they have a very good team and experience in that vertical. So that helps them when business because they're closer to the product. They're closer to the customer. So that often helps. And then just a couple things.\n\nThis is kind of the direction agencies are going in my opinion is with AI and with automation like a lot of the the bigger agencies are struggling if you look at the kind of the financial side the balance sheet and the revenue and obviously the the staff the staffing levels like they're struggling versus the smaller agencies that are adopting AI, adopting automation like they can do more with less and I think in the future like that kind of approach is going to be more viable than the bigger traditional holding companies. So yeah, that's just some thoughts on like I think the relationship between a client and agency partner."
       },
       {
         id: "2-5",
@@ -412,118 +412,4 @@ export const courseData: CourseChapter[] = [
         id: "13-3",
         title: "Case Study",
         videoUrl: "https://vimeo.com/1083264887",
-        slug: "reputation-case-study"
-      }
-    ]
-  },
-  {
-    id: "chapter-14",
-    title: "SEO And Digital PR",
-    lessons: [
-      {
-        id: "14-1",
-        title: "SEO And Digital PR",
-        videoUrl: "https://vimeo.com/1083264827",
-        slug: "seo-digital-pr"
-      },
-      {
-        id: "14-2",
-        title: "Effective Backlink Strategies for SEO",
-        videoUrl: "https://vimeo.com/1083264767",
-        slug: "backlink-strategies"
-      },
-      {
-        id: "14-3",
-        title: "Case Study",
-        videoUrl: "https://vimeo.com/1083264674",
-        slug: "seo-case-study"
-      }
-    ]
-  },
-  {
-    id: "chapter-15",
-    title: "Analytics and Measurement",
-    lessons: [
-      {
-        id: "15-1",
-        title: "Analytics And Measurement",
-        videoUrl: "https://vimeo.com/1083264632",
-        slug: "analytics-measurement"
-      },
-      {
-        id: "15-2",
-        title: "Mastering PR Metrics",
-        videoUrl: "https://vimeo.com/1083264139",
-        slug: "pr-metrics"
-      }
-    ]
-  },
-  {
-    id: "chapter-16",
-    title: "Conclusion",
-    lessons: [
-      {
-        id: "16-1",
-        title: "Conclusion",
-        videoUrl: "https://vimeo.com/1083264273",
-        slug: "conclusion"
-      }
-    ]
-  }
-];
-
-// Helper function to find a lesson by slug
-export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null; chapter: CourseChapter | null } => {
-  for (const chapter of courseData) {
-    const lesson = chapter.lessons.find(lesson => lesson.slug === slug);
-    if (lesson) {
-      return { lesson, chapter };
-    }
-  }
-  return { lesson: null, chapter: null };
-};
-
-// Helper function to get the first lesson for initial navigation
-export const getFirstLesson = (): { lesson: VideoLesson; chapter: CourseChapter } => {
-  return {
-    lesson: courseData[0].lessons[0],
-    chapter: courseData[0]
-  };
-};
-
-// Helper function to get next and previous lessons
-export const getAdjacentLessons = (
-  currentSlug: string
-): { 
-  previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
-  nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
-} => {
-  let previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
-  let nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
-  let foundCurrent = false;
-  
-  // Create a flat list of all lessons
-  const allLessons: Array<{ lesson: VideoLesson; chapter: CourseChapter }> = [];
-  
-  courseData.forEach(chapter => {
-    chapter.lessons.forEach(lesson => {
-      allLessons.push({ lesson, chapter });
-    });
-  });
-  
-  // Find the current, previous and next lessons
-  for (let i = 0; i < allLessons.length; i++) {
-    if (allLessons[i].lesson.slug === currentSlug) {
-      foundCurrent = true;
-      if (i > 0) {
-        previousLesson = allLessons[i - 1];
-      }
-      if (i < allLessons.length - 1) {
-        nextLesson = allLessons[i + 1];
-      }
-      break;
-    }
-  }
-  
-  return { previousLesson, nextLesson };
-};
+        slug
