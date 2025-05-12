@@ -1,3 +1,4 @@
+
 export interface VideoLesson {
   id: string;
   title: string;
@@ -157,4 +158,58 @@ export const courseData: CourseChapter[] = [
       {
         id: "3-8",
         title: "Case Study",
-        videoUrl: "https://vimeo.com/108326843
+        videoUrl: "https://vimeo.com/1083268430",
+        slug: "influencer-case-study"
+      }
+    ]
+  }
+];
+
+// Helper functions to work with the course data
+
+export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null; chapter: CourseChapter | null } => {
+  for (const chapter of courseData) {
+    const lesson = chapter.lessons.find(l => l.slug === slug);
+    if (lesson) {
+      return { lesson, chapter };
+    }
+  }
+  return { lesson: null, chapter: null };
+};
+
+export const getFirstLesson = (): { lesson: VideoLesson; chapter: CourseChapter } => {
+  const firstChapter = courseData[0];
+  const firstLesson = firstChapter.lessons[0];
+  return { lesson: firstLesson, chapter: firstChapter };
+};
+
+export const getAdjacentLessons = (currentSlug: string): { 
+  previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null; 
+  nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null;
+} => {
+  let previousLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
+  let nextLesson: { lesson: VideoLesson; chapter: CourseChapter } | null = null;
+  let foundCurrent = false;
+
+  // Flatten the lessons array for easier navigation
+  const allLessons: { lesson: VideoLesson; chapter: CourseChapter }[] = [];
+  
+  for (const chapter of courseData) {
+    for (const lesson of chapter.lessons) {
+      allLessons.push({ lesson, chapter });
+    }
+  }
+  
+  // Find the current index
+  const currentIndex = allLessons.findIndex(item => item.lesson.slug === currentSlug);
+  
+  if (currentIndex > 0) {
+    previousLesson = allLessons[currentIndex - 1];
+  }
+  
+  if (currentIndex < allLessons.length - 1 && currentIndex !== -1) {
+    nextLesson = allLessons[currentIndex + 1];
+  }
+
+  return { previousLesson, nextLesson };
+};
