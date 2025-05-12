@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
@@ -127,8 +126,8 @@ const CourseLesson = () => {
             <h1 className="text-3xl font-bold">{lessonData.title}</h1>
           </div>
           
-          {/* Video container with max-width and center alignment */}
-          <div className="mx-auto max-w-3xl mb-8">
+          {/* Video container with controlled size */}
+          <div className="mx-auto max-w-2xl mb-8">
             <div className="bg-black rounded-lg overflow-hidden shadow-lg">
               <AspectRatio ratio={16 / 9}>
                 <iframe
