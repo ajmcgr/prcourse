@@ -1,3 +1,4 @@
+
 export interface VideoLesson {
   id: string;
   title: string;
@@ -217,3 +218,79 @@ export const courseData: CourseChapter[] = [
         id: "5-4",
         title: "Optimal Social Media Posting Times for PR",
         videoUrl: "https://vimeo.com/1083267385",
+        slug: "optimal-posting-times"
+      }
+    ]
+  }
+];
+
+/**
+ * Find a lesson by its slug
+ */
+export const getLessonBySlug = (slug: string): { lesson: VideoLesson | null, chapter: CourseChapter | null } => {
+  for (const chapter of courseData) {
+    for (const lesson of chapter.lessons) {
+      if (lesson.slug === slug) {
+        return { lesson, chapter };
+      }
+    }
+  }
+  
+  return { lesson: null, chapter: null };
+};
+
+/**
+ * Get the first lesson in the course
+ */
+export const getFirstLesson = (): { lesson: VideoLesson, chapter: CourseChapter } => {
+  // If there's a chapter-1, start there (skip the full course)
+  if (courseData.length > 1) {
+    const firstChapter = courseData[1];
+    if (firstChapter.lessons.length > 0) {
+      return { 
+        lesson: firstChapter.lessons[0],
+        chapter: firstChapter
+      };
+    }
+  }
+  
+  // Fallback to the very first chapter and lesson
+  return {
+    lesson: courseData[0].lessons[0],
+    chapter: courseData[0]
+  };
+};
+
+/**
+ * Find the previous and next lessons relative to a given lesson
+ */
+export const getAdjacentLessons = (currentSlug: string): {
+  previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null,
+  nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null
+} => {
+  let previousLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
+  let nextLesson: { lesson: VideoLesson, chapter: CourseChapter } | null = null;
+  let foundCurrent = false;
+  
+  // Flatten the course structure for easier navigation
+  const allLessons: Array<{ lesson: VideoLesson, chapter: CourseChapter }> = [];
+  
+  courseData.forEach(chapter => {
+    chapter.lessons.forEach(lesson => {
+      allLessons.push({ lesson, chapter });
+    });
+  });
+  
+  // Find the current lesson's index
+  const currentIndex = allLessons.findIndex(item => item.lesson.slug === currentSlug);
+  
+  if (currentIndex > 0) {
+    previousLesson = allLessons[currentIndex - 1];
+  }
+  
+  if (currentIndex < allLessons.length - 1 && currentIndex !== -1) {
+    nextLesson = allLessons[currentIndex + 1];
+  }
+  
+  return { previousLesson, nextLesson };
+};
