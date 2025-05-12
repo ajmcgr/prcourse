@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
-import { getFirstLesson } from '@/utils/course-data';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -12,7 +11,7 @@ interface AuthGuardProps {
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { user, loading, hasPaid, checkPaymentStatus, updatePaymentStatus } = useAuth();
+  const { user, loading, hasPaid, checkPaymentStatus } = useAuth();
   const [isChecking, setIsChecking] = useState(true);
   
   useEffect(() => {
@@ -24,78 +23,29 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       path: location.pathname 
     });
     
-    // Handle any Stripe redirect parameters
-    const handlePaymentParams = async () => {
-      try {
-        if (!user) return;
-        
-        // Check for various potential Stripe parameters
-        const sessionId = searchParams.get('session_id') || 
-                          searchParams.get('checkout_session_id') || 
-                          searchParams.get('CHECKOUT_SESSION_ID');
-                          
-        const successParam = searchParams.get('success') === 'true';
-        const paymentStatus = searchParams.get('payment_status') === 'paid';
-        
-        // Check if we're on payment success page or have payment parameters
-        const isPaymentRedirect = sessionId || 
-                                 successParam || 
-                                 paymentStatus || 
-                                 location.pathname === '/payment-success';
-        
-        if (isPaymentRedirect) {
-          console.log("Detected payment redirect or parameters:", { 
-            sessionId, 
-            successParam, 
-            paymentStatus, 
-            path: location.pathname 
-          });
-          
-          // Check if user has already paid
-          const isPaid = await checkPaymentStatus(user.id);
-          
-          // If not already marked as paid, update payment status
-          if (!isPaid) {
-            console.log("User not marked as paid, updating payment status");
-            await updatePaymentStatus(true);
-            
-            // Check again to confirm payment was recorded
-            const confirmPaid = await checkPaymentStatus(user.id);
-            
-            if (confirmPaid) {
-              toast.success("Payment verified! You now have full access to the course.");
-            } else {
-              toast.error("Failed to verify payment. Please contact support.");
-            }
-          } else {
-            console.log("User already marked as paid");
-            toast.success("Payment already verified!");
-          }
-        }
-      } catch (error) {
-        console.error("Error handling payment parameters:", error);
-        toast.error("Failed to verify payment status");
-      }
-    };
+    // Check if we're on the payment success path
+    const isPaymentSuccess = 
+      location.pathname === '/payment-success' || 
+      searchParams.has('session_id') || 
+      searchParams.has('CHECKOUT_SESSION_ID');
+    
+    // Simple paths that don't need authentication or payment checks
+    const publicPaths = ['/signup', '/', '/pricing'];
+    const isPublicPath = publicPaths.includes(location.pathname);
     
     // Force a payment status check when auth guard mounts or path changes
     const checkAuth = async () => {
       if (user) {
         console.log("Checking payment status in AuthGuard");
-        
-        // Check payment status first
         await checkPaymentStatus(user.id);
-        
-        // Handle any payment redirect parameters
-        await handlePaymentParams();
       }
       
       // Short delay to ensure state updates properly
-      setTimeout(() => setIsChecking(false), 500);
+      setTimeout(() => setIsChecking(false), 200);
     };
     
     checkAuth();
-  }, [user, loading, location.pathname, searchParams, checkPaymentStatus, updatePaymentStatus, hasPaid]);
+  }, [user, loading, location.pathname, searchParams, checkPaymentStatus, hasPaid]);
   
   // If we're loading auth state or checking payment, show loading indicator
   if (loading || isChecking) {
@@ -108,21 +58,22 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }
   
   // Simple paths that don't need authentication or payment checks
-  const publicPaths = ['/signup', '/', '/pricing', '/payment-success', '/coursecontent'];
+  const publicPaths = ['/signup', '/', '/pricing', '/payment-success'];
   const isPublicPath = publicPaths.includes(location.pathname);
   
   // User is not signed in, redirect to signup
   if (!user && !isPublicPath) {
     console.log("User not authenticated, redirecting to signup");
     toast.error("Please sign up to access course content.");
-    return <Navigate to="/signup" state={{ from: { pathname: location.pathname } }} replace />;
+    return <Navigate to="/signup" state={{ from: location.pathname }} replace />;
   }
 
   // User is signed in but hasn't paid, redirect to pricing
+  // Skip this check for payment-success page to avoid redirect loops
   if (user && !hasPaid && !isPublicPath) {
     console.log("User authenticated but not paid, redirecting to pricing");
     toast.info("Please complete your payment to access course content.");
-    return <Navigate to="/pricing" state={{ from: { pathname: location.pathname } }} replace />;
+    return <Navigate to="/pricing" state={{ from: location.pathname }} replace />;
   }
 
   // All checks passed, render the protected component

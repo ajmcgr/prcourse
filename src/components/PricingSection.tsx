@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,18 +19,29 @@ const PricingSection: React.FC = () => {
         return;
       }
       
-      // Direct Stripe payment link - no edge function needed
-      const stripeUrl = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
+      console.log("Starting payment process for user:", user.id);
       
-      // Get the current domain for proper redirect
-      const domain = window.location.origin;
+      // Create payment session using our edge function
+      const { data, error } = await supabase.functions.invoke("create-payment", {
+        body: {
+          returnUrl: `${window.location.origin}/payment-success`
+        }
+      });
       
-      // Add success URL parameter for Stripe to redirect properly
-      const successUrl = encodeURIComponent(`${domain}/payment-success`);
-      const fullStripeUrl = `${stripeUrl}?success_url=${successUrl}`;
+      if (error) {
+        console.error("Payment creation failed:", error);
+        toast.error("Failed to create payment session. Please try again.");
+        return;
+      }
       
-      console.log("Redirecting to Stripe payment URL:", fullStripeUrl);
-      window.location.href = fullStripeUrl;
+      if (!data?.url) {
+        console.error("No redirect URL returned from payment function");
+        toast.error("Payment processing error. Please try again.");
+        return;
+      }
+      
+      console.log("Redirecting to Stripe payment URL:", data.url);
+      window.location.href = data.url;
     } catch (err) {
       console.error('Purchase error:', err);
       toast.error("Something went wrong. Please try again.");

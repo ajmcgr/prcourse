@@ -8,36 +8,36 @@ schemas = ["public", "storage", "graphql_public"]
 
 [db]
 port = 54322
+shadow_port = 54320
+major_version = 15
+
+[realtime]
+enabled = true
 
 [studio]
 enabled = true
 port = 54323
-api_url = "http://localhost"
+api_url = "http://127.0.0.1"
 
 [inbucket]
 enabled = true
 port = 54324
 
-[storage]
-enabled = true
-port = 54325
-
 [auth]
 enabled = true
-port = 54326
+site_url = "http://localhost:3000"
 
-[realtime]
+[storage]
 enabled = true
-port = 54327
 
 [analytics]
-enabled = false
-port = 54328
+enabled = true
 
 [vector]
 enabled = true
-port = 54329
 
 [functions]
-[functions.beehiiv-subscribe]
+[functions.create-payment]
+verify_jwt = true
+[functions.verify-payment]
 verify_jwt = true

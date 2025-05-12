@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "sonner";
 import { getFirstLesson } from '@/utils/course-data';
+import { supabase } from "@/integrations/supabase/client";
 
 const PaymentSuccessPage = () => {
   const [searchParams] = useSearchParams();
@@ -13,14 +14,14 @@ const PaymentSuccessPage = () => {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
+    const sessionId = searchParams.get('session_id') || searchParams.get('CHECKOUT_SESSION_ID');
     console.log("Payment success page loaded with:", { 
       sessionId,
       userId: user?.id,
       hasPaid
     });
     
-    const recordPayment = async () => {
+    const verifyPayment = async () => {
       try {
         if (!user) {
           console.log("No user found, redirecting to sign in");
@@ -33,79 +34,94 @@ const PaymentSuccessPage = () => {
           }, 2000);
           return;
         }
+
+        // Even if no session ID is present, try to verify the payment
+        // This handles cases where the user returns directly to the site after payment
+        console.log("Verifying payment status for user:", user.id);
         
-        // First check if payment is already recorded
-        console.log("Checking if payment already recorded for:", user.id);
+        // First check if payment is already recorded in database
         await checkPaymentStatus(user.id);
         
-        // Re-check the state after the async operation
         if (hasPaid) {
-          console.log("Payment already recorded for user:", user.id);
+          console.log("Payment already verified for user:", user.id);
+          toast.success("Payment verified! You now have full access to the course.");
           
           // Get first lesson to ensure we have a valid path
           const { lesson } = getFirstLesson();
           const redirectPath = `/course/${lesson.slug}`;
           
           console.log("Redirecting to:", redirectPath);
-          
-          // Add a short delay before redirecting to ensure toast is visible
           setTimeout(() => {
             navigate(redirectPath, { replace: true });
-          }, 2000);
+          }, 1500);
           
           setProcessing(false);
           return;
         }
         
-        // If not paid, update payment status
-        console.log("Recording new payment for user:", user.id);
-        const result = await updatePaymentStatus(true);
-        
-        if (result.error) {
-          console.error("Failed to record payment:", result.error);
+        // If there's a session ID, try to verify with Stripe directly
+        if (sessionId) {
+          console.log("Verifying session with Stripe:", sessionId);
           
-          // Check if it's a duplicate record error
-          if (result.error.message?.includes("duplicate key value")) {
-            console.log("This appears to be a duplicate record - payment likely already recorded");
+          // Use our edge function to verify the payment with Stripe
+          const { data, error } = await supabase.functions.invoke("verify-payment", {
+            body: { 
+              sessionId,
+              userId: user.id
+            }
+          });
+          
+          if (error) {
+            console.error("Payment verification failed:", error);
+            setError("Unable to verify payment with Stripe. Please contact support.");
+            setProcessing(false);
+            return;
+          }
+          
+          if (data?.verified) {
+            console.log("Payment verified with Stripe, updating status");
+            const result = await updatePaymentStatus(true);
             
-            // Force a re-check of payment status
-            const verified = await checkPaymentStatus(user.id);
-            
-            if (verified) {
-              toast.success("Payment verified! You now have full access to the course.");
-              
-              // Get first lesson to ensure we have a valid path
-              const { lesson } = getFirstLesson();
-              const redirectPath = `/course/${lesson.slug}`;
-              
-              // Redirect to course lesson
-              setTimeout(() => {
-                navigate(redirectPath, { replace: true });
-              }, 2000);
+            if (result.error) {
+              console.error("Failed to update payment status:", result.error);
+              setError("Payment verified but failed to update your account. Please contact support.");
             } else {
-              setError("Payment verification issue. Please contact support.");
+              console.log("Payment recorded successfully");
+              toast.success("Payment successful! You now have full access to the course.");
+              
+              // Force a re-check of payment status
+              await checkPaymentStatus(user.id);
+              
+              // Get first lesson for redirect
+              const { lesson } = getFirstLesson();
+              navigate(`/course/${lesson.slug}`, { replace: true });
             }
           } else {
-            setError("There was an issue recording your payment. Please contact support.");
+            console.log("Payment could not be verified with Stripe");
+            setError("Payment could not be verified. Please contact support.");
           }
         } else {
-          console.log("Payment recorded successfully");
-          toast.success("Payment successful! You now have full access to the course.");
+          // No session ID but the user is here - try one last time to record payment anyway
+          console.log("No session ID, trying to force record payment");
+          const result = await updatePaymentStatus(true);
           
-          // Force a re-check of payment status
-          await checkPaymentStatus(user.id);
-          
-          // Get first lesson to ensure we have a valid path
-          const { lesson } = getFirstLesson();
-          const redirectPath = `/course/${lesson.slug}`;
-          
-          // Redirect to course lesson
-          setTimeout(() => {
-            navigate(redirectPath, { replace: true });
-          }, 2000);
+          if (result.error) {
+            console.error("Failed to record payment:", result.error);
+            setError("Failed to record your payment. Please contact support.");
+          } else {
+            console.log("Payment force-recorded successfully");
+            toast.success("Payment recorded! You now have full access to the course.");
+            
+            // Force a re-check of payment status
+            await checkPaymentStatus(user.id);
+            
+            // Redirect to course
+            const { lesson } = getFirstLesson();
+            navigate(`/course/${lesson.slug}`, { replace: true });
+          }
         }
       } catch (err) {
-        console.error("Error recording payment:", err);
+        console.error("Error verifying payment:", err);
         setError("Failed to process payment confirmation");
       } finally {
         setProcessing(false);
@@ -114,7 +130,7 @@ const PaymentSuccessPage = () => {
     
     // Slight delay to ensure auth context is fully loaded
     setTimeout(() => {
-      recordPayment();
+      verifyPayment();
     }, 1000);
   }, [searchParams, updatePaymentStatus, checkPaymentStatus, user, navigate, hasPaid]);
   

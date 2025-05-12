@@ -24,14 +24,22 @@ const CourseLayout = () => {
       hasSearchParams: Array.from(searchParams.entries()).length > 0
     });
     
-    // Verify payment status without causing auth loops
-    if (user && !loading) {
-      console.log("Checking payment status in CourseLayout");
-      setTimeout(() => {
-        checkPaymentStatus(user.id);
-      }, 0);
-    }
-  }, [user, loading, location.pathname, hasPaid, checkPaymentStatus, searchParams]);
+    // Verify payment status when needed
+    const verifyPaymentIfNeeded = async () => {
+      if (user && !loading) {
+        console.log("Checking payment status in CourseLayout");
+        const isPaid = await checkPaymentStatus(user.id);
+        
+        // If still not paid after checking, redirect to pricing
+        if (!isPaid && !loading) {
+          console.log("User not paid after verification, redirecting to pricing");
+          toast.info("Please complete your payment to access the course");
+        }
+      }
+    };
+    
+    verifyPaymentIfNeeded();
+  }, [user, loading, location.pathname, checkPaymentStatus]);
   
   if (loading) {
     return (
