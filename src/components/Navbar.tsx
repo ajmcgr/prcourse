@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Menu, User } from 'lucide-react';
+import { Menu, User, FileArrowDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getFirstLesson } from '@/utils/course-data';
@@ -68,6 +68,9 @@ const Navbar: React.FC = () => {
     navigate(`/course/${lesson.slug}`);
   };
   
+  // URL for slides download
+  const slidesDownloadUrl = "https://drive.google.com/file/d/1Eyd9ogwbSe0K-qeGxzNPPrkfA9rApbHg/view?usp=sharing";
+  
   return (
     <nav className={navbarClasses()}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,11 +98,26 @@ const Navbar: React.FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-screen max-w-[250px] mr-2 bg-white">
                 {user ? (
-                  <DropdownMenuItem asChild>
-                    <button className="w-full px-4 py-2 text-left" onClick={handleAccessCourse}>
-                      Access Course Content
-                    </button>
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem asChild>
+                      <button className="w-full px-4 py-2 text-left" onClick={handleAccessCourse}>
+                        Access Course Content
+                      </button>
+                    </DropdownMenuItem>
+                    {user && hasPaid && (
+                      <DropdownMenuItem asChild>
+                        <a 
+                          href={slidesDownloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full px-4 py-2 flex items-center"
+                        >
+                          <FileArrowDown className="h-4 w-4 mr-2" />
+                          Download Slides
+                        </a>
+                      </DropdownMenuItem>
+                    )}
+                  </>
                 ) : (
                   <>
                     <DropdownMenuItem asChild>
@@ -134,12 +152,25 @@ const Navbar: React.FC = () => {
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-2">
             {user ? (
-              <button 
-                onClick={handleAccessCourse}
-                className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
-              >
-                Access Course Content
-              </button>
+              <>
+                <button 
+                  onClick={handleAccessCourse}
+                  className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+                >
+                  Access Course Content
+                </button>
+                {hasPaid && (
+                  <a 
+                    href={slidesDownloadUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass} flex items-center`}
+                  >
+                    <FileArrowDown className="h-4 w-4 mr-1" />
+                    Download Slides
+                  </a>
+                )}
+              </>
             ) : (
               <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
                 Course Content
