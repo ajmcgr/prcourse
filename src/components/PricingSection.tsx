@@ -2,20 +2,42 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from "sonner";
+import { useNavigate } from 'react-router-dom';
 
 const PricingSection: React.FC = () => {
-  // Base Stripe payment link
-  const stripePaymentBase = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
+  const { user, supabase } = useAuth();
+  const navigate = useNavigate();
   
-  const handlePurchase = () => {
-    // Create success URL with the current domain
-    const successUrl = `${window.location.origin}/payment-success`;
-    
-    // Append success_url parameter to the Stripe payment link
-    const paymentLink = `${stripePaymentBase}?success_url=${encodeURIComponent(successUrl)}`;
-    
-    // Redirect to Stripe checkout
-    window.location.href = paymentLink;
+  const handlePurchase = async () => {
+    try {
+      if (!user) {
+        toast.info("Please sign in to continue with purchase");
+        navigate('/signup');
+        return;
+      }
+      
+      toast.info("Preparing checkout...");
+      
+      const { data, error } = await supabase.functions.invoke('create-payment');
+      
+      if (error) {
+        console.error('Error creating payment session:', error);
+        toast.error("Error creating checkout session. Please try again.");
+        return;
+      }
+      
+      if (data?.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      } else {
+        toast.error("Invalid checkout response. Please try again.");
+      }
+    } catch (err) {
+      console.error('Purchase error:', err);
+      toast.error("Something went wrong. Please try again.");
+    }
   };
 
   return (

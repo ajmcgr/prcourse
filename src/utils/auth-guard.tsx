@@ -15,7 +15,12 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   
   useEffect(() => {
     // Log auth status for debugging
-    console.log("AuthGuard state:", { user, loading, hasPaid, path: location.pathname });
+    console.log("AuthGuard state:", { 
+      user: user?.id, 
+      loading, 
+      hasPaid, 
+      path: location.pathname 
+    });
     
     // Force a payment status check when the component mounts or when path changes
     const checkPayment = async () => {

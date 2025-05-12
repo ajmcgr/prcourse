@@ -17,8 +17,8 @@ const PaymentSuccessPage = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   
-  // Get redirect_status from URL if it exists (from Stripe)
-  const redirectStatus = searchParams.get('redirect_status');
+  // Get session_id from URL if it exists (from Stripe)
+  const sessionId = searchParams.get('session_id');
   
   useEffect(() => {
     const updateUserPaymentStatus = async () => {
@@ -33,29 +33,93 @@ const PaymentSuccessPage = () => {
         console.log("Processing payment success for user:", user.id);
         setIsProcessing(true);
         
-        // Check if payment record already exists for this user
-        const { data: existingPayment, error: fetchError } = await supabase
+        // Check if we have a session ID from the URL
+        if (sessionId) {
+          console.log("Processing payment with session ID:", sessionId);
+          
+          // First check if we already have a completed payment for this user
+          const { data: existingPayment, error: fetchError } = await supabase
+            .from('user_payments')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('payment_status', 'completed')
+            .maybeSingle();
+            
+          if (fetchError) {
+            console.error('Error fetching payment status:', fetchError);
+            throw new Error(fetchError.message);
+          }
+          
+          if (existingPayment) {
+            console.log("User already has a completed payment record:", existingPayment);
+            updatePaymentStatus(true);
+            setIsComplete(true);
+            setIsProcessing(false);
+            return;
+          }
+          
+          // Update payment status in database if we found a pending payment with this session ID
+          const { data: pendingPayment, error: pendingError } = await supabase
+            .from('user_payments')
+            .select('*')
+            .eq('stripe_session_id', sessionId)
+            .maybeSingle();
+            
+          if (pendingError) {
+            console.error('Error fetching pending payment:', pendingError);
+          }
+          
+          if (pendingPayment) {
+            console.log("Found pending payment to update:", pendingPayment);
+            
+            // Mark payment as completed
+            const { error: updateError } = await supabase
+              .from('user_payments')
+              .update({
+                payment_status: 'completed',
+                updated_at: new Date().toISOString()
+              })
+              .eq('stripe_session_id', sessionId);
+              
+            if (updateError) {
+              console.error('Error updating payment status:', updateError);
+              throw new Error(updateError.message);
+            }
+            
+            console.log("Updated payment status to completed");
+            updatePaymentStatus(true);
+            setIsComplete(true);
+            toast.success("Payment successful! You now have full access to the course.");
+            setIsProcessing(false);
+            return;
+          }
+        }
+        
+        // If no session ID or no pending payment found, check if this user has any completed payments
+        const { data: completedPayment, error: completeError } = await supabase
           .from('user_payments')
           .select('*')
           .eq('user_id', user.id)
           .eq('payment_status', 'completed')
           .maybeSingle();
           
-        if (fetchError) {
-          console.error('Error fetching payment status:', fetchError);
-          throw new Error(fetchError.message);
+        if (completeError) {
+          console.error('Error checking completed payments:', completeError);
         }
         
-        if (existingPayment) {
-          console.log("User already has a completed payment record:", existingPayment);
+        if (completedPayment) {
+          console.log("User has a completed payment:", completedPayment);
           updatePaymentStatus(true);
           setIsComplete(true);
           setIsProcessing(false);
           return;
         }
         
-        // Record successful payment in database
-        const { error } = await supabase
+        // If we get here, we need to create a new payment record
+        // This is a fallback for users who might have completed payment but lost the session ID
+        console.log("No payment record found, creating a new one");
+        
+        const { error: insertError } = await supabase
           .from('user_payments')
           .insert({
             user_id: user.id,
@@ -65,14 +129,12 @@ const PaymentSuccessPage = () => {
             updated_at: new Date().toISOString()
           });
 
-        if (error) {
-          console.error('Error updating payment status:', error);
-          throw new Error(error.message);
+        if (insertError) {
+          console.error('Error creating new payment record:', insertError);
+          throw new Error(insertError.message);
         }
 
-        console.log("Payment status updated successfully in database");
-        
-        // Update context state to reflect successful payment
+        console.log("Payment status created successfully in database");
         updatePaymentStatus(true);
         setIsComplete(true);
         toast.success("Payment successful! You now have full access to the course.");
@@ -85,13 +147,13 @@ const PaymentSuccessPage = () => {
       }
     };
 
-    // Check if we've been redirected from Stripe with a successful payment
-    if (redirectStatus === 'succeeded' || location.pathname === '/payment-success') {
+    // Process payment if we're on the payment success page
+    if (location.pathname === '/payment-success') {
       updateUserPaymentStatus();
     } else {
       setIsProcessing(false);
     }
-  }, [user, updatePaymentStatus, location.pathname, redirectStatus]);
+  }, [user, sessionId, updatePaymentStatus, location.pathname]);
 
   // Redirect to course intro if payment completed and processing finished
   useEffect(() => {

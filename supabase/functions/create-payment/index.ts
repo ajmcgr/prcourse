@@ -35,18 +35,23 @@ serve(async (req) => {
       throw new Error("User not authenticated or email not available");
     }
 
+    console.log("Creating payment session for user:", user.id, user.email);
+
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
     });
 
     // Check if a Stripe customer record exists for this user
+    console.log("Checking for existing Stripe customer");
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
+      console.log("Found existing customer:", customerId);
     } else {
       // Create a new customer if one doesn't exist
+      console.log("Creating new customer for:", user.email);
       const newCustomer = await stripe.customers.create({
         email: user.email,
         metadata: {
@@ -54,9 +59,11 @@ serve(async (req) => {
         }
       });
       customerId = newCustomer.id;
+      console.log("Created new customer:", customerId);
     }
 
     // Create a one-time payment session
+    console.log("Creating checkout session");
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -73,11 +80,28 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/payment-success`,
+      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/pricing`,
     });
 
-    // Optional: You could store the order in Supabase here
+    console.log("Created checkout session:", session.id);
+
+    // Create a pending payment record in Supabase
+    const { error: paymentError } = await supabaseClient
+      .from('user_payments')
+      .insert({
+        user_id: user.id,
+        stripe_customer_id: customerId,
+        stripe_session_id: session.id,
+        payment_status: 'pending',
+        amount: 9900
+      });
+    
+    if (paymentError) {
+      console.error("Error creating payment record:", paymentError);
+    } else {
+      console.log("Created pending payment record in database");
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
