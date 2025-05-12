@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -241,14 +242,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (signInError && signInError.message.includes('Email not confirmed')) {
               return { 
                 success: true, 
-                message: "Account created! Please check your email for a confirmation link.", 
+                message: "Please check your email for a confirmation email and follow the link to verify your account.", 
                 autoSignedIn: false
               };
             }
-            // Instead of mentioning manual sign in, just indicate account creation was successful
+            // Updated message to instruct user to check email
             return { 
               success: true, 
-              message: "Account created successfully!", 
+              message: "Please check your email for a confirmation email and follow the link to verify your account.", 
               autoSignedIn: false
             };
           }
@@ -256,7 +257,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.error("Auto sign-in failed after signup:", signInError);
           return { 
             success: true, 
-            message: "Account created successfully!",
+            message: "Please check your email for a confirmation email and follow the link to verify your account.",
             autoSignedIn: false
           };
         }
@@ -274,10 +275,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         };
       }
       
-      // Fallback for unknown cases
+      // Fallback for unknown cases - updated message
       return { 
         success: true, 
-        message: "Account created successfully!", 
+        message: "Please check your email for a confirmation email and follow the link to verify your account.", 
         autoSignedIn: false
       };
       

@@ -43,7 +43,7 @@ const EmailSignup: React.FC = () => {
             // Instead of showing a message about manual sign-in,
             // automatically switch to sign in mode with the email pre-filled
             setIsSignUp(false);
-            toast.success("Account created! Please sign in with your new account.");
+            toast.success("Please check your email for a confirmation email and follow the link to verify your account.");
           }
         } else {
           toast.error(result.message);
