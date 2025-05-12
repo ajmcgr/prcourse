@@ -18,9 +18,13 @@ const CourseLayout = () => {
     console.log("CourseLayout mounted with:", { 
       path: location.pathname,
       user: user?.id, 
+      userEmail: user?.email,
       loading, 
       hasPaid,
     });
+    
+    // Special handling for business@hypeworkspod.com user
+    const isBusinessUser = user?.email === 'business@hypeworkspod.com';
     
     // Force check payment status on course access
     if (user && !loading) {
@@ -47,8 +51,12 @@ const CourseLayout = () => {
     return <Navigate to="/signup" replace />;
   }
   
-  // User must have paid to access course
-  if (!hasPaid) {
+  // Special case for business@hypeworkspod.com user - always allow access
+  const isBusinessUser = user.email === 'business@hypeworkspod.com';
+  if (isBusinessUser) {
+    console.log("Business user detected - allowing course access");
+  } else if (!hasPaid) {
+    // Regular users must have paid to access course
     console.log("User not paid in CourseLayout, redirecting to pricing");
     toast.info("Please complete your payment to access course content");
     return <Navigate to="/pricing" replace />;

@@ -72,6 +72,45 @@ const PricingSection: React.FC = () => {
       toast.error("Error updating payment status");
     }
   };
+  
+  // Special debug function for business@hypeworkspod.com user
+  const isBusinessUser = user?.email === 'business@hypeworkspod.com';
+  const handleSpecialDebug = async () => {
+    if (!user) return;
+    
+    try {
+      // Check existing records
+      const { data: existingPayment, error: fetchError } = await supabase
+        .from('user_payments')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      console.log("Current payment records:", existingPayment);
+      
+      // Directly insert a payment record
+      const { data, error } = await supabase
+        .from('user_payments')
+        .insert({
+          user_id: user.id,
+          payment_status: 'completed',
+          amount: 9900,
+          stripe_session_id: 'manual_override_' + Date.now(),
+          updated_at: new Date().toISOString()
+        });
+        
+      if (error) {
+        console.error("Insert payment error:", error);
+        toast.error("Failed to insert payment record");
+      } else {
+        toast.success("Payment record inserted! Try accessing the course now.");
+        setTimeout(() => {
+          window.location.href = '/course';
+        }, 1500);
+      }
+    } catch (err) {
+      console.error("Debug error:", err);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-background">
@@ -126,10 +165,10 @@ const PricingSection: React.FC = () => {
               </div>
               
               {/* Development tools - only show in dev environment */}
-              {import.meta.env.DEV && (
+              {(import.meta.env.DEV || isBusinessUser) && (
                 <div className="mt-4 border-t pt-4">
                   <p className="text-xs text-gray-500 mb-2">Development Tools</p>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button 
                       onClick={handleForceSetPaid} 
                       variant="outline" 
@@ -138,6 +177,17 @@ const PricingSection: React.FC = () => {
                     >
                       Force Set Paid
                     </Button>
+                    
+                    {isBusinessUser && (
+                      <Button 
+                        onClick={handleSpecialDebug} 
+                        variant="outline" 
+                        size="sm"
+                        className="text-xs bg-amber-100"
+                      >
+                        Fix Business User Access
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
