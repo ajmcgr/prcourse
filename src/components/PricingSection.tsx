@@ -55,7 +55,7 @@ const PricingSection: React.FC = () => {
               <img 
                 src="/lovable-uploads/b448d17b-1318-4e45-99ec-e548b4abc6c1.png" 
                 alt="Alex MacGregor" 
-                className="w-1/3 h-auto object-cover rounded-lg mx-auto" 
+                className="w-2/3 h-auto object-cover rounded-lg mx-auto" 
               />
             </div>
           </div>
