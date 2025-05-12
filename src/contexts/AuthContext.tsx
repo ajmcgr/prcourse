@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +13,7 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<any>; 
   signUp: (email: string, password: string, name: string) => Promise<{success: boolean, message: string, autoSignedIn: boolean}>;
   signOut: () => Promise<void>;
-  updatePaymentStatus: (paid: boolean) => void;
+  updatePaymentStatus: (paid: boolean) => Promise<{error?: Error}>;
   checkPaymentStatus: (userId: string) => Promise<boolean>;
 }
 
@@ -93,6 +92,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error checking payment status:", error);
       setHasPaid(false);
       return false;
+    }
+  };
+
+  const updatePaymentStatus = async (paid: boolean) => {
+    try {
+      if (!user) {
+        return { error: new Error("User not authenticated") };
+      }
+      
+      console.log("Updating payment status to:", paid ? "PAID" : "NOT PAID");
+      
+      // Insert or update payment record in database
+      const { error } = await supabase
+        .from('user_payments')
+        .upsert({
+          user_id: user.id,
+          payment_status: paid ? 'completed' : 'pending',
+          amount: 9900, // $99.00
+          updated_at: new Date().toISOString()
+        });
+        
+      if (error) {
+        console.error("Error updating payment record:", error);
+        return { error };
+      }
+      
+      // Update local state
+      setHasPaid(paid);
+      return {};
+    } catch (error: any) {
+      console.error("Error updating payment status:", error);
+      return { error };
     }
   };
 

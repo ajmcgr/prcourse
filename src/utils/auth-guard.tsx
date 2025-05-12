@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -10,7 +10,8 @@ interface AuthGuardProps {
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const location = useLocation();
-  const { user, loading, hasPaid, checkPaymentStatus } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { user, loading, hasPaid, checkPaymentStatus, updatePaymentStatus } = useAuth();
   const [isChecking, setIsChecking] = useState(true);
   
   useEffect(() => {
@@ -22,11 +23,39 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       path: location.pathname 
     });
     
+    // Handle Stripe success redirect
+    const handleStripeRedirect = async () => {
+      // If this is a redirect from Stripe payment link (has checkout_session_id parameter)
+      const sessionId = searchParams.get('checkout_session_id');
+      if (sessionId && user) {
+        console.log("Detected Stripe redirect with session ID:", sessionId);
+        toast.info("Verifying your payment...");
+        
+        try {
+          // Create a payment record in the database
+          const { error } = await updatePaymentStatus(true);
+          
+          if (error) {
+            console.error("Error updating payment status:", error);
+            toast.error("Failed to verify payment. Please contact support.");
+          } else {
+            console.log("Payment status updated successfully");
+            toast.success("Payment verified! You now have full access to the course.");
+          }
+        } catch (err) {
+          console.error("Error handling Stripe redirect:", err);
+        }
+      }
+    };
+    
     // Force a payment status check when the component mounts or when path changes
     const checkPayment = async () => {
       if (user && user.id) {
         console.log("Forcing payment status check for user:", user.id);
         await checkPaymentStatus(user.id);
+        
+        // If we have a session ID in the URL, handle the Stripe redirect
+        handleStripeRedirect();
       }
       
       // Give a short delay to ensure auth and payment status are properly loaded
@@ -36,7 +65,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     };
     
     checkPayment();
-  }, [user, loading, location.pathname, checkPaymentStatus]);
+  }, [user, loading, location.pathname, checkPaymentStatus, searchParams, updatePaymentStatus]);
   
   // If we're loading auth state or checking payment, show loading indicator
   if (loading || isChecking) {

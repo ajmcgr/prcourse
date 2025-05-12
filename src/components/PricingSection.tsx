@@ -18,8 +18,12 @@ const PricingSection: React.FC = () => {
         return;
       }
       
-      // Redirect to the Stripe payment link
-      window.location.href = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
+      // Redirect to the Stripe payment link with redirect back to our app
+      const stripeUrl = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
+      // Append a success_url parameter to redirect back to our app
+      const successUrl = encodeURIComponent(`${window.location.origin}/course/full-course`);
+      const fullStripeUrl = `${stripeUrl}?success_url=${successUrl}`;
+      window.location.href = fullStripeUrl;
     } catch (err) {
       console.error('Purchase error:', err);
       toast.error("Something went wrong. Please try again.");
