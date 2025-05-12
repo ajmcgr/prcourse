@@ -43,6 +43,28 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
   
+  // Special case for the post-payment success route
+  // Always allow this route regardless of payment status
+  if (location.pathname === '/payment-success') {
+    console.log("Allowing access to payment success page");
+    return <>{children}</>;
+  }
+
+  // Special case for the /course/full-course route that Stripe redirects to 
+  if (location.pathname === '/course/full-course') {
+    console.log("Detected stripe redirect route");
+    // If user is logged in, redirect them to payment success
+    if (user) {
+      console.log("User is authenticated, redirecting to payment success");
+      return <Navigate to="/payment-success" state={{ from: location }} replace />;
+    } else {
+      // If not logged in, redirect to signup
+      console.log("User not authenticated, redirecting to signup");
+      toast.info("Please sign up to complete your purchase");
+      return <Navigate to="/signup" state={{ from: location }} replace />;
+    }
+  }
+  
   // User is not signed in, redirect to signup
   if (!user && location.pathname !== '/signup') {
     console.log("User not authenticated, redirecting to signup");
@@ -50,17 +72,11 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     return <Navigate to="/signup" state={{ from: location }} replace />;
   }
 
-  // Special case for paths that should always be allowed when authenticated
-  const alwaysAllowedPaths = ['/payment-success', '/course/full-course'];
-  if (user && alwaysAllowedPaths.includes(location.pathname)) {
-    console.log("Allowing access to special path:", location.pathname);
-    return <>{children}</>;
-  }
-
   // User is signed in but hasn't paid, redirect to pricing
-  if (user && !hasPaid && 
-      location.pathname !== '/pricing' && 
-      location.pathname !== '/signup') {
+  // Skip this check for certain paths
+  const paymentExemptPaths = ['/payment-success', '/pricing', '/signup'];
+  
+  if (user && !hasPaid && !paymentExemptPaths.includes(location.pathname)) {
     console.log("User authenticated but not paid, redirecting to pricing");
     toast.info("Please complete your payment to access course content.");
     return <Navigate to="/pricing" state={{ from: location }} replace />;

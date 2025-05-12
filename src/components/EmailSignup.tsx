@@ -47,6 +47,24 @@ const EmailSignup: React.FC = () => {
     }
   };
 
+  const handleManualSignIn = async () => {
+    if (!email || !password) {
+      toast.error("Please enter your email and password to sign in");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await signInWithEmail(email, password);
+      navigate('/course/introduction');
+    } catch (error) {
+      console.error("Sign-in error:", error);
+      toast.error("Failed to sign in. Please check your credentials and try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -147,22 +165,38 @@ const EmailSignup: React.FC = () => {
             <p className="text-sm text-green-700">
               {user 
                 ? "You are now signed in and can access the course content."
-                : "Please follow the instructions sent to your email to complete registration."}
+                : "We couldn't automatically sign you in. Please sign in manually with your new account."}
             </p>
           </div>
-          <Button 
-            className="w-full"
-            onClick={() => {
-              if (user) {
-                navigate('/course/introduction');
-              } else {
-                setIsSignUp(false);
-                setSignupComplete(false);
-              }
-            }}
-          >
-            {user ? "Go to Course" : "Return to Sign In"}
-          </Button>
+          {user ? (
+            <Button 
+              className="w-full"
+              onClick={() => navigate('/course/introduction')}
+            >
+              Go to Course
+            </Button>
+          ) : (
+            <div className="grid gap-4">
+              <Button 
+                className="w-full"
+                onClick={handleManualSignIn}
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing in..." : "Sign in now"}
+              </Button>
+              <Button 
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setIsSignUp(false);
+                  setSignupComplete(false);
+                }}
+                disabled={isLoading}
+              >
+                Return to Sign In Form
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     );

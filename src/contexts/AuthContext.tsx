@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,7 +37,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (event === 'SIGNED_IN') {
           toast.success("Successfully signed in!");
           // Check payment status when user signs in
-          checkPaymentStatus(currentSession?.user?.id);
+          if (currentSession?.user) {
+            checkPaymentStatus(currentSession.user.id);
+          }
         }
         if (event === 'SIGNED_OUT') {
           toast.success("Successfully signed out!");
@@ -122,15 +125,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) throw error;
+      
+      // If sign in is successful, check if we have a user
+      if (data.user) {
+        setUser(data.user);
+        setSession(data.session);
+        checkPaymentStatus(data.user.id);
+      }
+      
+      return data;
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in");
       console.error("Email sign in error:", error);
+      throw error;
     }
   };
 
@@ -155,22 +168,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log("Rate limit error detected during signup");
           
           // Try to sign in directly if the user might already exist
-          const { error: signInError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
+          try {
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
 
-          if (!signInError) {
-            toast.success("Signed in successfully!");
-            return { 
-              success: true, 
-              message: "Account accessed! Email confirmation rate limit was reached but you've been signed in."
-            };
-          } else {
-            toast.error("Email rate limit exceeded. Please try again later or use a different email.");
+            if (!signInError && signInData.user) {
+              setUser(signInData.user);
+              setSession(signInData.session);
+              toast.success("Signed in successfully!");
+              return { 
+                success: true, 
+                message: "Account accessed! Email confirmation rate limit was reached but you've been signed in."
+              };
+            } else {
+              toast.error("Email rate limit exceeded. Please try again later or use a different email.");
+              return { 
+                success: false, 
+                message: "Email rate limit exceeded. Please try again later or use a different email."
+              };
+            }
+          } catch (signInError) {
+            console.error("Error during signin attempt after rate limit:", signInError);
             return { 
               success: false, 
-              message: "Email rate limit exceeded. Please try again later or use a different email."
+              message: "Email rate limit exceeded and couldn't sign you in. Please try again later."
             };
           }
         }
@@ -180,22 +203,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log("Email confirmation error, attempting direct signin");
 
           // Attempt to sign in directly after signup
-          const { error: signInError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-          if (!signInError) {
-            toast.success("Account created successfully!");
-            toast.info("Email confirmation is temporarily disabled", {
-              duration: 6000
+          try {
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email,
+              password,
             });
-            return { 
-              success: true, 
-              message: "Account created! Email confirmation is temporarily disabled but you can proceed."
+
+            if (!signInError && signInData.user) {
+              setUser(signInData.user);
+              setSession(signInData.session);
+              toast.success("Account created successfully!");
+              toast.info("Email confirmation is temporarily disabled", {
+                duration: 6000
+              });
+              return { 
+                success: true, 
+                message: "Account created! Email confirmation is temporarily disabled but you can proceed."
+              };
+            } else {
+              return { 
+                success: true, 
+                message: "Account created but we couldn't sign you in. Please try signing in manually."
+              };
+            }
+          } catch (signInError) {
+            console.error("Error during signin attempt after email error:", signInError);
+            return {
+              success: true,
+              message: "Account created successfully but we couldn't sign you in. Please try manually."
             };
-          } else {
-            throw new Error("Account may have been created, but we couldn't sign you in. Please try signing in manually.");
           }
         } else {
           throw error;
@@ -211,16 +247,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (data.session) {
           // Auto-confirmation is enabled (development mode)
           console.log("Session created, auto-confirmation is enabled");
+          setUser(data.user);
+          setSession(data.session);
           toast.success("Successfully signed up! You're now logged in.");
           return { success: true, message: "Account created and you're now logged in!" };
         } else {
           // Email confirmation required
           console.log("No session, email confirmation is required");
-          toast.success("Check your email to confirm your registration!");
-          toast.info("If you don't see the email, check your spam folder or contact support.", {
-            duration: 6000
-          });
-          return { success: true, message: "Account created! Please check your email to confirm registration." };
+          
+          // Try to sign in directly
+          try {
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
+            
+            if (!signInError && signInData.user) {
+              setUser(signInData.user);
+              setSession(signInData.session);
+              return { success: true, message: "Account created and you're now logged in!" };
+            } else {
+              // Couldn't sign in automatically
+              toast.success("Account created! Check your email to confirm your registration.");
+              toast.info("If you don't see the email, check your spam folder or try signing in directly.", {
+                duration: 6000
+              });
+              return { success: true, message: "Account created! Please check your email or sign in directly." };
+            }
+          } catch (signInError) {
+            console.error("Error during signin attempt after signup:", signInError);
+            toast.success("Check your email to confirm your registration!");
+            return { success: true, message: "Account created! Please check your email to confirm registration." };
+          }
         }
       } else {
         console.warn("Signup successful but no user returned");
