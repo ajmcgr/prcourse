@@ -18,11 +18,14 @@ const PricingSection: React.FC = () => {
         return;
       }
       
-      // Redirect to the Stripe payment link with redirect back to our app
+      // Construct a proper redirect URL with clear parameters
       const stripeUrl = "https://buy.stripe.com/8wMeX81TcfcG7W84gg";
-      // Append a success_url parameter to redirect back to our app
-      const successUrl = encodeURIComponent(`${window.location.origin}/course/full-course`);
+      
+      // Include both origin and full path in the success_url
+      const successUrl = encodeURIComponent(`${window.location.origin}/course/full-course?checkout_session_completed=true`);
       const fullStripeUrl = `${stripeUrl}?success_url=${successUrl}`;
+      
+      console.log("Redirecting to Stripe payment URL:", fullStripeUrl);
       window.location.href = fullStripeUrl;
     } catch (err) {
       console.error('Purchase error:', err);
@@ -33,7 +36,7 @@ const PricingSection: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-background">
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Pricing Card - Increased width from md:w-1/2 to md:w-2/3 */}
+        {/* Pricing Card */}
         <div className="md:w-2/3">
           <Card className="border shadow-sm h-full">
             <CardContent className="p-6">

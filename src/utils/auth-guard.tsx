@@ -23,12 +23,18 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       path: location.pathname 
     });
     
-    // Handle Stripe success redirect
+    // Handle Stripe redirects - check for multiple possible parameters
     const handleStripeRedirect = async () => {
-      // If this is a redirect from Stripe payment link (has checkout_session_id parameter)
-      const sessionId = searchParams.get('checkout_session_id');
-      if (sessionId && user) {
-        console.log("Detected Stripe redirect with session ID:", sessionId);
+      // Check for various Stripe parameters
+      const sessionId = searchParams.get('checkout_session_id') || 
+                        searchParams.get('session_id') || 
+                        searchParams.get('CHECKOUT_SESSION_ID');
+      
+      // Also check for success_url parameter which Stripe might add
+      const isSuccessRedirect = searchParams.get('success_url') || location.pathname.includes('/course/full-course');
+      
+      if ((sessionId || isSuccessRedirect) && user) {
+        console.log("Detected Stripe redirect:", { sessionId, isSuccessRedirect });
         toast.info("Verifying your payment...");
         
         try {
@@ -52,9 +58,10 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     const checkPayment = async () => {
       if (user && user.id) {
         console.log("Forcing payment status check for user:", user.id);
-        await checkPaymentStatus(user.id);
+        const isPaid = await checkPaymentStatus(user.id);
+        console.log("Payment check result:", isPaid);
         
-        // If we have a session ID in the URL, handle the Stripe redirect
+        // If we have a session ID in the URL or are on the full-course page, handle the Stripe redirect
         handleStripeRedirect();
       }
       
@@ -77,12 +84,19 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
   
-  // Special case for the /course/full-course route that Stripe redirects to 
+  // Modified logic for handling full-course route (Stripe redirect)
   if (location.pathname === '/course/full-course') {
     console.log("Detected stripe redirect route");
-    // If user is logged in, redirect them to course intro
     if (user) {
-      console.log("User is authenticated, redirecting to course introduction");
+      // Since we're on the redirect page after payment, if user exists, mark as paid and redirect
+      if (!hasPaid) {
+        console.log("User on redirect page but not marked as paid - updating payment status");
+        updatePaymentStatus(true)
+          .then(() => console.log("Payment status updated from redirect page"))
+          .catch(err => console.error("Failed to update payment status:", err));
+      }
+      
+      console.log("User is authenticated on full-course page, redirecting to course introduction");
       return <Navigate to="/course/introduction" state={{ from: location }} replace />;
     } else {
       // If not logged in, redirect to signup
