@@ -5,18 +5,18 @@ import { MessageCircle } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-background border-t">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <footer className="bg-background border-t mt-auto">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Alex MacGregor's PR Masterclass</h3>
+            <h3 className="text-lg font-semibold mb-3">Alex MacGregor's PR Masterclass</h3>
             <p className="text-sm text-gray-600">
               Learn PR strategies from Alex MacGregor — build your brand and gain the media attention your business deserves.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <h3 className="text-lg font-semibold mb-3">Quick Links</h3>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/" className="text-gray-600 hover:text-black">Home</Link></li>
                 <li><Link to="/about" className="text-gray-600 hover:text-black">About</Link></li>
@@ -25,11 +25,11 @@ const Footer = () => {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">Contact</h3>
+              <h3 className="text-lg font-semibold mb-3">Contact</h3>
               <ul className="space-y-2 text-sm">
                 <li className="text-gray-600">Email: alex@alexmacgregor.com</li>
               </ul>
-              <div className="flex space-x-4 mt-4">
+              <div className="flex space-x-4 mt-3">
                 {/* Instagram icon removed */}
                 <a href="https://x.com/alexmacgregor__" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black">
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -50,7 +50,7 @@ const Footer = () => {
         </div>
         
         {/* Copyright - No divider and smaller text */}
-        <div className="mt-8 text-center">
+        <div className="mt-4 text-center">
           <p className="text-xs text-gray-500">© 2025 Alex MacGregor. All rights reserved.</p>
         </div>
       </div>

@@ -73,14 +73,14 @@ const CourseLayout = () => {
   }
   
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       <Navbar />
       
-      <main className="flex-grow">
+      <main className="flex-1 flex flex-col">
         <SidebarProvider defaultOpen={true}>
-          <div className="flex w-full">
+          <div className="flex flex-1 w-full">
             <CourseSidebar />
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-6 overflow-y-auto pb-16">
               <Outlet />
             </div>
           </div>
