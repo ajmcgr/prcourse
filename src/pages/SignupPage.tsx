@@ -12,9 +12,9 @@ const SignupPage = () => {
       <main className="flex-grow flex items-center justify-center py-12">
         <div className="max-w-md w-full px-4 sm:px-6">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-pr-dark">Sign In or Sign Up</h1>
+            <h1 className="text-3xl font-bold text-pr-dark">Join Our Community</h1>
             <p className="mt-2 text-gray-600">
-              Get access to the PR course materials
+              Get access to exclusive PR course materials
             </p>
           </div>
           <EmailSignup />

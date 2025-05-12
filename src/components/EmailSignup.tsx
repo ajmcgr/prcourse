@@ -37,9 +37,13 @@ const EmailSignup: React.FC = () => {
         // Handle sign up
         const result = await signUp(email, password, name);
         if (result.success) {
-          toast.success(result.message);
-          if (!result.autoSignedIn) {
-            setIsSignUp(false); // Switch back to sign in mode if not auto signed in
+          if (result.autoSignedIn) {
+            toast.success(result.message);
+          } else {
+            // Instead of showing a message about manual sign-in,
+            // automatically switch to sign in mode with the email pre-filled
+            setIsSignUp(false);
+            toast.success("Account created! Please sign in with your new account.");
           }
         } else {
           toast.error(result.message);

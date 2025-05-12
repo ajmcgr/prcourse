@@ -245,9 +245,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 autoSignedIn: false
               };
             }
+            // Instead of mentioning manual sign in, just indicate account creation was successful
             return { 
               success: true, 
-              message: "Account created! Please sign in manually.", 
+              message: "Account created successfully!", 
               autoSignedIn: false
             };
           }
@@ -255,7 +256,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.error("Auto sign-in failed after signup:", signInError);
           return { 
             success: true, 
-            message: "Account created! Please sign in manually.",
+            message: "Account created successfully!",
             autoSignedIn: false
           };
         }
@@ -276,7 +277,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Fallback for unknown cases
       return { 
         success: true, 
-        message: "Account created! Please check your email or sign in manually.", 
+        message: "Account created successfully!", 
         autoSignedIn: false
       };
       
