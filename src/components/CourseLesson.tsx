@@ -127,32 +127,7 @@ const CourseLesson = () => {
             <h1 className="text-3xl font-bold">{lessonData.title}</h1>
           </div>
           
-          {/* Navigation controls - moved above video and right-aligned */}
-          <div className="flex justify-end mb-4">
-            <Pagination>
-              <PaginationContent>
-                {adjacentLessons.previousLesson && (
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      as={Link} 
-                      to={`/course/${adjacentLessons.previousLesson.lesson.slug}`} 
-                    />
-                  </PaginationItem>
-                )}
-                
-                {adjacentLessons.nextLesson && (
-                  <PaginationItem>
-                    <PaginationNext 
-                      as={Link} 
-                      to={`/course/${adjacentLessons.nextLesson.lesson.slug}`} 
-                    />
-                  </PaginationItem>
-                )}
-              </PaginationContent>
-            </Pagination>
-          </div>
-          
-          {/* Video container */}
+          {/* Video container taking up most of available height */}
           <div className="mx-auto max-w-3xl flex-grow flex flex-col justify-center mb-8">
             <div className="bg-black rounded-lg overflow-hidden shadow-lg">
               <AspectRatio ratio={16 / 9}>
@@ -173,7 +148,28 @@ const CourseLesson = () => {
             <p>This is part of Alex MacGregor's PR Masterclass. Watch this video to learn more about "{lessonData.title}" within the "{chapterData.title}" chapter.</p>
           </div>
           
-          {/* Removed navigation controls from here as they're now above the video */}
+          {/* Navigation controls */}
+          <Pagination className="mt-auto">
+            <PaginationContent>
+              {adjacentLessons.previousLesson && (
+                <PaginationItem>
+                  <PaginationPrevious 
+                    as={Link} 
+                    to={`/course/${adjacentLessons.previousLesson.lesson.slug}`} 
+                  />
+                </PaginationItem>
+              )}
+              
+              {adjacentLessons.nextLesson && (
+                <PaginationItem>
+                  <PaginationNext 
+                    as={Link} 
+                    to={`/course/${adjacentLessons.nextLesson.lesson.slug}`} 
+                  />
+                </PaginationItem>
+              )}
+            </PaginationContent>
+          </Pagination>
         </>
       ) : (
         <div className="text-center py-10 h-full flex items-center justify-center">
