@@ -19,6 +19,12 @@ interface PaymentRecord {
   stripe_customer_id?: string | null;
 }
 
+// Define specific types for our query responses to avoid deep type instantiation
+type PaymentQueryResponse = {
+  data: PaymentRecord[] | null;
+  error: any;
+};
+
 const PaymentSuccessPage = () => {
   const { user, updatePaymentStatus } = useAuth();
   const [isProcessing, setIsProcessing] = useState(true);
@@ -49,19 +55,22 @@ const PaymentSuccessPage = () => {
           console.log("Processing payment with session ID:", sessionId);
           
           // First check if we already have a completed payment for this user
-          const { data, error: fetchError } = await supabase
+          const result = await supabase
             .from('user_payments')
             .select('*')
             .eq('user_id', user.id)
             .eq('payment_status', 'completed');
             
+          // Use type assertion to avoid deep instantiation
+          const { data, error: fetchError } = result as PaymentQueryResponse;
+          
           if (fetchError) {
             console.error('Error fetching payment status:', fetchError);
             throw new Error(fetchError.message);
           }
           
-          // Explicitly cast the data to PaymentRecord[] to avoid deep type instantiation
-          const existingPayments = (data || []) as PaymentRecord[];
+          // Simply use data without complex typing
+          const existingPayments = data || [];
           
           if (existingPayments.length > 0) {
             console.log("User already has a completed payment record:", existingPayments[0]);
@@ -72,23 +81,25 @@ const PaymentSuccessPage = () => {
           }
           
           // Update payment status in database if we found a pending payment with this session ID
-          const { data: pendingData, error: pendingError } = await supabase
+          const pendingResult = await supabase
             .from('user_payments')
             .select('*')
             .eq('stripe_session_id', sessionId);
             
+          // Use type assertion for consistent approach
+          const { data: pendingData, error: pendingError } = pendingResult as PaymentQueryResponse;
+          
           if (pendingError) {
             console.error('Error fetching pending payment:', pendingError);
           }
           
-          // Explicitly cast to PaymentRecord[]
-          const pendingPayments = (pendingData || []) as PaymentRecord[];
+          const pendingPayments = pendingData || [];
           
           if (pendingPayments.length > 0) {
             console.log("Found pending payment to update:", pendingPayments[0]);
             
             // Mark payment as completed
-            const { error: updateError } = await supabase
+            const updateResult = await supabase
               .from('user_payments')
               .update({
                 payment_status: 'completed',
@@ -96,6 +107,8 @@ const PaymentSuccessPage = () => {
               })
               .eq('stripe_session_id', sessionId);
               
+            const { error: updateError } = updateResult;
+            
             if (updateError) {
               console.error('Error updating payment status:', updateError);
               throw new Error(updateError.message);
@@ -111,18 +124,20 @@ const PaymentSuccessPage = () => {
         }
         
         // If no session ID or no pending payment found, check if this user has any completed payments
-        const { data: completeData, error: completeError } = await supabase
+        const completeResult = await supabase
           .from('user_payments')
           .select('*')
           .eq('user_id', user.id)
           .eq('payment_status', 'completed');
           
+        // Use type assertion for consistent approach
+        const { data: completeData, error: completeError } = completeResult as PaymentQueryResponse;
+        
         if (completeError) {
           console.error('Error checking completed payments:', completeError);
         }
         
-        // Explicitly cast to PaymentRecord[]
-        const completedPayments = (completeData || []) as PaymentRecord[];
+        const completedPayments = completeData || [];
         
         if (completedPayments.length > 0) {
           console.log("User has a completed payment:", completedPayments[0]);
@@ -136,7 +151,7 @@ const PaymentSuccessPage = () => {
         // This is a fallback for users who might have completed payment but lost the session ID
         console.log("No payment record found, creating a new one");
         
-        const { error: insertError } = await supabase
+        const insertResult = await supabase
           .from('user_payments')
           .insert({
             user_id: user.id,
@@ -145,6 +160,8 @@ const PaymentSuccessPage = () => {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
+
+        const { error: insertError } = insertResult;
 
         if (insertError) {
           console.error('Error creating new payment record:', insertError);
