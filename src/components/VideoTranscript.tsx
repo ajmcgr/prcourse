@@ -16,15 +16,15 @@ const VideoTranscript: React.FC<VideoTranscriptProps> = ({ transcript }) => {
 
   if (!transcript) {
     return (
-      <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+      <div className="mt-8 md:mt-10 p-5 bg-gray-100 rounded-lg">
         <p className="text-gray-500 italic">Transcript not available for this video.</p>
       </div>
     );
   }
 
   return (
-    <div className="mt-6">
-      <div className="flex justify-between items-center mb-2">
+    <div className="mt-8 md:mt-10 mb-10">
+      <div className="flex justify-between items-center mb-3">
         <h3 className="text-xl font-semibold">Transcript</h3>
         <Button
           variant="ghost"
@@ -47,7 +47,7 @@ const VideoTranscript: React.FC<VideoTranscriptProps> = ({ transcript }) => {
       </div>
       
       {isExpanded && (
-        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-[400px] overflow-y-auto">
+        <div className="bg-gray-50 p-5 md:p-6 rounded-lg border border-gray-200 max-h-[450px] overflow-y-auto shadow-sm">
           <p className="whitespace-pre-wrap">{transcript}</p>
         </div>
       )}

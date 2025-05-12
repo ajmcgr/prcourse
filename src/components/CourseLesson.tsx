@@ -66,15 +66,15 @@ const CourseLesson = () => {
   }
 
   return (
-    <div className="px-8 py-10">
+    <div className="px-6 md:px-10 lg:px-16 py-10 md:py-12 lg:py-16 max-w-6xl mx-auto">
       {lesson && chapter && (
         <>
-          <div className="mb-8">
+          <div className="mb-10 md:mb-12">
             <div className="text-sm text-gray-500 mb-2">Chapter: {chapter.title}</div>
             <h1 className="text-3xl font-bold">{lesson.title}</h1>
           </div>
           
-          <div className="aspect-video mb-10 bg-black rounded-lg overflow-hidden shadow-lg">
+          <div className="aspect-video mb-12 md:mb-14 bg-black rounded-lg overflow-hidden shadow-lg">
             <iframe
               src={getVimeoEmbedUrl(lesson.videoUrl)}
               className="w-full h-full"
@@ -85,7 +85,7 @@ const CourseLesson = () => {
             ></iframe>
           </div>
           
-          <div className="prose max-w-none mb-10">
+          <div className="prose max-w-none mb-12">
             <h2>About This Lesson</h2>
             <p>This is part of Alex MacGregor's PR Masterclass. Watch this video to learn more about "{lesson.title}" within the "{chapter.title}" chapter.</p>
           </div>
@@ -94,7 +94,7 @@ const CourseLesson = () => {
           <VideoTranscript transcript={lesson.transcript} />
           
           {/* Navigation controls */}
-          <Pagination className="mt-10">
+          <Pagination className="mt-14 md:mt-16">
             <PaginationContent>
               {previousLesson && (
                 <PaginationItem>
