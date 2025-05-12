@@ -12,7 +12,7 @@ interface AuthContextType {
   supabase: typeof supabase;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<any>;
   signOut: () => Promise<void>;
   updatePaymentStatus: (paid: boolean) => void;
 }
@@ -148,6 +148,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           duration: 6000
         });
       }
+      
+      return data; // Return data so component can check if session exists
     } catch (error: any) {
       // Handle specific known errors
       if (error.message?.includes('already registered')) {
@@ -156,6 +158,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         toast.error(error.message || "Failed to sign up");
       }
       console.error("Sign up error:", error);
+      throw error; // Re-throw so component can handle it
     }
   };
 

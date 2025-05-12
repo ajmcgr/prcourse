@@ -18,6 +18,7 @@ const EmailSignup: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResetPassword, setIsResetPassword] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithEmail, signUp, signInWithGoogle, user } = useAuth();
@@ -73,8 +74,18 @@ const EmailSignup: React.FC = () => {
     
     try {
       if (isSignUp) {
-        await signUp(email, password, name);
-        // Don't navigate right away if email confirmation is required
+        const { data, error } = await signUp(email, password, name);
+        
+        if (error) throw error;
+        
+        // Check if email confirmation is required - this is determined by 
+        // whether a session was created immediately or not
+        if (!data?.session) {
+          setConfirmationEmailSent(true);
+        } else {
+          // Auto-confirmation is enabled (development mode)
+          navigate('/course/introduction');
+        }
       } else {
         await signInWithEmail(email, password);
         navigate('/course/introduction');
@@ -115,6 +126,43 @@ const EmailSignup: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  if (confirmationEmailSent) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-sans text-center">
+            Check Your Email
+          </CardTitle>
+          <CardDescription className="text-center">
+            We've sent a confirmation email to {email}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="p-4 bg-blue-50 rounded-md flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-blue-500" />
+            <p className="text-sm text-blue-700">
+              Please click the link in the email to verify your account before signing in.
+            </p>
+          </div>
+          <div className="p-4 bg-amber-50 rounded-md">
+            <p className="text-sm text-amber-700">
+              If you don't see the email in your inbox, check your spam folder.
+            </p>
+          </div>
+          <Button 
+            className="w-full"
+            onClick={() => {
+              setIsSignUp(false);
+              setConfirmationEmailSent(false);
+            }}
+          >
+            Back to Login
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (resetEmailSent) {
     return (
