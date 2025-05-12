@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -108,7 +107,7 @@ const PricingSection: React.FC = () => {
               <img 
                 src="/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" 
                 alt="Alex MacGregor" 
-                className="w-full object-cover rounded-lg" 
+                className="w-3/4 h-auto object-cover rounded-lg mx-auto" 
               />
             </div>
             <h2 className="text-xl font-bold text-pr-dark mb-3">A comprehensive course from Alex MacGregor featuring essays and video lessons to elevate your PR strategy and execution.</h2>
