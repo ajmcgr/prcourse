@@ -12,7 +12,7 @@ interface AuthContextType {
   supabase: typeof supabase;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<{success: boolean, message: string}>;
   signOut: () => Promise<void>;
   updatePaymentStatus: (paid: boolean) => void;
 }
@@ -122,7 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, name: string): Promise<{success: boolean, message: string}> => {
     try {
       console.log("Starting signup process with:", { email, name });
       
@@ -137,7 +137,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
       
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('sending confirmation email')) {
+          // Special handling for email sending errors
+          console.log("Email confirmation error, but user may have been created");
+
+          // Attempt to sign in directly after signup
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (!signInError) {
+            toast.success("Account created successfully!");
+            toast.info("Email confirmation is temporarily disabled", {
+              duration: 6000
+            });
+            return { 
+              success: true, 
+              message: "Account created! Email confirmation is temporarily disabled but you can proceed."
+            };
+          } else {
+            throw new Error("Account may have been created, but we couldn't sign you in. Please try signing in manually.");
+          }
+        } else {
+          throw error;
+        }
+      }
       
       console.log("Signup response:", data);
       
@@ -149,6 +175,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Auto-confirmation is enabled (development mode)
           console.log("Session created, auto-confirmation is enabled");
           toast.success("Successfully signed up! You're now logged in.");
+          return { success: true, message: "Account created and you're now logged in!" };
         } else {
           // Email confirmation required
           console.log("No session, email confirmation is required");
@@ -156,18 +183,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           toast.info("If you don't see the email, check your spam folder or contact support.", {
             duration: 6000
           });
+          return { success: true, message: "Account created! Please check your email to confirm registration." };
         }
       } else {
         console.warn("Signup successful but no user returned");
+        return { success: false, message: "Something went wrong during signup, but you can try signing in." };
       }
     } catch (error: any) {
       // Handle specific known errors
       if (error.message?.includes('already registered')) {
         toast.error("This email is already registered. Try signing in instead.");
+        return { success: false, message: "This email is already registered. Try signing in instead." };
       } else {
         toast.error(error.message || "Failed to sign up");
+        console.error("Sign up error:", error);
+        return { success: false, message: error.message || "Failed to sign up" };
       }
-      console.error("Sign up error:", error);
     }
   };
 

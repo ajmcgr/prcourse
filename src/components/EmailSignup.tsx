@@ -17,6 +17,8 @@ const EmailSignup: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResetPassword, setIsResetPassword] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [signupComplete, setSignupComplete] = useState(false);
+  const [signupMessage, setSignupMessage] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithEmail, signUp, signInWithGoogle, user } = useAuth();
@@ -70,8 +72,19 @@ const EmailSignup: React.FC = () => {
       console.log("Processing form submission:", isSignUp ? "signup" : "signin");
       if (isSignUp) {
         console.log("Attempting signup with:", { email, name });
-        await signUp(email, password, name);
-        // Don't navigate right away if email confirmation is required
+        const result = await signUp(email, password, name);
+        
+        if (result.success) {
+          setSignupComplete(true);
+          setSignupMessage(result.message);
+          
+          // If user was automatically signed in (auto-confirmation is enabled)
+          if (user) {
+            setTimeout(() => {
+              navigate('/course/introduction');
+            }, 1500);
+          }
+        }
       } else {
         console.log("Attempting signin with:", { email });
         await signInWithEmail(email, password);
@@ -113,6 +126,44 @@ const EmailSignup: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  if (signupComplete) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-sans text-center">
+            Account Created
+          </CardTitle>
+          <CardDescription className="text-center">
+            {signupMessage}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="p-4 bg-green-50 rounded-md flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-green-500" />
+            <p className="text-sm text-green-700">
+              {user 
+                ? "You are now signed in and can access the course content."
+                : "Please follow the instructions sent to your email to complete registration."}
+            </p>
+          </div>
+          <Button 
+            className="w-full"
+            onClick={() => {
+              if (user) {
+                navigate('/course/introduction');
+              } else {
+                setIsSignUp(false);
+                setSignupComplete(false);
+              }
+            }}
+          >
+            {user ? "Go to Course" : "Return to Sign In"}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (resetEmailSent) {
     return (
