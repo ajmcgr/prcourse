@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -52,7 +53,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           if (isBusinessUser && !isPaid) {
             console.log("Business user detected but not marked as paid - investigating");
             // Additional logging to help debug
-            const { data, error } = await window.supabase
+            const { data, error } = await supabase
               .from('user_payments')
               .select('*')
               .eq('user_id', user.id);

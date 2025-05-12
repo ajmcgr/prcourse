@@ -10,7 +10,7 @@ const LetterSection: React.FC = () => {
         <article className="bg-white p-8 md:p-12 shadow-sm border border-gray-200 rounded-md">
           <div className="mb-10 flex justify-center">
             <img 
-              src="/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" 
+              src="/lovable-uploads/f862fff7-fec3-4e40-a4f8-11cd55dc164a.png" 
               alt="Alex MacGregor" 
               className="w-40 h-40 rounded-full object-cover border-2 border-gray-100"
             />
