@@ -84,6 +84,9 @@ const EmailSignup: React.FC = () => {
               navigate('/course/introduction');
             }, 1500);
           }
+        } else if (result.message.includes('rate limit')) {
+          // Special handling for rate limit errors
+          toast.error("Email rate limit reached. Try again later or use a different email address.");
         }
       } else {
         console.log("Attempting signin with:", { email });

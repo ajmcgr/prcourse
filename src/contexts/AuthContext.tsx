@@ -138,9 +138,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (error) {
+        // Handle rate limit error specifically
+        if (error.message.includes('rate limit exceeded')) {
+          console.log("Rate limit error detected during signup");
+          
+          // Try to sign in directly if the user might already exist
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (!signInError) {
+            toast.success("Signed in successfully!");
+            return { 
+              success: true, 
+              message: "Account accessed! Email confirmation rate limit was reached but you've been signed in."
+            };
+          } else {
+            toast.error("Email rate limit exceeded. Please try again later or use a different email.");
+            return { 
+              success: false, 
+              message: "Email rate limit exceeded. Please try again later or use a different email."
+            };
+          }
+        }
+        
+        // Handle other email sending errors
         if (error.message.includes('sending confirmation email')) {
-          // Special handling for email sending errors
-          console.log("Email confirmation error, but user may have been created");
+          console.log("Email confirmation error, attempting direct signin");
 
           // Attempt to sign in directly after signup
           const { error: signInError } = await supabase.auth.signInWithPassword({
