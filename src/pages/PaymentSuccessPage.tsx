@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
 
 // Define explicit types to avoid excessive type recursion
-type PaymentRecord = {
+interface PaymentRecord {
   id: string;
   user_id: string;
   payment_status: string;
@@ -17,7 +18,7 @@ type PaymentRecord = {
   created_at: string;
   updated_at: string;
   stripe_customer_id?: string | null;
-};
+}
 
 const PaymentSuccessPage = () => {
   const { user, updatePaymentStatus } = useAuth();
@@ -49,17 +50,19 @@ const PaymentSuccessPage = () => {
           console.log("Processing payment with session ID:", sessionId);
           
           // First check if we already have a completed payment for this user
-          const { data: existingPayment, error: fetchError } = await supabase
+          const { data, error: fetchError } = await supabase
             .from('user_payments')
             .select('*')
             .eq('user_id', user.id)
             .eq('payment_status', 'completed')
-            .maybeSingle<PaymentRecord>();
+            .maybeSingle();
             
           if (fetchError) {
             console.error('Error fetching payment status:', fetchError);
             throw new Error(fetchError.message);
           }
+          
+          const existingPayment = data as PaymentRecord | null;
           
           if (existingPayment) {
             console.log("User already has a completed payment record:", existingPayment);
@@ -70,15 +73,17 @@ const PaymentSuccessPage = () => {
           }
           
           // Update payment status in database if we found a pending payment with this session ID
-          const { data: pendingPayment, error: pendingError } = await supabase
+          const { data: pendingData, error: pendingError } = await supabase
             .from('user_payments')
             .select('*')
             .eq('stripe_session_id', sessionId)
-            .maybeSingle<PaymentRecord>();
+            .maybeSingle();
             
           if (pendingError) {
             console.error('Error fetching pending payment:', pendingError);
           }
+          
+          const pendingPayment = pendingData as PaymentRecord | null;
           
           if (pendingPayment) {
             console.log("Found pending payment to update:", pendingPayment);
@@ -107,16 +112,18 @@ const PaymentSuccessPage = () => {
         }
         
         // If no session ID or no pending payment found, check if this user has any completed payments
-        const { data: completedPayment, error: completeError } = await supabase
+        const { data: completeData, error: completeError } = await supabase
           .from('user_payments')
           .select('*')
           .eq('user_id', user.id)
           .eq('payment_status', 'completed')
-          .maybeSingle<PaymentRecord>();
+          .maybeSingle();
           
         if (completeError) {
           console.error('Error checking completed payments:', completeError);
         }
+        
+        const completedPayment = completeData as PaymentRecord | null;
         
         if (completedPayment) {
           console.log("User has a completed payment:", completedPayment);
