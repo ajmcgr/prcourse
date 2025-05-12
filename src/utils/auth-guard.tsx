@@ -20,6 +20,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const publicPaths = ['/signup', '/', '/pricing', '/payment-success'];
   const isPublicPath = publicPaths.includes(location.pathname);
   const isPaymentSuccess = location.pathname === '/payment-success';
+  const isPricingPage = location.pathname === '/pricing';
   
   useEffect(() => {
     // Log auth status for debugging
@@ -29,7 +30,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
       loading, 
       hasPaid, 
       path: location.pathname,
-      isPublicPath
+      isPublicPath,
+      isPricingPage
     });
     
     // Special handling for business@hypeworkspod.com user
@@ -76,7 +78,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     } else {
       setIsChecking(false);
     }
-  }, [user, loading, location.pathname, searchParams, checkPaymentStatus, hasPaid, isPublicPath, isPaymentSuccess]);
+  }, [user, loading, location.pathname, searchParams, checkPaymentStatus, hasPaid, isPublicPath, isPaymentSuccess, isPricingPage]);
   
   // If we're loading auth state or checking payment, show loading indicator
   if (loading || isChecking) {
@@ -89,10 +91,10 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }
 
   // For paths that should immediately go to course content if logged in
-  const shouldRedirectToCourse = location.pathname === '/signup' && user && hasPaid;
+  const shouldRedirectToCourse = (location.pathname === '/signup' || isPricingPage) && user && hasPaid;
   if (shouldRedirectToCourse) {
     const { lesson } = getFirstLesson();
-    console.log("User is paid and trying to access signup, redirecting to course");
+    console.log("User is paid and trying to access signup/pricing, redirecting to course");
     return <Navigate to={`/course/${lesson.slug}`} replace />;
   }
   

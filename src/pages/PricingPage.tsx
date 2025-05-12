@@ -1,10 +1,32 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PricingSection from '@/components/PricingSection';
+import { useAuth } from '@/contexts/AuthContext';
+import { getFirstLesson } from '@/utils/course-data';
 
 const PricingPage = () => {
+  const { user, loading, hasPaid } = useAuth();
+  
+  useEffect(() => {
+    // Debugging log to track payment status on pricing page
+    console.log("PricingPage rendered with:", {
+      user: user?.id,
+      userEmail: user?.email,
+      hasPaid,
+      loading
+    });
+  }, [user, hasPaid, loading]);
+
+  // If authenticated and has paid, redirect to the course page
+  if (!loading && user && hasPaid) {
+    console.log("User is paid, redirecting from pricing to course");
+    const { lesson } = getFirstLesson();
+    return <Navigate to={`/course/${lesson.slug}`} replace />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
