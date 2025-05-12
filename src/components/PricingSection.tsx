@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -57,27 +58,6 @@ const PricingSection: React.FC = () => {
                 className="w-1/3 h-auto object-cover rounded-lg mx-auto" 
               />
             </div>
-            <h2 className="text-xl font-bold text-pr-dark mb-3">A comprehensive course from Alex MacGregor featuring essays and video lessons to elevate your PR strategy and execution.</h2>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <svg className="h-5 w-5 text-pr-accent mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-700">The full blueprint to learn the A-Z of PR</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="h-5 w-5 text-pr-accent mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-700">Full chapter content; text, audio and videos</span>
-              </li>
-              <li className="flex items-start">
-                <svg className="h-5 w-5 text-pr-accent mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-700">Suitable for both beginners and professionals</span>
-              </li>
-            </ul>
           </div>
         </div>
         
@@ -131,7 +111,7 @@ const PricingSection: React.FC = () => {
                 </Button>
               </div>
               
-              {/* Moved testimonial */}
+              {/* Testimonial */}
               <div className="mt-6 bg-white border rounded-lg p-4">
                 <p className="text-gray-700 italic text-sm">
                   "This course completely transformed our company's PR approach. The practical strategies were 
