@@ -15,6 +15,7 @@ import {
   PaginationPrevious 
 } from '@/components/ui/pagination';
 import { toast } from "sonner";
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const CourseLesson = () => {
   const { slug } = useParams<{ slug?: string }>();
@@ -126,15 +127,20 @@ const CourseLesson = () => {
             <h1 className="text-3xl font-bold">{lessonData.title}</h1>
           </div>
           
-          <div className="aspect-video mb-8 bg-black rounded-lg overflow-hidden shadow-lg">
-            <iframe
-              src={getVimeoEmbedUrl(getVideoUrl(lessonData))}
-              className="w-full h-full"
-              frameBorder="0"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-              title={lessonData.title}
-            ></iframe>
+          {/* Video container with max-width and center alignment */}
+          <div className="mx-auto max-w-3xl mb-8">
+            <div className="bg-black rounded-lg overflow-hidden shadow-lg">
+              <AspectRatio ratio={16 / 9}>
+                <iframe
+                  src={getVimeoEmbedUrl(getVideoUrl(lessonData))}
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                  title={lessonData.title}
+                ></iframe>
+              </AspectRatio>
+            </div>
           </div>
           
           <div className="prose max-w-none mb-8">

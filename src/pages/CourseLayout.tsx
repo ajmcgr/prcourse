@@ -80,8 +80,10 @@ const CourseLayout = () => {
         <SidebarProvider defaultOpen={true}>
           <div className="flex flex-1 w-full">
             <CourseSidebar />
-            <div className="flex-1 p-6 overflow-y-auto pb-16">
-              <Outlet />
+            <div className="flex-1 p-6 overflow-y-auto">
+              <div className="max-w-5xl mx-auto">
+                <Outlet />
+              </div>
             </div>
           </div>
         </SidebarProvider>
