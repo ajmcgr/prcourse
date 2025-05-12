@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -209,7 +208,7 @@ const PricingSection: React.FC = () => {
           <div className="mb-6">
             <div className="mb-6 rounded-lg overflow-hidden">
               <img 
-                src="/lovable-uploads/b448d17b-1318-4e45-99ec-e548b4abc6c1.png" 
+                src="/lovable-uploads/b901b1d3-44f5-41f3-b4e2-64eede3ed545.png" 
                 alt="Alex MacGregor" 
                 className="w-full h-auto object-cover rounded-lg mx-auto" 
               />
