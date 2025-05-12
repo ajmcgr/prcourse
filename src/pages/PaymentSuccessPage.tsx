@@ -23,16 +23,21 @@ const PaymentSuccessPage = () => {
     
     const verifyPayment = async () => {
       try {
+        // Instead of showing error and redirecting immediately, wait for auth
         if (!user) {
-          console.log("No user found, redirecting to sign in");
-          setError("Please sign in to continue");
-          setProcessing(false);
+          console.log("No user found, waiting for authentication to complete...");
           
-          // Add slight delay before redirecting
-          setTimeout(() => {
-            navigate('/signup', { replace: true });
-          }, 2000);
-          return;
+          // Give auth context time to initialize/restore session
+          const timeout = setTimeout(() => {
+            // Only show error if still no user after waiting
+            if (!user) {
+              console.log("Authentication timed out, redirecting to pricing");
+              toast.info("Please complete your payment from the pricing page");
+              navigate('/pricing', { replace: true });
+            }
+          }, 3000); // Wait 3 seconds before giving up
+          
+          return () => clearTimeout(timeout);
         }
 
         // If session ID is present, try to verify with Stripe directly
@@ -118,7 +123,7 @@ const PaymentSuccessPage = () => {
     // Slight delay to ensure auth context is fully loaded
     setTimeout(() => {
       verifyPayment();
-    }, 1000);
+    }, 1500); // Increased delay to give auth time to initialize
   }, [searchParams, updatePaymentStatus, checkPaymentStatus, user, navigate, hasPaid]);
   
   return (
