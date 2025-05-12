@@ -53,7 +53,13 @@ const Navbar: React.FC = () => {
   
   const handleSignOut = async (e: React.MouseEvent) => {
     e.preventDefault();
-    await signOut();
+    try {
+      console.log("Signing out...");
+      await signOut();
+      console.log("Signed out successfully");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
@@ -105,8 +111,10 @@ const Navbar: React.FC = () => {
                 {user ? (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
-                      Sign Out
+                    <DropdownMenuItem asChild>
+                      <button onClick={handleSignOut} className="w-full text-left px-4 py-2">
+                        Sign Out
+                      </button>
                     </DropdownMenuItem>
                   </>
                 ) : null}
@@ -137,8 +145,10 @@ const Navbar: React.FC = () => {
                     {user.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    Sign Out
+                  <DropdownMenuItem asChild>
+                    <button onClick={handleSignOut} className="w-full text-left px-4 py-2">
+                      Sign Out
+                    </button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

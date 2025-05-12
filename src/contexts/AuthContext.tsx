@@ -178,6 +178,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
+      console.log("AuthContext: Starting signOut process");
+      
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -191,8 +193,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(null);
       setHasPaid(false);
       
-      toast.info('Signed out successfully');
-      navigate('/');
+      toast.success('Signed out successfully');
+      
+      console.log("AuthContext: Navigation to home after signout");
+      window.location.href = '/'; // Force a full page refresh to ensure complete state reset
     } catch (error: any) {
       console.error('Sign out error:', error);
       toast.error(error.message || 'Failed to sign out');
