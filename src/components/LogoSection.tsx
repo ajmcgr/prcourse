@@ -13,7 +13,7 @@ const LogoSection: React.FC = () => {
           {/* Company logos - using gray filters for a consistent look */}
           <div className="w-24 md:w-32 h-12 flex items-center justify-center">
             <img 
-              src="/lovable-uploads/f862fff7-fec3-4e40-a4f8-11cd55dc164a.png" 
+              src="/lovable-uploads/12b84bad-32f6-4d4b-bdb5-bdb41bdb48e1.png" 
               alt="OnePlus" 
               className="max-h-12 max-w-full object-contain filter grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all"
             />
@@ -21,7 +21,7 @@ const LogoSection: React.FC = () => {
           
           <div className="w-24 md:w-32 h-12 flex items-center justify-center">
             <img 
-              src="/lovable-uploads/344671ee-a323-47fb-8cb6-1cc3984e5918.png" 
+              src="/lovable-uploads/927d15cd-25aa-4f44-a7f2-dfe7696582ab.png" 
               alt="OPPO" 
               className="max-h-12 max-w-full object-contain filter grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all"
             />
@@ -29,7 +29,7 @@ const LogoSection: React.FC = () => {
           
           <div className="w-24 md:w-32 h-12 flex items-center justify-center">
             <img 
-              src="/lovable-uploads/902b33b4-bd83-45ef-9004-59e74d576472.png" 
+              src="/lovable-uploads/2f4e7034-1069-421f-9519-6c0b8442402c.png" 
               alt="Ogilvy" 
               className="max-h-12 max-w-full object-contain filter grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all"
             />
@@ -37,7 +37,7 @@ const LogoSection: React.FC = () => {
           
           <div className="w-24 md:w-32 h-12 flex items-center justify-center">
             <img 
-              src="/lovable-uploads/b901b1d3-44f5-41f3-b4e2-64eede3ed545.png" 
+              src="/lovable-uploads/643494d7-8da8-4838-ace1-460614142bda.png" 
               alt="Weber Shandwick" 
               className="max-h-12 max-w-full object-contain filter grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all"
             />
@@ -45,7 +45,7 @@ const LogoSection: React.FC = () => {
           
           <div className="w-24 md:w-32 h-12 flex items-center justify-center">
             <img 
-              src="/lovable-uploads/f0847da8-f9ce-4357-bf49-d1d6a7bed030.png" 
+              src="/lovable-uploads/3602e66e-ad10-4e97-a48b-eaeb07e28484.png" 
               alt="Publicis" 
               className="max-h-12 max-w-full object-contain filter grayscale opacity-80 hover:opacity-100 hover:grayscale-0 transition-all"
             />
