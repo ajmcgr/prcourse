@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getLessonBySlug, getFirstLesson, getAdjacentLessons } from '@/utils/course-data';
@@ -13,15 +14,20 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
+import { toast } from "sonner";
 
 const CourseLesson = () => {
   const { slug } = useParams<{ slug?: string }>();
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  const { toggleSidebar, state } = useSidebar();
+  const { user, loading, hasPaid } = useAuth();
+  const { toggleSidebar } = useSidebar();
   
   useEffect(() => {
+    // Debug logging
+    console.log("CourseLesson mounted with:", { slug, user: user?.id, loading, hasPaid });
+    
     if (!loading && !user) {
+      console.log("No authenticated user, redirecting to signup");
       navigate('/signup', { state: { from: { pathname: `/course/${slug || ''}` } } });
     }
   }, [user, loading, navigate, slug]);
@@ -29,29 +35,62 @@ const CourseLesson = () => {
   useEffect(() => {
     if (!slug && user) {
       // If no lesson is specified, redirect to the first one
+      console.log("No slug provided, finding first lesson");
       const { lesson } = getFirstLesson();
+      console.log("Redirecting to first lesson:", lesson.slug);
       navigate(`/course/${lesson.slug}`);
     }
   }, [slug, navigate, user]);
 
-  const { lesson, chapter } = slug ? getLessonBySlug(slug) : { lesson: null, chapter: null };
-  const { previousLesson, nextLesson } = slug ? getAdjacentLessons(slug) : { previousLesson: null, nextLesson: null };
+  // Get lesson data
+  let lessonData = null;
+  let chapterData = null;
+  let adjacentLessons = { previousLesson: null, nextLesson: null };
+  
+  if (slug) {
+    try {
+      const { lesson, chapter } = getLessonBySlug(slug);
+      lessonData = lesson;
+      chapterData = chapter;
+      adjacentLessons = getAdjacentLessons(slug);
+      
+      console.log("Found lesson data:", { 
+        lessonTitle: lesson?.title, 
+        chapterTitle: chapter?.title,
+        hasPrevious: !!adjacentLessons.previousLesson,
+        hasNext: !!adjacentLessons.nextLesson
+      });
+    } catch (error) {
+      console.error("Error loading lesson:", error);
+      toast.error("Failed to load lesson content");
+    }
+  }
 
   if (loading) {
     return <div className="flex justify-center items-center h-[60vh]">Loading...</div>;
   }
 
-  if (!lesson && !loading && user) {
+  if (!lessonData && !loading && user) {
     return (
       <div className="px-8 py-10">
         <h1 className="text-3xl font-bold mb-6">Lesson Not Found</h1>
         <p>The requested lesson could not be found. Please select another lesson from the menu.</p>
+        <Button 
+          onClick={() => {
+            const { lesson } = getFirstLesson();
+            navigate(`/course/${lesson.slug}`);
+          }}
+          className="mt-4"
+        >
+          Go to First Lesson
+        </Button>
       </div>
     );
   }
 
   // Extract video ID from video URL for proper embedding
   const getVimeoEmbedUrl = (url: string) => {
+    if (!url) return '';
     // Extract the Vimeo ID from the URL
     const vimeoId = url.split('/').pop();
     return `https://player.vimeo.com/video/${vimeoId}`;
@@ -59,48 +98,46 @@ const CourseLesson = () => {
 
   return (
     <div className="px-8 py-10">
-      {/* Hide Menu button removed */}
-
-      {lesson && chapter && (
+      {lessonData && chapterData && (
         <>
           <div className="mb-8">
-            <div className="text-sm text-gray-500 mb-2">Chapter: {chapter.title}</div>
-            <h1 className="text-3xl font-bold">{lesson.title}</h1>
+            <div className="text-sm text-gray-500 mb-2">Chapter: {chapterData.title}</div>
+            <h1 className="text-3xl font-bold">{lessonData.title}</h1>
           </div>
           
           <div className="aspect-video mb-10 bg-black rounded-lg overflow-hidden shadow-lg">
             <iframe
-              src={getVimeoEmbedUrl(lesson.videoUrl)}
+              src={getVimeoEmbedUrl(lessonData.videoUrl)}
               className="w-full h-full"
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
-              title={lesson.title}
+              title={lessonData.title}
             ></iframe>
           </div>
           
           <div className="prose max-w-none mb-10">
             <h2>About This Lesson</h2>
-            <p>This is part of Alex MacGregor's PR Masterclass. Watch this video to learn more about "{lesson.title}" within the "{chapter.title}" chapter.</p>
+            <p>This is part of Alex MacGregor's PR Masterclass. Watch this video to learn more about "{lessonData.title}" within the "{chapterData.title}" chapter.</p>
           </div>
           
           {/* Navigation controls */}
           <Pagination className="mt-10">
             <PaginationContent>
-              {previousLesson && (
+              {adjacentLessons.previousLesson && (
                 <PaginationItem>
                   <PaginationPrevious 
                     as={Link} 
-                    to={`/course/${previousLesson.lesson.slug}`} 
+                    to={`/course/${adjacentLessons.previousLesson.lesson.slug}`} 
                   />
                 </PaginationItem>
               )}
               
-              {nextLesson && (
+              {adjacentLessons.nextLesson && (
                 <PaginationItem>
                   <PaginationNext 
                     as={Link} 
-                    to={`/course/${nextLesson.lesson.slug}`} 
+                    to={`/course/${adjacentLessons.nextLesson.lesson.slug}`} 
                   />
                 </PaginationItem>
               )}

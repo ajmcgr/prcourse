@@ -29,9 +29,13 @@ const PaymentSuccessPage = () => {
         if (alreadyPaid) {
           console.log("Payment already recorded for user:", user.id);
           toast.success("Payment already verified! You have full access to the course.");
+          
+          // Add a short delay before redirecting to ensure toast is visible
           setTimeout(() => {
+            // Redirect directly to the first lesson instead of introduction
             navigate('/course/introduction', { replace: true });
           }, 2000);
+          
           setProcessing(false);
           return;
         }
@@ -72,7 +76,7 @@ const PaymentSuccessPage = () => {
     };
     
     recordPayment();
-  }, [searchParams, updatePaymentStatus, checkPaymentStatus, user, navigate, hasPaid]);
+  }, [searchParams, updatePaymentStatus, checkPaymentStatus, user, navigate]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
