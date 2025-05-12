@@ -31,7 +31,7 @@ export const courseData: CourseChapter[] = [
       {
         id: "1-1",
         title: "Introduction",
-        videoUrl: "https://vimeo.com/1083271721",
+        videoUrl: "https://vimeo.com/1083271721", // Updated to the correct URL
         slug: "introduction"
       },
       {

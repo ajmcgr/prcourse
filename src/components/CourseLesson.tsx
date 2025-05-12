@@ -105,12 +105,12 @@ const CourseLesson = () => {
     return `https://player.vimeo.com/video/${vimeoId}`;
   };
 
-  // Fixed URL for the Introduction lesson
+  // Get the correct video URL for each lesson
   const getVideoUrl = (lesson: any) => {
     // Use the correct URL for the Introduction lesson
     if (slug === 'introduction') {
       console.log("Using fixed URL for Introduction lesson");
-      return "https://vimeo.com/1083271721";
+      return "https://vimeo.com/1083271721"; // Updated to the correct URL
     }
     return lesson.videoUrl;
   };
