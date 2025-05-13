@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,10 +23,13 @@ const Navbar: React.FC = () => {
   const isMobile = useIsMobile();
   const { lesson } = getFirstLesson();
   
-  // URL for discord community
+  // URLs 
   const communityUrl = "https://discord.gg/7sbqZgesud";
-  // URL for review
   const reviewUrl = "https://senja.io/p/works/r/cmUuOZ";
+  const newsletterUrl = "https://newsletter.alexmacgregor.com/";
+  
+  // URL for slides download
+  const slidesDownloadUrl = "https://drive.google.com/file/d/1Eyd9ogwbSe0K-qeGxzNPPrkfA9rApbHg/view?usp=sharing";
 
   // Handle scroll event
   useEffect(() => {
@@ -40,7 +42,6 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Determine navbar background classes based on scroll state, page, and user login status
   const navbarClasses = () => {
     // Only add border for logged-in users
     const borderClass = user ? "border-b border-[#e5e7eb]" : "";
@@ -72,9 +73,6 @@ const Navbar: React.FC = () => {
     // If user is authenticated and has paid, navigate to the course
     navigate(`/course/${lesson.slug}`);
   };
-  
-  // URL for slides download
-  const slidesDownloadUrl = "https://drive.google.com/file/d/1Eyd9ogwbSe0K-qeGxzNPPrkfA9rApbHg/view?usp=sharing";
   
   return (
     <nav className={navbarClasses()}>
@@ -125,6 +123,16 @@ const Navbar: React.FC = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <a 
+                            href={newsletterUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full px-4 py-2 flex items-center"
+                          >
+                            Newsletter
+                          </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <a 
                             href={reviewUrl}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -149,6 +157,16 @@ const Navbar: React.FC = () => {
                         className="w-full px-4 py-2"
                       >
                         Community
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a 
+                        href={newsletterUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full px-4 py-2"
+                      >
+                        Newsletter
                       </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -197,6 +215,14 @@ const Navbar: React.FC = () => {
                     Download Slides
                   </a>
                   <a 
+                    href={newsletterUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+                  >
+                    Newsletter
+                  </a>
+                  <a 
                     href={reviewUrl}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -235,6 +261,14 @@ const Navbar: React.FC = () => {
                 className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
               >
                 Community
+              </a>
+              <a 
+                href={newsletterUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+              >
+                Newsletter
               </a>
               <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
                 Course Content
