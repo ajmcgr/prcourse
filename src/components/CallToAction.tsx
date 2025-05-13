@@ -16,7 +16,7 @@ const CallToAction: React.FC = () => {
           Join Alex MacGregor's comprehensive PR course and transform your PR strategy today.
         </p>
         <Button size="lg" className="bg-[#409EFF] hover:bg-[#409EFF]/90 text-white font-medium text-base md:text-lg px-4 md:px-6 py-5 md:py-6 w-full md:w-auto">
-          <Link to="/signup">Get Access Now for $99</Link>
+          <Link to="/signup?mode=signup">Get Access Now for $99</Link>
         </Button>
         
         {/* Added secure access text row with mobile optimization */}

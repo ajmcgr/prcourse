@@ -144,7 +144,7 @@ const Navbar: React.FC = () => {
                   </>
                 )}
                 <DropdownMenuItem asChild>
-                  <Link to="/signup" className="w-full px-4 py-2">Login</Link>
+                  <Link to="/signup?mode=signup" className="w-full px-4 py-2">Sign Up</Link>
                 </DropdownMenuItem>
                 {user ? (
                   <>
@@ -220,7 +220,7 @@ const Navbar: React.FC = () => {
                   Login
                 </Link>
                 <Button variant="default" className="bg-[#409EFF] hover:bg-[#409EFF]/90">
-                  <Link to="/signup">Order Now</Link>
+                  <Link to="/signup?mode=signup">Sign Up</Link>
                 </Button>
               </>
             )}

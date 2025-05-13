@@ -42,7 +42,7 @@ const CoursePreview: React.FC = () => {
               </li>
             </ul>
             <Button className="bg-pr-main hover:bg-pr-dark">
-              <Link to="/signup">Get Full Access</Link>
+              <Link to="/signup?mode=signup">Get Full Access</Link>
             </Button>
           </div>
           <div className="border bg-white p-8 rounded-lg shadow-sm">
@@ -52,7 +52,7 @@ const CoursePreview: React.FC = () => {
                   <h3 className="text-xl text-pr-dark mb-2">Course Preview</h3>
                   <p className="text-gray-600 mb-4">Sign up to access all video content and essays</p>
                   <Button variant="outline" className="border-pr-main text-pr-main hover:bg-pr-main hover:text-white">
-                    <Link to="/signup">Sign Up Now</Link>
+                    <Link to="/signup?mode=signup">Sign Up Now</Link>
                   </Button>
                 </div>
               </div>
