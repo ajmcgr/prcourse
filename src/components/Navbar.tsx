@@ -161,48 +161,46 @@ const Navbar: React.FC = () => {
             </DropdownMenu>
           </div>
           
-          {/* Desktop menu - modified to align with video player edge */}
-          <div className="hidden md:flex items-center space-x-2">
+          {/* Desktop menu - modified to take full width for logged-in users */}
+          <div className="hidden md:flex items-center space-x-2 w-full justify-end">
             {user ? (
-              <div className="flex justify-end">
-                <div className="max-w-5xl px-4 w-full flex justify-end">
-                  <div className="flex items-center space-x-2">
-                    <button 
-                      onClick={handleAccessCourse}
+              <div className="w-full flex justify-end">
+                <div className="flex items-center space-x-2">
+                  <button 
+                    onClick={handleAccessCourse}
+                    className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+                  >
+                    Access Course Content
+                  </button>
+                  {hasPaid && (
+                    <a 
+                      href={slidesDownloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
                     >
-                      Access Course Content
-                    </button>
-                    {hasPaid && (
-                      <a 
-                        href={slidesDownloadUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
-                      >
-                        Download Slides
-                      </a>
-                    )}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className={`${textColorClass}`}>
-                          Account
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem disabled>
-                          {user.email}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onSelect={(e) => {
-                          e.preventDefault();
-                          signOut();
-                        }}>
-                          Sign Out
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                      Download Slides
+                    </a>
+                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className={`${textColorClass}`}>
+                        Account
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem disabled>
+                        {user.email}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
+                        signOut();
+                      }}>
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ) : (
