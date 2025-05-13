@@ -53,11 +53,11 @@ const Hero: React.FC = () => {
           </div>
         </div>
         
-        {/* Course Preview Image - Updated with the new uploaded image */}
+        {/* Course Preview Image - Updated with the newly uploaded image */}
         <div className="w-full mt-6 md:mt-12 px-2 md:px-6 animate-fade-in" style={{animationDelay: '0.6s'}}>
           <div className="max-w-5xl mx-auto">
             <img 
-              src="/lovable-uploads/3014645f-816c-48d0-aa31-47b9e913078f.png" 
+              src="/lovable-uploads/9025b976-a608-42de-b3b0-5c9d196b1de5.png" 
               alt="Effective Media Pitches" 
               className="w-full rounded-lg shadow-md border border-gray-200"
             />
