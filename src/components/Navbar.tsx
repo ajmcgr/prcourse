@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -123,16 +124,6 @@ const Navbar: React.FC = () => {
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <a 
-                            href={newsletterUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full px-4 py-2 flex items-center"
-                          >
-                            Newsletter
-                          </a>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <a 
                             href={reviewUrl}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -213,14 +204,6 @@ const Navbar: React.FC = () => {
                     className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
                   >
                     Download Slides
-                  </a>
-                  <a 
-                    href={newsletterUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
-                  >
-                    Newsletter
                   </a>
                   <a 
                     href={reviewUrl}
