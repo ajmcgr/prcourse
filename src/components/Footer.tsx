@@ -25,7 +25,6 @@ const Footer = () => {
                 <li><Link to="/about" className="text-gray-600 hover:text-black">About</Link></li>
                 <li><a href="https://prcourse.alexmacgregor.com/coursecontent" className="text-gray-600 hover:text-black">Course Content</a></li>
                 <li><a href="https://discord.gg/7sbqZgesud" className="text-gray-600 hover:text-black">Community</a></li>
-                <li><Link to="/signup" className="text-gray-600 hover:text-black">Login</Link></li>
                 <li><a href={reviewUrl} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black">Leave a Review</a></li>
               </ul>
             </div>
