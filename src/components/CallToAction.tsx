@@ -13,7 +13,7 @@ const CallToAction: React.FC = () => {
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-2xl md:text-4xl font-bold mb-4">Ready to Master Public Relations?</h2>
         <p className="text-base md:text-xl mb-6 md:mb-8 text-gray-700">
-          Join Alex MacGregor's comprehensive PR course and transform your PR strategy today.
+          Join my comprehensive PR course and transform your PR strategy today.
         </p>
         <Button size="lg" className="bg-[#409EFF] hover:bg-[#409EFF]/90 text-white font-medium text-base md:text-lg px-4 md:px-6 py-5 md:py-6 w-full md:w-auto">
           <Link to="/signup?mode=signup">Get Access Now for $99</Link>
