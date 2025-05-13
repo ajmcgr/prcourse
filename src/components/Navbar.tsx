@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -75,8 +76,8 @@ const Navbar: React.FC = () => {
   
   return (
     <nav className={navbarClasses()}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="flex justify-between items-center h-16 w-full">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
               <Avatar className="h-8 w-8 mr-2">
@@ -162,44 +163,42 @@ const Navbar: React.FC = () => {
           
           {/* Desktop menu - expanded to full container width for logged-in users */}
           {user ? (
-            <div className="hidden md:flex flex-1 items-center justify-end">
-              <div className="flex items-center space-x-3">
-                <button 
-                  onClick={handleAccessCourse}
+            <div className="hidden md:flex md:w-full items-center justify-end space-x-4">
+              <button 
+                onClick={handleAccessCourse}
+                className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+              >
+                Access Course Content
+              </button>
+              {hasPaid && (
+                <a 
+                  href={slidesDownloadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
                 >
-                  Access Course Content
-                </button>
-                {hasPaid && (
-                  <a 
-                    href={slidesDownloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
-                  >
-                    Download Slides
-                  </a>
-                )}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className={`${textColorClass}`}>
-                      Account
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem disabled>
-                      {user.email}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={(e) => {
-                      e.preventDefault();
-                      signOut();
-                    }}>
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                  Download Slides
+                </a>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className={`${textColorClass}`}>
+                    Account
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem disabled>
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={(e) => {
+                    e.preventDefault();
+                    signOut();
+                  }}>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-2">
