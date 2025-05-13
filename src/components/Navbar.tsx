@@ -45,10 +45,10 @@ const Navbar: React.FC = () => {
     
     if (isHomePage) {
       return scrolled
-        ? `bg-white shadow-sm transition-all duration-300 sticky top-0 z-50 ${borderClass}`
-        : `bg-transparent transition-all duration-300 sticky top-0 z-50 ${borderClass}`;
+        ? `bg-white shadow-sm transition-all duration-300 sticky top-0 z-50 ${borderClass} w-full`
+        : `bg-transparent transition-all duration-300 sticky top-0 z-50 ${borderClass} w-full`;
     }
-    return `bg-background sticky top-0 z-50 ${borderClass}`;
+    return `bg-background sticky top-0 z-50 ${borderClass} w-full`;
   };
   
   // Always set text color to black
@@ -76,7 +76,7 @@ const Navbar: React.FC = () => {
   
   return (
     <nav className={navbarClasses()}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 w-full">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
@@ -163,7 +163,7 @@ const Navbar: React.FC = () => {
           
           {/* Desktop menu - expanded to full container width for logged-in users */}
           {user ? (
-            <div className="hidden md:flex md:w-full items-center justify-end space-x-4">
+            <div className="hidden md:flex md:flex-grow items-center justify-end space-x-4">
               <button 
                 onClick={handleAccessCourse}
                 className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
