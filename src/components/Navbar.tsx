@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -161,70 +160,68 @@ const Navbar: React.FC = () => {
             </DropdownMenu>
           </div>
           
-          {/* Desktop menu - modified to take full width for logged-in users */}
-          <div className="hidden md:flex items-center space-x-2 w-full justify-end">
-            {user ? (
-              <div className="w-full flex justify-end">
-                <div className="flex items-center space-x-2">
-                  <button 
-                    onClick={handleAccessCourse}
-                    className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
-                  >
-                    Access Course Content
-                  </button>
-                  {hasPaid && (
-                    <a 
-                      href={slidesDownloadUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
-                    >
-                      Download Slides
-                    </a>
-                  )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className={`${textColorClass}`}>
-                        Account
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem disabled>
-                        {user.email}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={(e) => {
-                        e.preventDefault();
-                        signOut();
-                      }}>
-                        Sign Out
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            ) : (
-              <>
-                <a 
-                  href={communityUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+          {/* Desktop menu - expanded to full container width for logged-in users */}
+          {user ? (
+            <div className="hidden md:flex flex-1 items-center justify-end">
+              <div className="flex items-center space-x-3">
+                <button 
+                  onClick={handleAccessCourse}
                   className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
                 >
-                  Community
-                </a>
-                <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
-                  Course Content
-                </Link>
-                <Link to="/signup" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
-                  Login
-                </Link>
-                <Button variant="default" className="bg-[#409EFF] hover:bg-[#409EFF]/90">
-                  <Link to="/signup?mode=signup">Sign Up</Link>
-                </Button>
-              </>
-            )}
-          </div>
+                  Access Course Content
+                </button>
+                {hasPaid && (
+                  <a 
+                    href={slidesDownloadUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+                  >
+                    Download Slides
+                  </a>
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className={`${textColorClass}`}>
+                      Account
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem disabled>
+                      {user.email}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={(e) => {
+                      e.preventDefault();
+                      signOut();
+                    }}>
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center space-x-2">
+              <a 
+                href={communityUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+              >
+                Community
+              </a>
+              <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
+                Course Content
+              </Link>
+              <Link to="/signup" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
+                Login
+              </Link>
+              <Button variant="default" className="bg-[#409EFF] hover:bg-[#409EFF]/90">
+                <Link to="/signup?mode=signup">Sign Up</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </nav>
