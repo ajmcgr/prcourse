@@ -16,7 +16,7 @@ const LetterSection: React.FC = () => {
             />
           </div>
           
-          <div className="space-y-6 text-gray-800 font-sans text-justify">
+          <div className="space-y-6 text-gray-800 font-sans">
             <p className="text-xl font-medium">
               I'm Alex MacGregor, and I've spent the last eight years proving that great PR is equal parts art, science, and street‑level hustle.
             </p>
