@@ -76,7 +76,9 @@ const Navbar: React.FC = () => {
   
   return (
     <nav className={navbarClasses()}>
-      <div className="w-full px-4 sm:px-6 lg:px-8">
+      {/* For logged-in users, container is full-width */}
+      {/* For logged-out users, container is max-w-7xl (limited width) */}
+      <div className={`px-4 sm:px-6 lg:px-8 mx-auto ${user ? 'w-full' : 'max-w-7xl'}`}>
         <div className="flex justify-between items-center h-16 w-full">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
