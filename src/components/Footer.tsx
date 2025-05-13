@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
 
 const Footer = () => {
+  // Review URL
+  const reviewUrl = "https://senja.io/p/works/r/cmUuOZ";
+  
   return (
     <footer className="bg-background border-t w-full">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
@@ -23,6 +26,7 @@ const Footer = () => {
                 <li><a href="https://prcourse.alexmacgregor.com/coursecontent" className="text-gray-600 hover:text-black">Course Content</a></li>
                 <li><a href="https://discord.gg/7sbqZgesud" className="text-gray-600 hover:text-black">Community</a></li>
                 <li><Link to="/signup" className="text-gray-600 hover:text-black">Login</Link></li>
+                <li><a href={reviewUrl} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black">Leave a Review</a></li>
               </ul>
             </div>
             <div>

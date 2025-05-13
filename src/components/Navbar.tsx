@@ -26,6 +26,8 @@ const Navbar: React.FC = () => {
   
   // URL for discord community
   const communityUrl = "https://discord.gg/7sbqZgesud";
+  // URL for review
+  const reviewUrl = "https://senja.io/p/works/r/cmUuOZ";
 
   // Handle scroll event
   useEffect(() => {
@@ -110,16 +112,28 @@ const Navbar: React.FC = () => {
                       </button>
                     </DropdownMenuItem>
                     {user && hasPaid && (
-                      <DropdownMenuItem asChild>
-                        <a 
-                          href={slidesDownloadUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full px-4 py-2 flex items-center"
-                        >
-                          Download Slides
-                        </a>
-                      </DropdownMenuItem>
+                      <>
+                        <DropdownMenuItem asChild>
+                          <a 
+                            href={slidesDownloadUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full px-4 py-2 flex items-center"
+                          >
+                            Download Slides
+                          </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <a 
+                            href={reviewUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full px-4 py-2 flex items-center"
+                          >
+                            Leave a Review
+                          </a>
+                        </DropdownMenuItem>
+                      </>
                     )}
                   </>
                 ) : (
@@ -173,14 +187,24 @@ const Navbar: React.FC = () => {
                 Access Course Content
               </button>
               {hasPaid && (
-                <a 
-                  href={slidesDownloadUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
-                >
-                  Download Slides
-                </a>
+                <>
+                  <a 
+                    href={slidesDownloadUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+                  >
+                    Download Slides
+                  </a>
+                  <a 
+                    href={reviewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+                  >
+                    Leave a Review
+                  </a>
+                </>
               )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
