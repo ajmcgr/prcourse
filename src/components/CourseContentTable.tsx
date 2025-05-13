@@ -20,82 +20,82 @@ const courseModules: CourseModule[] = [
   {
     id: 1,
     topic: "Introduction",
-    synopsis: "Alex explains why he created this PR course, outlines his real‑world, opinionated approach and previews core modules such as media relations, crisis comms, SEO and analytics. He stresses that PR is evolving away from legacy press toward digital, data‑driven practice."
+    synopsis: "I explain why I created this PR course, outline my real‑world, opinionated approach and preview core modules such as media relations, crisis comms, SEO and analytics. I stress that PR is evolving away from legacy press toward digital, data‑driven practice."
   },
   {
     id: 2,
     topic: "Hiring / Agencies",
-    synopsis: "Discusses what makes a great first PR hire (high EQ, news obsession, low ego, storytelling) and when to engage an agency. Offers criteria for vetting agencies and keeping client–agency relationships productive."
+    synopsis: "I discuss what makes a great first PR hire (high EQ, news obsession, low ego, storytelling) and when to engage an agency. I offer criteria for vetting agencies and keeping client–agency relationships productive."
   },
   {
     id: 3,
     topic: "Media Relations",
-    synopsis: "Covers building durable journalist relationships through consistency and personalization, using media databases, and crafting compelling email pitches that cut through overcrowded inboxes. Also includes influencer relations - a systematic approach to working with creators, selecting the right tier of influencers, personalizing outreach, setting KPIs, and tracking ROI."
+    synopsis: "I cover building durable journalist relationships through consistency and personalization, using media databases, and crafting compelling email pitches that cut through overcrowded inboxes. I also include influencer relations - a systematic approach to working with creators, selecting the right tier of influencers, personalizing outreach, setting KPIs, and tracking ROI."
   },
   {
     id: 4,
     topic: "Crisis Management",
-    synopsis: "Details how to assemble a cross‑functional crisis team, plan scenarios in advance and respond quickly with clear, legally sound messaging. Lists common mistakes—delayed apologies, passive tone, alienating customers—and how to avoid them."
+    synopsis: "I detail how to assemble a cross‑functional crisis team, plan scenarios in advance and respond quickly with clear, legally sound messaging. I list common mistakes—delayed apologies, passive tone, alienating customers—and how to avoid them."
   },
   {
     id: 5,
     topic: "Social Media Management",
-    synopsis: "Argues social platforms are now indispensable PR channels for news discovery, relationship building and customer care. Ranks major networks, gives posting‑time guidelines and shares five professionalism tips for employees online."
+    synopsis: "I argue social platforms are now indispensable PR channels for news discovery, relationship building and customer care. I rank major networks, give posting‑time guidelines and share five professionalism tips for employees online."
   },
   {
     id: 6,
     topic: "Content Creation",
-    synopsis: "Advocates a content‑first mindset featuring YouTube, email newsletters, TikTok, Discord and well‑timed press releases. Stresses repurposing assets, platform‑native formats and continuous audience feedback to keep material relevant."
+    synopsis: "I advocate a content‑first mindset featuring YouTube, email newsletters, TikTok, Discord and well‑timed press releases. I stress repurposing assets, platform‑native formats and continuous audience feedback to keep material relevant."
   },
   {
     id: 7,
     topic: "Getting Creative",
-    synopsis: "Presents \"unconventional PR\" ideas—from branded YouTube docuseries and live demos to limited‑edition swag and tongue‑in‑cheek stunts—that generate buzz and differentiate a brand. Success hinges on originality, timing and cultural fit."
+    synopsis: "I present \"unconventional PR\" ideas—from branded YouTube docuseries and live demos to limited‑edition swag and tongue‑in‑cheek stunts—that generate buzz and differentiate a brand. I explain how success hinges on originality, timing and cultural fit."
   },
   {
     id: 8,
     topic: "Strategic Communication",
-    synopsis: "Lays out a holistic PR framework: owned, earned and paid channels; seven functional pillars (strategy, media, community, internal, crisis, public affairs, digital). Urges founders to craft authentic origin stories, product differentiation and transformation narratives."
+    synopsis: "I lay out a holistic PR framework: owned, earned and paid channels; seven functional pillars (strategy, media, community, internal, crisis, public affairs, digital). I urge founders to craft authentic origin stories, product differentiation and transformation narratives."
   },
   {
     id: 9,
     topic: "Brand Management",
-    synopsis: "Shows how social‑listening data reveal brand perception, stakeholder concerns and emerging trends. Advises balancing signal vs. noise to guide messaging and safeguard reputation."
+    synopsis: "I show how social‑listening data reveal brand perception, stakeholder concerns and emerging trends. I advise balancing signal vs. noise to guide messaging and safeguard reputation."
   },
   {
     id: 10,
     topic: "Event & Community Management",
-    synopsis: "Explains that thriving communities need a clear purpose, low entry barriers, consistent focus and executive participation. Suggests tools (e.g., School, Discord) and engagement tactics like member spotlights to maintain momentum."
+    synopsis: "I explain that thriving communities need a clear purpose, low entry barriers, consistent focus and executive participation. I suggest tools (e.g., School, Discord) and engagement tactics like member spotlights to maintain momentum."
   },
   {
     id: 11,
     topic: "Public Speaking & Presentation",
-    synopsis: "Provides a playbook for hosting or giving media interviews: set ground rules, research hosts, craft one key message, use stories, control body language and summarize outcomes. Preparation and authenticity drive on‑camera success."
+    synopsis: "I provide a playbook for hosting or giving media interviews: set ground rules, research hosts, craft one key message, use stories, control body language and summarize outcomes. I emphasize how preparation and authenticity drive on‑camera success."
   },
   {
     id: 12,
     topic: "Internal Communications",
-    synopsis: "Uses fundraising announcements as a case study: start with the objective (hiring, investors, customers), target specific audiences, nail the why, include credible validations and choreograph post‑announcement follow‑ups."
+    synopsis: "I use fundraising announcements as a case study: start with the objective (hiring, investors, customers), target specific audiences, nail the why, include credible validations and choreograph post‑announcement follow‑ups."
   },
   {
     id: 13,
     topic: "Reputation Management",
-    synopsis: "Explores psychology's role in PR: understand others' needs, show genuine interest, mirror sentiment and ask effectively. Highlights personal branding, crisis empathy and the shift toward leadership‑driven social presence."
+    synopsis: "I explore psychology's role in PR: understand others' needs, show genuine interest, mirror sentiment and ask effectively. I highlight personal branding, crisis empathy and the shift toward leadership‑driven social presence."
   },
   {
     id: 14,
     topic: "SEO & Digital PR",
-    synopsis: "Describes \"digital PR\" as white‑hat backlink building that merges classic storytelling with SEO tactics. Research data‑led angles, personalize journalist outreach and measure links, traffic and authority gains."
+    synopsis: "I describe \"digital PR\" as white‑hat backlink building that merges classic storytelling with SEO tactics. I teach how to research data‑led angles, personalize journalist outreach and measure links, traffic and authority gains."
   },
   {
     id: 15,
     topic: "Analytics & Measurement",
-    synopsis: "Lists modern PR KPIs—backlinks, brand mentions, domain authority, sentiment, social shares, subscribers, web traffic and sales—and explains how AI and bots affect interpretation. Recommends aligning a few metrics tightly with business goals."
+    synopsis: "I list modern PR KPIs—backlinks, brand mentions, domain authority, sentiment, social shares, subscribers, web traffic and sales—and explain how AI and bots affect interpretation. I recommend aligning a few metrics tightly with business goals."
   },
   {
     id: 16,
     topic: "Conclusion",
-    synopsis: "Reflecting on a decade in tech PR, Alex urges practitioners to trust their gut, embrace constant travel and external engagement, and balance instinct with data. He reiterates that adaptability and human relationships remain PR's enduring currencies."
+    synopsis: "Reflecting on my decade in tech PR, I urge practitioners to trust their gut, embrace constant travel and external engagement, and balance instinct with data. I reiterate that adaptability and human relationships remain PR's enduring currencies."
   }
 ];
 
