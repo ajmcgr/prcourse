@@ -35,19 +35,19 @@ const Hero: React.FC = () => {
           </div>
         </div>
         
-        {/* Secure access text row - Mobile optimized */}
+        {/* Secure access text row - Mobile optimized - Made smaller */}
         <div className="flex justify-center mt-4 md:mt-6 text-gray-700 animate-fade-in" style={{animationDelay: '0.5s'}}>
-          <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'flex-row items-center space-x-6'} text-sm md:text-base font-medium`}>
+          <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'flex-row items-center space-x-6'} text-xs md:text-sm font-medium`}>
             <span className="flex items-center justify-center">
-              <Check className="h-4 w-4 mr-2" />
+              <Check className="h-3 w-3 mr-1" />
               Get access now
             </span>
             <span className="flex items-center justify-center">
-              <Check className="h-4 w-4 mr-2" />
+              <Check className="h-3 w-3 mr-1" />
               Secure payment
             </span>
             <span className="flex items-center justify-center">
-              <Check className="h-4 w-4 mr-2" />
+              <Check className="h-3 w-3 mr-1" />
               Money-back guarantee
             </span>
           </div>

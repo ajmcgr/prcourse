@@ -19,19 +19,19 @@ const CallToAction: React.FC = () => {
           <Link to="/signup?mode=signup">Get Access Now for $99</Link>
         </Button>
         
-        {/* Added secure access text row with mobile optimization */}
+        {/* Added secure access text row with mobile optimization - Made smaller */}
         <div className="flex justify-center mt-4 text-gray-700">
-          <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'items-center space-x-3'} text-sm md:text-base font-medium`}>
+          <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'items-center space-x-3'} text-xs font-medium`}>
             <span className="flex items-center justify-center">
-              <Check className="h-4 w-4 mr-1" />
+              <Check className="h-3 w-3 mr-1" />
               Get access now
             </span>
             <span className="flex items-center justify-center">
-              <Check className="h-4 w-4 mr-1" />
+              <Check className="h-3 w-3 mr-1" />
               Secure payment
             </span>
             <span className="flex items-center justify-center">
-              <Check className="h-4 w-4 mr-1" />
+              <Check className="h-3 w-3 mr-1" />
               Money-back guarantee
             </span>
           </div>
