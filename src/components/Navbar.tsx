@@ -161,27 +161,48 @@ const Navbar: React.FC = () => {
             </DropdownMenu>
           </div>
           
-          {/* Desktop menu */}
+          {/* Desktop menu - modified to align with video player edge */}
           <div className="hidden md:flex items-center space-x-2">
             {user ? (
-              <>
-                <button 
-                  onClick={handleAccessCourse}
-                  className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
-                >
-                  Access Course Content
-                </button>
-                {hasPaid && (
-                  <a 
-                    href={slidesDownloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+              <div className="max-w-5xl w-full flex justify-end">
+                <div className="flex items-center space-x-2">
+                  <button 
+                    onClick={handleAccessCourse}
                     className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
                   >
-                    Download Slides
-                  </a>
-                )}
-              </>
+                    Access Course Content
+                  </button>
+                  {hasPaid && (
+                    <a 
+                      href={slidesDownloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+                    >
+                      Download Slides
+                    </a>
+                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className={`${textColorClass}`}>
+                        Account
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem disabled>
+                        {user.email}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={(e) => {
+                        e.preventDefault();
+                        signOut();
+                      }}>
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
             ) : (
               <>
                 <a 
@@ -195,31 +216,6 @@ const Navbar: React.FC = () => {
                 <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
                   Course Content
                 </Link>
-              </>
-            )}
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  {/* Changed from icon to text "Account" */}
-                  <Button variant="ghost" className={`${textColorClass}`}>
-                    Account
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem disabled>
-                    {user.email}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={(e) => {
-                    e.preventDefault();
-                    signOut();
-                  }}>
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <>
                 <Link to="/signup" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
                   Login
                 </Link>
