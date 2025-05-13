@@ -22,15 +22,31 @@ const LetterSection: React.FC = () => {
             </p>
             
             <p>
-              I cut my teeth launching consumer‑tech giants—Meizu, OPPO, and OnePlus—across the world. Navigating multiple languages, time zones, and regulatory mazes taught me how to craft stories that resonate — and hit revenue targets while we're at it.
+              I cut my teeth launching consumer‑tech giants—Meizu, OPPO, and OnePlus—across the world.
             </p>
             
             <p>
-              Collaborating with world‑class agencies like Ogilvy and Weber Shandwick sharpened my instincts for turning relationships into rocket fuel. Add in hands‑on mastery of PR software and AI tools, and I operate with real‑time data as my compass—no guesswork, no vanity metrics.
+              Navigating multiple languages, time zones, and regulatory mazes taught me how to craft stories that resonate — and hit revenue targets while we're at it.
             </p>
             
             <p>
-              Why am I the right guy to teach you PR? Because I've played every position that matters: brand lead and mar‑tech power user. I've chased embargoes at 3 a.m., soothed skeptical editors with fresh angles, and built influencer programs that survived algorithm earthquakes. I know the pressure of quarterly targets, the thrill of a viral moment, and the discipline it takes to turn buzz into long‑term brand equity.
+              Collaborating with world‑class agencies like Ogilvy and Weber Shandwick sharpened my instincts for turning relationships into rocket fuel.
+            </p>
+            
+            <p>
+              Add in hands‑on mastery of PR software and AI tools, and I operate with real‑time data as my compass—no guesswork, no vanity metrics.
+            </p>
+            
+            <p>
+              Why am I the right guy to teach you PR? Because I've played every position that matters: brand lead and mar‑tech power user.
+            </p>
+            
+            <p>
+              I've chased embargoes at 3 a.m., soothed skeptical editors with fresh angles, and built influencer programs that survived algorithm earthquakes.
+            </p>
+            
+            <p>
+              I know the pressure of quarterly targets, the thrill of a viral moment, and the discipline it takes to turn buzz into long‑term brand equity.
             </p>
             
             <p>
