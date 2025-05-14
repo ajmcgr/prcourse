@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 const EmailSignup: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ const EmailSignup: React.FC = () => {
   const [name, setName] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithGoogle, signInWithEmail, signUp, user, hasPaid } = useAuth();
@@ -25,6 +27,11 @@ const EmailSignup: React.FC = () => {
       navigate('/pricing', { replace: true });
     }
   }, [user, hasPaid, navigate]);
+
+  // Reset confirmation state when switching modes
+  useEffect(() => {
+    setNeedsConfirmation(false);
+  }, [isSignUp]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,9 +46,8 @@ const EmailSignup: React.FC = () => {
             toast.success(result.message);
             // Redirect will happen via useEffect above
           } else {
-            // Instead of showing a message about manual sign-in,
-            // automatically switch to sign in mode with the email pre-filled
-            setIsSignUp(false);
+            // Show confirmation message and UI
+            setNeedsConfirmation(true);
             toast.success("Please check your email for a confirmation email and follow the link to verify your account.");
           }
         } else {
@@ -52,6 +58,8 @@ const EmailSignup: React.FC = () => {
             toast.error("An account with this email already exists. Try signing in instead.");
             // Switch to sign in mode
             setIsSignUp(false);
+          } else if (result.message.includes("rate limit")) {
+            toast.error("Email rate limit exceeded. Please wait a few minutes before trying again.");
           } else {
             toast.error(result.message);
           }
@@ -67,12 +75,15 @@ const EmailSignup: React.FC = () => {
       
       // Handle specific error messages for better user experience
       if (error.message?.includes("email not confirmed")) {
+        setNeedsConfirmation(true);
         toast.error("Please check your email and confirm your account before signing in.");
       } else if (error.message?.includes("Invalid login credentials")) {
         toast.error("Invalid email or password. Please try again.");
       } else if (error.message?.includes("Database error") || error.message?.includes("duplicate key")) {
         toast.error("An account with this email already exists. Try signing in instead.");
         setIsSignUp(false);
+      } else if (error.message?.includes("rate limit")) {
+        toast.error("Email rate limit exceeded. Please wait a few minutes before trying again.");
       } else {
         toast.error(error.message || "Authentication failed");
       }
@@ -94,6 +105,91 @@ const EmailSignup: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  // Function to handle resending verification email
+  const handleResendVerification = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      
+      // Use Supabase's resend confirmation email functionality
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+      
+      if (error) {
+        if (error.message.includes("rate limit")) {
+          toast.error("Email rate limit exceeded. Please wait a few minutes before trying again.");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Verification email sent! Please check your inbox.");
+      }
+    } catch (error: any) {
+      console.error("Error resending verification:", error);
+      toast.error(error.message || "Failed to resend verification email");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // If we're in confirmation state, show a different UI
+  if (needsConfirmation) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-sans text-center">
+            Email verification required
+          </CardTitle>
+          <CardDescription className="text-center">
+            Please check your email inbox for a verification link
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center space-y-4 py-4">
+            <AlertCircle className="h-16 w-16 text-amber-500" />
+            <p className="text-center">
+              We've sent a verification email to <strong>{email}</strong>.<br/>
+              Please click the link in the email to verify your account.
+            </p>
+            <p className="text-sm text-gray-500 text-center">
+              If you don't see the email, check your spam folder or click below to resend.
+            </p>
+            <Button 
+              onClick={handleResendVerification} 
+              variant="outline"
+              disabled={isLoading}
+              className="mt-4"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : 'Resend verification email'}
+            </Button>
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col items-center">
+          <p className="text-center text-sm">
+            Already verified? {' '}
+            <a 
+              href="#" 
+              className="text-blue-600 hover:underline" 
+              onClick={(e) => {
+                e.preventDefault();
+                setNeedsConfirmation(false);
+              }}
+            >
+              Try signing in
+            </a>
+          </p>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-md mx-auto">
