@@ -15,7 +15,7 @@ const CallToAction: React.FC = () => {
         <p className="text-base md:text-xl mb-6 md:mb-8 text-gray-700">
           Join my comprehensive PR course and transform your PR strategy today.
         </p>
-        <Button size="lg" className="bg-[#409EFF] hover:bg-[#409EFF]/90 text-white font-medium text-base md:text-lg px-4 md:px-6 py-5 md:py-6 w-full md:w-auto">
+        <Button size="lg" className="bg-[#409EFF] hover:bg-[#409EFF]/90 text-white font-medium text-sm md:text-base px-4 md:px-6 py-5 md:py-6 w-full md:w-auto">
           <Link to="/signup?mode=signup">Get Access Now for $99</Link>
         </Button>
         

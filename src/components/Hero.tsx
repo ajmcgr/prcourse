@@ -24,7 +24,7 @@ const Hero: React.FC = () => {
         
         <div className="mt-6 md:mt-12 w-full animate-fade-in" style={{animationDelay: '0.4s'}}>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
-            <Button size="lg" className="w-full md:w-auto bg-[#409EFF] hover:bg-[#409EFF]/90 text-white font-medium text-base md:text-lg px-4 md:px-8 py-5 md:py-6">
+            <Button size="lg" className="w-full md:w-auto bg-[#409EFF] hover:bg-[#409EFF]/90 text-white font-medium text-sm md:text-base px-4 md:px-8 py-5 md:py-6">
               <Link to="/signup?mode=signup">Get Access Now for $99</Link>
             </Button>
             
