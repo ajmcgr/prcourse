@@ -45,16 +45,37 @@ const EmailSignup: React.FC = () => {
             toast.success("Please check your email for a confirmation email and follow the link to verify your account.");
           }
         } else {
-          toast.error(result.message);
+          // Check for specific error messages related to existing users
+          if (result.message.includes("duplicate key") || 
+              result.message.includes("already registered") || 
+              result.message.includes("Database error")) {
+            toast.error("An account with this email already exists. Try signing in instead.");
+            // Switch to sign in mode
+            setIsSignUp(false);
+          } else {
+            toast.error(result.message);
+          }
         }
       } else {
         // Handle sign in
-        await signInWithEmail(email, password);
-        // Redirect will happen via useEffect above
+        const signInResult = await signInWithEmail(email, password);
+        // If we get here, sign-in was successful and redirect will happen via useEffect above
+        toast.success("Signed in successfully!");
       }
     } catch (error: any) {
       console.error("Auth error:", error);
-      toast.error(error.message || "Authentication failed");
+      
+      // Handle specific error messages for better user experience
+      if (error.message?.includes("email not confirmed")) {
+        toast.error("Please check your email and confirm your account before signing in.");
+      } else if (error.message?.includes("Invalid login credentials")) {
+        toast.error("Invalid email or password. Please try again.");
+      } else if (error.message?.includes("Database error") || error.message?.includes("duplicate key")) {
+        toast.error("An account with this email already exists. Try signing in instead.");
+        setIsSignUp(false);
+      } else {
+        toast.error(error.message || "Authentication failed");
+      }
     } finally {
       setIsLoading(false);
     }
