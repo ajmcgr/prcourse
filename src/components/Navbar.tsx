@@ -87,7 +87,7 @@ const Navbar: React.FC = () => {
                 <AvatarImage src="https://prcourse.alexmacgregor.com/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" alt="Alex MacGregor" />
                 <AvatarFallback>AM</AvatarFallback>
               </Avatar>
-              <span className={`text-lg md:text-2xl font-bold truncate ${textColorClass}`}>
+              <span className={`text-base md:text-lg font-bold truncate ${textColorClass}`}>
                 {isMobile ? "PR Masterclass" : "Alex MacGregor's PR Masterclass"}
               </span>
             </Link>
