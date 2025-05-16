@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input'; // Import Input component
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +13,7 @@ const PricingSection: React.FC = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [promoCode, setPromoCode] = useState<string>('');
   
   const handlePurchase = async () => {
     try {
@@ -25,11 +27,16 @@ const PricingSection: React.FC = () => {
       setError(null);
       console.log("Starting payment process for user:", user.id);
       
+      if (promoCode) {
+        console.log("Using promo code:", promoCode);
+      }
+      
       // Create payment session using edge function
       console.log("Creating payment checkout session");
       const { data, error: invokeError } = await supabase.functions.invoke("create-payment", {
         body: {
-          returnUrl: `${window.location.origin}/payment-success`
+          returnUrl: `${window.location.origin}/payment-success`,
+          promoCode: promoCode.trim() || undefined // Include promo code if entered
         }
       });
       
@@ -51,14 +58,9 @@ const PricingSection: React.FC = () => {
       
       console.log("Redirecting to Stripe payment URL:", data.url);
       
-      // Try to open Stripe checkout in a new tab first
-      const stripeWindow = window.open(data.url, '_blank');
-      
-      // If popup is blocked or fails, redirect in the same window
-      if (!stripeWindow || stripeWindow.closed || typeof stripeWindow.closed === 'undefined') {
-        console.log("Popup blocked, redirecting in same window");
-        window.location.href = data.url;
-      }
+      // Redirect directly to the Stripe checkout URL in the current window
+      // This approach is more reliable than opening in a new tab
+      window.location.href = data.url;
     } catch (err: any) {
       const errorMessage = err?.message || 'Unknown error occurred';
       console.error('Purchase error:', err);
@@ -112,6 +114,20 @@ const PricingSection: React.FC = () => {
                   </svg>
                   <span>30-day money-back guarantee</span>
                 </div>
+              </div>
+              
+              {/* Promo Code Input */}
+              <div className="mb-4">
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="Promo code (optional)" 
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    className="w-full"
+                    disabled={isProcessing}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Enter a promo code if you have one</p>
               </div>
               
               {error && (

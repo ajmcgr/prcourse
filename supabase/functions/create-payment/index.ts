@@ -25,8 +25,9 @@ serve(async (req) => {
     // Extract request body
     const requestData = await req.json();
     const returnUrl = requestData.returnUrl || 'https://prcourse.alexmacgregor.com/payment-success';
+    const promoCode = requestData.promoCode || null; // Get promotion code if provided
     
-    logStep("Request received", { returnUrl });
+    logStep("Request received", { returnUrl, promoCode });
 
     // Check if Stripe secret key is properly configured
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -143,14 +144,44 @@ serve(async (req) => {
       mode: "payment",
       success_url: successUrl,
       cancel_url: `${returnUrl.split('/payment-success')[0]}/pricing`,
-      allow_promotion_codes: true
+      allow_promotion_codes: true, // Always allow promotion codes
     };
+    
+    // Add specific promotion code if provided
+    if (promoCode) {
+      logStep("Using provided promotion code", { promoCode });
+      try {
+        // Verify the promotion code exists first
+        const promoResponse = await stripe.promotionCodes.list({
+          code: promoCode,
+          active: true,
+          limit: 1
+        });
+        
+        if (promoResponse.data.length > 0) {
+          const promoId = promoResponse.data[0].id;
+          checkoutOptions.discounts = [
+            {
+              promotion_code: promoId
+            }
+          ];
+          logStep("Applied specific promotion code", { promoId });
+        } else {
+          logStep("Provided promotion code not found or inactive", { promoCode });
+          // Continue without the specific code, but still allow user to enter codes
+        }
+      } catch (promoError: any) {
+        logStep("Error validating promotion code", promoError);
+        // Continue without the specific code, but still allow user to enter codes
+      }
+    }
     
     logStep("Creating checkout session with options", {
       customerId,
       mode: checkoutOptions.mode,
       successUrl: checkoutOptions.success_url,
-      cancelUrl: checkoutOptions.cancel_url
+      cancelUrl: checkoutOptions.cancel_url,
+      allowPromotionCodes: checkoutOptions.allow_promotion_codes
     });
 
     // Create Stripe checkout session with enhanced error handling

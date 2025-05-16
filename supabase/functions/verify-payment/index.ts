@@ -45,23 +45,48 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    
+    // Check if Stripe API key exists
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey || stripeKey.trim() === "") {
+      logStep("ERROR: Stripe secret key is missing");
+      return new Response(
+        JSON.stringify({ error: "Stripe configuration error - missing API key" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Initialize Stripe client
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
       httpClient: Stripe.createFetchHttpClient()
     });
     
     logStep("Retrieving Stripe session", { sessionId });
 
-    // Get session details from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    
-    if (!session) {
-      logStep("Session not found");
+    // Get session details from Stripe with detailed error handling
+    let session;
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId);
+      if (!session) {
+        logStep("Session not found");
+        return new Response(
+          JSON.stringify({ verified: false, error: "Session not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } catch (sessionError: any) {
+      logStep("Error retrieving Stripe session", { 
+        error: sessionError.message,
+        type: sessionError.type, 
+        code: sessionError.code
+      });
       return new Response(
-        JSON.stringify({ verified: false, error: "Session not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ 
+          verified: false, 
+          error: `Error retrieving Stripe session: ${sessionError.message}` 
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
     
@@ -87,11 +112,17 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
     
-    // Get any promotion code used in the session
+    // Get any promotion code used in the session with better error handling
     let promotionCode = null;
-    if (session.total_details?.breakdown?.discounts && 
-        session.total_details.breakdown.discounts.length > 0) {
-      promotionCode = session.total_details.breakdown.discounts[0].discount?.promotion_code;
+    try {
+      if (session.total_details?.breakdown?.discounts && 
+          session.total_details.breakdown.discounts.length > 0) {
+        promotionCode = session.total_details.breakdown.discounts[0].discount?.promotion_code;
+        logStep("Promotion code found in session", { promotionCode });
+      }
+    } catch (promoError) {
+      logStep("Error extracting promotion code", promoError);
+      // Continue processing without promotion code
     }
     
     // Update payment record in database
@@ -160,7 +191,14 @@ serve(async (req) => {
 
     // Return success
     return new Response(
-      JSON.stringify({ verified: true }),
+      JSON.stringify({ 
+        verified: true,
+        session_data: {
+          payment_status: session.payment_status,
+          amount_total: session.amount_total,
+          customer: session.customer
+        }
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
     
