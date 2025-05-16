@@ -1,15 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from '@/components/ui/input';
 
 const PricingSection: React.FC = () => {
   const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
+  const [promotionCode, setPromotionCode] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const handlePurchase = async () => {
     try {
@@ -19,25 +22,30 @@ const PricingSection: React.FC = () => {
         return;
       }
       
+      setIsProcessing(true);
       console.log("Starting payment process for user:", user.id);
       
       // Create payment session using our edge function
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
           // Ensure we're using the full origin (including protocol) for the success URL
-          returnUrl: `${window.location.origin}/payment-success`
+          returnUrl: `${window.location.origin}/payment-success`,
+          // Include promotion code if provided
+          ...(promotionCode ? { promotionCode } : {})
         }
       });
       
       if (error) {
         console.error("Payment creation failed:", error);
         toast.error("Failed to create payment session. Please try again.");
+        setIsProcessing(false);
         return;
       }
       
       if (!data?.url) {
         console.error("No redirect URL returned from payment function");
         toast.error("Payment processing error. Please try again.");
+        setIsProcessing(false);
         return;
       }
       
@@ -47,6 +55,7 @@ const PricingSection: React.FC = () => {
     } catch (err) {
       console.error('Purchase error:', err);
       toast.error("Something went wrong. Please try again.");
+      setIsProcessing(false);
     }
   };
 
@@ -155,12 +164,28 @@ const PricingSection: React.FC = () => {
                 </div>
               </div>
               
+              {/* Promotion code input */}
+              <div className="mb-4">
+                <label htmlFor="promotion-code" className="block text-sm font-medium text-gray-700 mb-1">
+                  Have a coupon code?
+                </label>
+                <Input 
+                  id="promotion-code"
+                  type="text"
+                  placeholder="Enter coupon code"
+                  value={promotionCode}
+                  onChange={(e) => setPromotionCode(e.target.value)}
+                  className="mb-2"
+                />
+              </div>
+              
               <div className="flex justify-center">
                 <Button 
                   onClick={handlePurchase} 
+                  disabled={isProcessing}
                   className="bg-blue-500 hover:bg-blue-600 text-white py-3 text-lg px-10"
                 >
-                  Buy Now — $99
+                  {isProcessing ? 'Processing...' : 'Buy Now — $99'}
                 </Button>
               </div>
               

@@ -37,8 +37,8 @@ serve(async (req) => {
 
     console.log("Creating payment session for user:", user.id, user.email);
 
-    // Parse request body to get returnUrl
-    const { returnUrl } = await req.json();
+    // Parse request body to get returnUrl and optional promotion code
+    const { returnUrl, promotionCode } = await req.json();
     
     // Determine the origin and success URL
     const origin = req.headers.get("origin") || "https://prcourse.alexmacgregor.com";
@@ -80,9 +80,8 @@ serve(async (req) => {
       console.log("Created new customer:", customerId);
     }
 
-    // Create a one-time payment session with promotion code support
-    console.log("Creating checkout session with return URL:", successUrl);
-    const session = await stripe.checkout.sessions.create({
+    // Create checkout session options
+    const sessionOptions = {
       customer: customerId,
       line_items: [
         {
@@ -100,9 +99,23 @@ serve(async (req) => {
       mode: "payment",
       success_url: successUrl,
       cancel_url: `${origin}/pricing`,
-      // Enable promotion codes in the checkout
-      allow_promotion_codes: true,
-    });
+      allow_promotion_codes: true, // Enable promotion codes in checkout
+    };
+
+    // If a specific promotion code was provided, add it
+    if (promotionCode) {
+      console.log("Applying promotion code:", promotionCode);
+      sessionOptions.discounts = [
+        {
+          promotion_code: promotionCode,
+        },
+      ];
+    }
+
+    console.log("Creating checkout session with options:", JSON.stringify(sessionOptions, null, 2));
+    
+    // Create the checkout session
+    const session = await stripe.checkout.sessions.create(sessionOptions);
 
     console.log("Created checkout session:", session.id);
 
