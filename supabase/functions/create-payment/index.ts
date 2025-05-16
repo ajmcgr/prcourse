@@ -15,11 +15,10 @@ serve(async (req) => {
   }
 
   try {
-    // Create Supabase client using the service role key to bypass RLS
+    // Create Supabase client using the anon key for user authentication.
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
     // Get user from auth header
@@ -81,19 +80,6 @@ serve(async (req) => {
       console.log("Created new customer:", customerId);
     }
 
-    // First, clean up any pending payment records for this user to avoid conflicts
-    console.log("Cleaning up any pending payment records for user:", user.id);
-    const { error: deleteError } = await supabaseClient
-      .from('user_payments')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('payment_status', 'pending');
-    
-    if (deleteError) {
-      console.error("Error cleaning up pending payments:", deleteError);
-      // Continue anyway, this is just cleanup
-    }
-
     // Create a one-time payment session with promotion code support
     console.log("Creating checkout session with return URL:", successUrl);
     const session = await stripe.checkout.sessions.create({
@@ -114,13 +100,13 @@ serve(async (req) => {
       mode: "payment",
       success_url: successUrl,
       cancel_url: `${origin}/pricing`,
-      allow_promotion_codes: true, // Explicitly enable promotion codes
+      // Enable promotion codes in the checkout
+      allow_promotion_codes: true,
     });
 
     console.log("Created checkout session:", session.id);
 
-    // Create a pending payment record in Supabase using the service role client
-    // which bypasses RLS policies
+    // Create a pending payment record in Supabase
     const { error: paymentError } = await supabaseClient
       .from('user_payments')
       .insert({
@@ -133,8 +119,6 @@ serve(async (req) => {
     
     if (paymentError) {
       console.error("Error creating payment record:", paymentError);
-      // Don't throw error here, as we still want to redirect to Stripe
-      // even if the record creation fails
     } else {
       console.log("Created pending payment record in database");
     }

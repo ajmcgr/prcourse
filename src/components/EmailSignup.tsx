@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from "sonner";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2, Mail } from 'lucide-react';
 
 const EmailSignup: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +15,8 @@ const EmailSignup: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithGoogle, signInWithEmail, signUp, user, hasPaid } = useAuth();
@@ -31,11 +32,14 @@ const EmailSignup: React.FC = () => {
   // Reset confirmation state when switching modes
   useEffect(() => {
     setNeedsConfirmation(false);
+    setSignupSuccess(false);
+    setErrorMessage(null);
   }, [isSignUp]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null);
     
     try {
       if (isSignUp) {
@@ -46,22 +50,29 @@ const EmailSignup: React.FC = () => {
             toast.success(result.message);
             // Redirect will happen via useEffect above
           } else {
-            // Show confirmation message and UI
+            // Show success message and confirmation UI
+            setSignupSuccess(true);
             setNeedsConfirmation(true);
-            toast.success("Please check your email for a confirmation email and follow the link to verify your account.");
+            toast.success("We've sent you a verification email. Please check your inbox.");
           }
         } else {
           // Check for specific error messages related to existing users
           if (result.message.includes("duplicate key") || 
               result.message.includes("already registered") || 
               result.message.includes("Database error")) {
-            toast.error("An account with this email already exists. Try signing in instead.");
-            // Switch to sign in mode
-            setIsSignUp(false);
+            
+            // For database errors, still show the verification screen
+            // as the user might have registered before but didn't verify
+            setSignupSuccess(true);
+            setNeedsConfirmation(true);
+            setErrorMessage("An account with this email already exists. Please verify your email or try signing in.");
+            toast.info("An account with this email already exists. Please check your inbox for verification email.");
           } else if (result.message.includes("rate limit")) {
             toast.error("Email rate limit exceeded. Please wait a few minutes before trying again.");
+            setErrorMessage("Email rate limit exceeded. Please wait a few minutes before trying again.");
           } else {
             toast.error(result.message);
+            setErrorMessage(result.message);
           }
         }
       } else {
@@ -76,15 +87,22 @@ const EmailSignup: React.FC = () => {
       // Handle specific error messages for better user experience
       if (error.message?.includes("email not confirmed")) {
         setNeedsConfirmation(true);
-        toast.error("Please check your email and confirm your account before signing in.");
+        setSignupSuccess(true);
+        setErrorMessage("Please check your email and confirm your account before signing in.");
+        toast.info("Please check your email and confirm your account before signing in.");
       } else if (error.message?.includes("Invalid login credentials")) {
+        setErrorMessage("Invalid email or password. Please try again.");
         toast.error("Invalid email or password. Please try again.");
       } else if (error.message?.includes("Database error") || error.message?.includes("duplicate key")) {
-        toast.error("An account with this email already exists. Try signing in instead.");
-        setIsSignUp(false);
+        setSignupSuccess(true);
+        setNeedsConfirmation(true);
+        setErrorMessage("An account with this email already exists. Please verify your email or try signing in.");
+        toast.info("An account with this email already exists. Please check your inbox for verification email.");
       } else if (error.message?.includes("rate limit")) {
+        setErrorMessage("Email rate limit exceeded. Please wait a few minutes before trying again.");
         toast.error("Email rate limit exceeded. Please wait a few minutes before trying again.");
       } else {
+        setErrorMessage(error.message || "Authentication failed");
         toast.error(error.message || "Authentication failed");
       }
     } finally {
@@ -134,6 +152,82 @@ const EmailSignup: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  // If signup was successful or we have an existing user that needs to verify, show a success screen
+  if (signupSuccess) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-sans text-center">
+            {errorMessage ? "Email Verification Required" : "Sign Up Successful!"}
+          </CardTitle>
+          <CardDescription className="text-center">
+            Please check your email to verify your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center space-y-4 py-4">
+            {errorMessage ? (
+              <AlertCircle className="h-16 w-16 text-amber-500" />
+            ) : (
+              <CheckCircle2 className="h-16 w-16 text-green-500" />
+            )}
+            
+            <p className="text-center text-lg font-medium">
+              {errorMessage || "Thanks for signing up!"}
+            </p>
+            
+            <div className="flex items-center justify-center gap-2 bg-blue-50 p-4 rounded-lg w-full">
+              <Mail className="h-5 w-5 text-blue-500" />
+              <p className="text-blue-700">
+                {errorMessage 
+                  ? "An account exists for" 
+                  : "We've sent a verification email to"} <strong>{email}</strong>
+              </p>
+            </div>
+            
+            <p className="text-center">
+              Please click the link in your email to verify your account.
+            </p>
+            <p className="text-sm text-gray-500 text-center">
+              If you don't see the email, check your spam folder or click below to resend.
+            </p>
+            <Button 
+              onClick={handleResendVerification} 
+              variant="outline"
+              disabled={isLoading}
+              className="mt-4"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : 'Resend verification email'}
+            </Button>
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col items-center">
+          <p className="text-center text-sm">
+            Already verified? {' '}
+            <a 
+              href="#" 
+              className="text-blue-600 hover:underline" 
+              onClick={(e) => {
+                e.preventDefault();
+                setIsSignUp(false);
+                setSignupSuccess(false);
+                setNeedsConfirmation(false);
+                setErrorMessage(null);
+              }}
+            >
+              Sign in now
+            </a>
+          </p>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   // If we're in confirmation state, show a different UI
   if (needsConfirmation) {

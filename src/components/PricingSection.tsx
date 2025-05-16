@@ -6,13 +6,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const PricingSection: React.FC = () => {
   const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [showPromoInfo, setShowPromoInfo] = React.useState(false);
   
   const handlePurchase = async () => {
     try {
@@ -22,7 +19,6 @@ const PricingSection: React.FC = () => {
         return;
       }
       
-      setIsLoading(true);
       console.log("Starting payment process for user:", user.id);
       
       // Create payment session using our edge function
@@ -36,14 +32,12 @@ const PricingSection: React.FC = () => {
       if (error) {
         console.error("Payment creation failed:", error);
         toast.error("Failed to create payment session. Please try again.");
-        setIsLoading(false);
         return;
       }
       
       if (!data?.url) {
         console.error("No redirect URL returned from payment function");
         toast.error("Payment processing error. Please try again.");
-        setIsLoading(false);
         return;
       }
       
@@ -53,7 +47,6 @@ const PricingSection: React.FC = () => {
     } catch (err) {
       console.error('Purchase error:', err);
       toast.error("Something went wrong. Please try again.");
-      setIsLoading(false);
     }
   };
 
@@ -162,32 +155,12 @@ const PricingSection: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex flex-col gap-4 items-center">
+              <div className="flex justify-center">
                 <Button 
                   onClick={handlePurchase} 
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-3 text-lg px-10 w-full"
-                  disabled={isLoading}
+                  className="bg-blue-500 hover:bg-blue-600 text-white py-3 text-lg px-10"
                 >
-                  {isLoading ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Processing...
-                    </span>
-                  ) : (
-                    "Buy Now — $99"
-                  )}
-                </Button>
-                
-                <Button 
-                  onClick={() => setShowPromoInfo(true)}
-                  variant="link"
-                  size="sm"
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  Have a promo code?
+                  Buy Now — $99
                 </Button>
               </div>
               
@@ -242,46 +215,6 @@ const PricingSection: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Promo Code Info Dialog */}
-      <Dialog open={showPromoInfo} onOpenChange={setShowPromoInfo}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Using Promotion Codes</DialogTitle>
-            <DialogDescription>
-              You'll have a chance to enter your promotion code during checkout.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <div className="flex flex-col gap-3">
-              <p className="text-sm text-muted-foreground">
-                When you reach the Stripe checkout page, you'll see a "Add promotion code" link at the bottom of the payment form.
-                Click it and enter your code there.
-              </p>
-              <p className="text-sm font-medium">
-                Valid promotion codes include: ALEXPRBETA, PR50OFF and others provided in our newsletters.
-              </p>
-              <div className="border rounded-md p-4 bg-gray-50">
-                <p className="text-sm font-semibold mb-2">How to use your code:</p>
-                <ol className="list-decimal list-inside text-sm space-y-2">
-                  <li>Click the "Buy Now" button above</li>
-                  <li>On the Stripe checkout page, look for "Add promotion code" at the bottom</li>
-                  <li>Enter your code (e.g., ALEXPRBETA) and click "Apply"</li>
-                  <li>Complete your purchase with the discount applied</li>
-                </ol>
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <Button 
-                onClick={handlePurchase} 
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                Continue to Checkout
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
