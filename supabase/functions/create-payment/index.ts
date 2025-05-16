@@ -59,6 +59,24 @@ serve(async (req) => {
     
     logStep("Creating payment session for user", { id: user.id, email: user.email });
 
+    // Clean up any existing pending payments for this user
+    try {
+      logStep("Cleaning up existing pending payments");
+      const { error: deleteError } = await supabaseAdmin
+        .from('user_payments')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('payment_status', 'pending');
+      
+      if (deleteError) {
+        logStep("Error deleting existing pending payments", deleteError);
+        // Continue despite error, as the insertion might still succeed
+      }
+    } catch (cleanupError) {
+      logStep("Exception during cleanup", cleanupError);
+      // Continue despite error
+    }
+
     // Set up success URL 
     const successUrl = `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`;
     logStep("Using success URL", successUrl);
@@ -119,46 +137,25 @@ serve(async (req) => {
     
     // Record payment attempt in database (as pending)
     try {
-      // First check if there's already a pending payment with the same session ID
-      const { data: existingPayments } = await supabaseAdmin
+      // Create a new payment record - now we have deleted any existing pending payments first
+      logStep("Creating new payment record");
+      
+      const { error: insertError } = await supabaseAdmin
         .from('user_payments')
-        .select('id')
-        .eq('stripe_session_id', session.id)
-        .limit(1);
+        .insert({
+          user_id: user.id,
+          stripe_customer_id: customerId,
+          stripe_session_id: session.id,
+          payment_status: 'pending',
+          amount: 9900, // $99.00
+          updated_at: new Date().toISOString()
+        });
         
-      if (existingPayments && existingPayments.length > 0) {
-        // Update the existing record instead of creating a new one
-        logStep("Updating existing payment record", { id: existingPayments[0].id });
-        
-        const { error: updateError } = await supabaseAdmin
-          .from('user_payments')
-          .update({
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingPayments[0].id);
-          
-        if (updateError) {
-          logStep("Error updating payment record", updateError);
-        }
+      if (insertError) {
+        logStep("Error creating payment record", insertError);
+        // Continue despite error, as Stripe session is already created
       } else {
-        // Create a new payment record
-        logStep("Creating new payment record");
-        
-        const { error: insertError } = await supabaseAdmin
-          .from('user_payments')
-          .insert({
-            user_id: user.id,
-            stripe_customer_id: customerId,
-            stripe_session_id: session.id,
-            payment_status: 'pending',
-            amount: 9900, // $99.00
-            updated_at: new Date().toISOString()
-          });
-          
-        if (insertError) {
-          logStep("Error creating payment record", insertError);
-          // Continue despite error, as Stripe session is already created
-        }
+        logStep("Payment record created successfully");
       }
     } catch (dbError) {
       logStep("Database exception", dbError);

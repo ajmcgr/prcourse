@@ -12,6 +12,7 @@ const PricingSection: React.FC = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   
   const handlePurchase = async () => {
     try {
@@ -25,10 +26,35 @@ const PricingSection: React.FC = () => {
       setError(null);
       console.log("Starting payment process for user:", user.id);
       
+      // Check if there's any pending payment already and continue with that
+      if (retryCount === 0) {
+        console.log("Checking if there are pending payments to clean up");
+        try {
+          // Try to clean up any pending payments
+          const { error: cleanupError } = await supabase
+            .from('user_payments')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('payment_status', 'pending');
+            
+          if (cleanupError) {
+            console.warn("Failed to clean up pending payments:", cleanupError);
+            // Continue anyway
+          } else {
+            console.log("Successfully cleaned up any pending payments");
+          }
+        } catch (cleanupErr) {
+          console.warn("Error during cleanup:", cleanupErr);
+          // Continue anyway
+        }
+      }
+      
       // Create payment session using edge function with better error logging
+      console.log(`Attempting payment creation (attempt ${retryCount + 1})`);
       const { data, error: invokeError } = await supabase.functions.invoke("create-payment", {
         body: {
-          returnUrl: `${window.location.origin}/payment-success`
+          returnUrl: `${window.location.origin}/payment-success`,
+          retryAttempt: retryCount
         }
       });
       
@@ -49,6 +75,10 @@ const PricingSection: React.FC = () => {
       }
       
       console.log("Redirecting to Stripe payment URL:", data.url);
+      
+      // Increment retry count before redirecting
+      setRetryCount(prev => prev + 1);
+      
       // Redirect to Stripe checkout page
       window.location.href = data.url;
     } catch (err: any) {
