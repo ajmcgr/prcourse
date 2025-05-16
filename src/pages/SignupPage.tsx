@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CheckCircle2 } from 'lucide-react';
+import { useToast } from "@/components/ui/use-toast"
 
 const SignupPage = () => {
   const [searchParams] = useSearchParams();
@@ -15,12 +15,11 @@ const SignupPage = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLogin, setIsLogin] = useState(true);
-  const [signupSuccess, setSignupSuccess] = useState(false);
-  const [successEmail, setSuccessEmail] = useState('');
   const { user, signInWithEmail, signUp, signInWithGoogle, loading, hasPaid } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [formError, setFormError] = useState<string | null>(null);
+  const { toast } = useToast()
   
   // Set initial mode based on URL parameter
   useEffect(() => {
@@ -61,7 +60,10 @@ const SignupPage = () => {
       if (isLogin) {
         // Sign In
         await signInWithEmail(email, password);
-        toast.success("Login successful!");
+        toast({
+          title: "Login successful!",
+          description: "You've successfully logged in.",
+        })
       } else {
         // Sign Up
         if (!name) {
@@ -71,94 +73,19 @@ const SignupPage = () => {
         
         const result = await signUp(email, password, name);
         if (!result.success) {
-          // Even if there's an error, if it's a database error about existing user,
-          // we should still show the success screen
-          if (result.message.includes('duplicate key') || result.message.includes('Database error')) {
-            setSuccessEmail(email);
-            setSignupSuccess(true);
-            toast.info("An account with this email already exists. Please check your inbox for verification email.");
-          } else {
-            setFormError(result.message);
-          }
+          setFormError(result.message);
         } else {
-          setSuccessEmail(email);
-          setSignupSuccess(true);
-          toast.success("Signup successful! Please check your email to verify your account.");
+          toast({
+            title: "Signup successful!",
+            description: result.message,
+          })
         }
       }
     } catch (error: any) {
       console.error("Authentication error:", error);
-      
-      // If this is a database error about existing user, still show success screen
-      if (error.message?.includes('duplicate key') || error.message?.includes('Database error')) {
-        setSuccessEmail(email);
-        setSignupSuccess(true);
-        toast.info("An account with this email already exists. Please check your inbox for verification email.");
-      } else {
-        setFormError(error.message || 'An error occurred during authentication.');
-      }
+      setFormError(error.message || 'An error occurred during authentication.');
     }
   };
-
-  const handleResendVerification = async () => {
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: successEmail,
-      });
-      
-      if (error) {
-        if (error.message.includes("rate limit")) {
-          toast.error("Email rate limit exceeded. Please wait a few minutes before trying again.");
-        } else {
-          toast.error(error.message);
-        }
-      } else {
-        toast.success("Verification email sent! Please check your inbox.");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to resend verification email");
-    }
-  };
-  
-  // If signup successful, show success screen
-  if (signupSuccess) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
-          <div className="text-center">
-            <CheckCircle2 className="mx-auto h-16 w-16 text-green-500" />
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              Sign Up Successful!
-            </h2>
-            <p className="mt-2 text-center text-gray-600">
-              We've sent a verification email to <strong>{successEmail}</strong>
-            </p>
-            <p className="mt-4 text-center text-gray-600">
-              Please check your inbox (and spam folder) and click the verification link to activate your account.
-            </p>
-          </div>
-          <div className="mt-8">
-            <Button
-              onClick={handleResendVerification}
-              className="w-full py-2 px-4"
-              variant="outline"
-            >
-              Resend verification email
-            </Button>
-          </div>
-          <div className="text-sm text-center mt-4">
-            <button 
-              onClick={() => setIsLogin(true)}
-              className="font-medium text-blue-500 hover:text-blue-700"
-            >
-              Return to sign in
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
   
   return (
     <div className="flex items-center justify-center min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
