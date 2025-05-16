@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 
 const SignupPage = () => {
   const [searchParams] = useSearchParams();
@@ -19,7 +20,8 @@ const SignupPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [formError, setFormError] = useState<string | null>(null);
-  const { toast } = useToast()
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const { toast: toastNotify } = useToast();
   
   // Set initial mode based on URL parameter
   useEffect(() => {
@@ -60,10 +62,11 @@ const SignupPage = () => {
       if (isLogin) {
         // Sign In
         await signInWithEmail(email, password);
-        toast({
+        toast.success("Login successful!");
+        toastNotify({
           title: "Login successful!",
           description: "You've successfully logged in.",
-        })
+        });
       } else {
         // Sign Up
         if (!name) {
@@ -75,10 +78,13 @@ const SignupPage = () => {
         if (!result.success) {
           setFormError(result.message);
         } else {
-          toast({
+          // Show success message
+          setSignupSuccess(true);
+          toast.success("Signup successful! Please check your email for verification.");
+          toastNotify({
             title: "Signup successful!",
-            description: result.message,
-          })
+            description: "Please check your email for the verification link.",
+          });
         }
       }
     } catch (error: any) {
@@ -86,6 +92,42 @@ const SignupPage = () => {
       setFormError(error.message || 'An error occurred during authentication.');
     }
   };
+  
+  if (signupSuccess) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Sign Up Successful!
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Please check your email for the verification link.
+            </p>
+          </div>
+          
+          <Alert>
+            <AlertTitle>Email Verification Required</AlertTitle>
+            <AlertDescription>
+              We've sent a verification email to <strong>{email}</strong>. 
+              Please check your inbox and click the link to verify your account.
+              If you don't see the email, check your spam folder.
+            </AlertDescription>
+          </Alert>
+          
+          <div className="text-center mt-4">
+            <Button
+              onClick={() => setIsLogin(true)}
+              variant="outline"
+              className="mx-auto"
+            >
+              Back to Login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="flex items-center justify-center min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
