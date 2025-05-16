@@ -54,8 +54,9 @@ const usePaymentProcessor = ({ user, navigate }: UsePaymentProcessorProps) => {
       
       console.log("Redirecting to Stripe payment URL:", data.url);
       
-      // Redirect directly to the Stripe checkout URL in the current window
-      window.location.href = data.url;
+      // Open Stripe checkout in a new tab instead of current window
+      window.open(data.url, '_blank');
+      setIsProcessing(false);
     } catch (err: any) {
       const errorMessage = err?.message || 'Unknown error occurred';
       console.error('Purchase error:', err);

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -90,8 +91,9 @@ const Navbar: React.FC = () => {
       
       console.log("Redirecting to Stripe payment URL:", data.url);
       
-      // Redirect directly to the Stripe checkout URL in the current window
-      window.location.href = data.url;
+      // Open Stripe checkout in a new tab to prevent navigation issues
+      window.open(data.url, '_blank');
+      setIsProcessing(false);
     } catch (err: any) {
       const errorMessage = err?.message || 'Unknown error occurred';
       console.error('Purchase error:', err);
