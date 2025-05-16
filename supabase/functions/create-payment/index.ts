@@ -107,27 +107,54 @@ serve(async (req) => {
 
       console.log("Created checkout session:", session.id);
 
-      // Create a pending payment record in Supabase
+      // Create a service client with the service role key to handle database operations
       const serviceClient = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
         { auth: { persistSession: false } }
       );
       
-      const { error: paymentError } = await serviceClient
+      // First, check if user already has a pending payment record
+      const { data: existingPayment } = await serviceClient
         .from('user_payments')
-        .insert({
-          user_id: user.id,
-          stripe_customer_id: customerId,
-          stripe_session_id: session.id,
-          payment_status: 'pending',
-          amount: 9900
-        });
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('payment_status', 'pending')
+        .maybeSingle();
       
-      if (paymentError) {
-        console.error("Error creating payment record:", paymentError);
+      if (existingPayment) {
+        // Update the existing pending payment record
+        const { error: updateError } = await serviceClient
+          .from('user_payments')
+          .update({
+            stripe_session_id: session.id,
+            amount: 9900,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingPayment.id);
+        
+        if (updateError) {
+          console.error("Error updating payment record:", updateError);
+        } else {
+          console.log("Updated existing pending payment record");
+        }
       } else {
-        console.log("Created pending payment record in database");
+        // Create a new pending payment record
+        const { error: insertError } = await serviceClient
+          .from('user_payments')
+          .insert({
+            user_id: user.id,
+            stripe_customer_id: customerId,
+            stripe_session_id: session.id,
+            payment_status: 'pending',
+            amount: 9900
+          });
+        
+        if (insertError) {
+          console.error("Error creating payment record:", insertError);
+        } else {
+          console.log("Created new pending payment record");
+        }
       }
 
       return new Response(JSON.stringify({ url: session.url }), {
