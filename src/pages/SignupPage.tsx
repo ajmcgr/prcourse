@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
@@ -117,7 +116,10 @@ const SignupPage = () => {
           
           <div className="text-center mt-4">
             <Button
-              onClick={() => setIsLogin(true)}
+              onClick={() => {
+                setIsLogin(true);
+                setSignupSuccess(false); // Reset signup success state when going back to login
+              }}
               variant="outline"
               className="mx-auto"
             >
