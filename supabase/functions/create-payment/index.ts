@@ -37,8 +37,14 @@ serve(async (req) => {
 
     console.log("Creating payment session for user:", user.id, user.email);
 
-    // Parse request body to get returnUrl
-    const { returnUrl } = await req.json();
+    // Parse request body to get returnUrl and promotional code
+    const requestBody = await req.json();
+    const { returnUrl, promotionCode } = requestBody;
+    
+    console.log("Request received with:", { 
+      returnUrl, 
+      hasPromotionCode: !!promotionCode 
+    });
     
     // Determine the origin and success URL
     const origin = req.headers.get("origin") || "https://prcourse.alexmacgregor.com";
@@ -80,30 +86,38 @@ serve(async (req) => {
       console.log("Created new customer:", customerId);
     }
 
+    // Create checkout session options
+    const sessionOptions = {
+      customer: customerId,
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: { 
+              name: "PR Masterclass - Complete Course",
+              description: "Lifetime access to all PR course materials",
+            },
+            unit_amount: 9900, // $99.00 in cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: successUrl,
+      cancel_url: `${origin}/pricing`,
+      allow_promotion_codes: true,
+    };
+    
+    // Add promotion code if provided
+    if (promotionCode) {
+      console.log("Adding promotion code to session:", promotionCode);
+      // Note: we're not pre-applying the code, just allowing Stripe's UI to use it
+    }
+
     // Create a one-time payment session with promotion code support
     console.log("Creating checkout session with return URL:", successUrl);
     try {
-      const session = await stripe.checkout.sessions.create({
-        customer: customerId,
-        line_items: [
-          {
-            price_data: {
-              currency: "usd",
-              product_data: { 
-                name: "PR Masterclass - Complete Course",
-                description: "Lifetime access to all PR course materials",
-              },
-              unit_amount: 9900, // $99.00 in cents
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: successUrl,
-        cancel_url: `${origin}/pricing`,
-        // Enable promotion codes in the checkout
-        allow_promotion_codes: true,
-      });
+      const session = await stripe.checkout.sessions.create(sessionOptions);
 
       console.log("Created checkout session:", session.id);
 
@@ -114,47 +128,39 @@ serve(async (req) => {
         { auth: { persistSession: false } }
       );
       
-      // First, check if user already has a pending payment record
-      const { data: existingPayment } = await serviceClient
+      // First, mark all existing pending payments as expired
+      const { error: updateError } = await serviceClient
         .from('user_payments')
-        .select('id')
+        .update({
+          payment_status: 'expired',
+          updated_at: new Date().toISOString()
+        })
         .eq('user_id', user.id)
-        .eq('payment_status', 'pending')
-        .maybeSingle();
+        .eq('payment_status', 'pending');
       
-      if (existingPayment) {
-        // Update the existing pending payment record
-        const { error: updateError } = await serviceClient
-          .from('user_payments')
-          .update({
-            stripe_session_id: session.id,
-            amount: 9900,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingPayment.id);
-        
-        if (updateError) {
-          console.error("Error updating payment record:", updateError);
-        } else {
-          console.log("Updated existing pending payment record");
-        }
+      if (updateError) {
+        console.error("Error marking existing payments as expired:", updateError);
       } else {
-        // Create a new pending payment record
-        const { error: insertError } = await serviceClient
-          .from('user_payments')
-          .insert({
-            user_id: user.id,
-            stripe_customer_id: customerId,
-            stripe_session_id: session.id,
-            payment_status: 'pending',
-            amount: 9900
-          });
-        
-        if (insertError) {
-          console.error("Error creating payment record:", insertError);
-        } else {
-          console.log("Created new pending payment record");
-        }
+        console.log("Marked existing pending payments as expired (if any)");
+      }
+      
+      // Create a new pending payment record
+      const { error: insertError } = await serviceClient
+        .from('user_payments')
+        .insert({
+          user_id: user.id,
+          stripe_customer_id: customerId,
+          stripe_session_id: session.id,
+          payment_status: 'pending',
+          amount: 9900,
+          updated_at: new Date().toISOString()
+        });
+      
+      if (insertError) {
+        console.error("Error creating payment record:", insertError);
+        // Continue even if there's an error with the payment record
+      } else {
+        console.log("Created new pending payment record");
       }
 
       return new Response(JSON.stringify({ url: session.url }), {
@@ -163,14 +169,21 @@ serve(async (req) => {
       });
     } catch (stripeError) {
       console.error("Stripe checkout session creation error:", stripeError);
-      return new Response(JSON.stringify({ error: "Failed to create checkout session: " + stripeError.message }), {
+      return new Response(JSON.stringify({ 
+        error: "Failed to create checkout session",
+        message: stripeError.message,
+        details: stripeError
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
       });
     }
   } catch (error) {
     console.error("Payment error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: "Payment process error",
+      message: error.message 
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +11,8 @@ const PricingSection: React.FC = () => {
   const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [promotionCode, setPromotionCode] = useState('');
+  const [showPromoField, setShowPromoField] = useState(false);
   
   const handlePurchase = async () => {
     try {
@@ -27,7 +30,9 @@ const PricingSection: React.FC = () => {
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
           // Ensure we're using the full origin (including protocol) for the success URL
-          returnUrl: `${window.location.origin}/payment-success`
+          returnUrl: `${window.location.origin}/payment-success`,
+          // Pass promotion code if entered
+          promotionCode: promotionCode || undefined
         }
       });
       
@@ -158,6 +163,31 @@ const PricingSection: React.FC = () => {
                   <span>30-day money-back guarantee</span>
                 </div>
               </div>
+              
+              {/* Promo code section */}
+              {showPromoField ? (
+                <div className="mb-4">
+                  <div className="flex items-center mb-2">
+                    <input
+                      type="text"
+                      value={promotionCode}
+                      onChange={(e) => setPromotionCode(e.target.value)}
+                      placeholder="Enter promo code"
+                      className="border rounded px-3 py-2 w-full"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">Enter your promo code above if you have one</p>
+                </div>
+              ) : (
+                <div className="mb-4 text-center">
+                  <button 
+                    onClick={() => setShowPromoField(true)}
+                    className="text-blue-500 text-sm underline"
+                  >
+                    Have a promo code?
+                  </button>
+                </div>
+              )}
               
               <div className="flex justify-center">
                 <Button 
