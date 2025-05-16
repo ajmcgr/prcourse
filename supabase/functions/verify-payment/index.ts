@@ -29,7 +29,7 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
     
-    // Create Supabase client for database operations
+    // Create Supabase client with service role key to bypass RLS
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -42,12 +42,14 @@ serve(async (req) => {
     });
     console.log("Retrieved session:", session.id, "Status:", session.payment_status);
     
+    // Check for promotion code usage
     let promoCodeUsed = null;
     if (session.total_details?.breakdown?.discounts && session.total_details.breakdown.discounts.length > 0) {
       promoCodeUsed = session.total_details.breakdown.discounts[0].discount?.promotion_code?.code || 'unknown_promo';
       console.log("Promotion code used:", promoCodeUsed);
     }
     
+    // Verify payment status
     if (session.payment_status === 'paid') {
       console.log("Payment confirmed paid for session:", session.id);
       
@@ -56,7 +58,7 @@ serve(async (req) => {
         console.log("Updating payment record for user:", userId);
         
         try {
-          // First check if a payment record already exists
+          // Check if payment record exists
           const { data: existingPayment, error: fetchError } = await supabaseClient
             .from('user_payments')
             .select('id, promotion_code')
@@ -84,7 +86,7 @@ serve(async (req) => {
               })
               .eq('id', existingPayment.id);
           } else {
-            // Create new record
+            // Create new record if none exists
             console.log("Creating new payment record");
             updateResult = await supabaseClient
               .from('user_payments')

@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    // Create Supabase client using the anon key for user authentication.
+    // Create Supabase client using the anon key for user authentication
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
@@ -43,19 +43,11 @@ serve(async (req) => {
     
     const { returnUrl, promotionCode } = requestBody;
     
-    if (promotionCode) {
-      console.log("Promotion code provided:", promotionCode);
-    } else {
-      console.log("No promotion code provided in request");
-    }
-    
     // Determine the origin and success URL
-    const origin = req.headers.get("origin") || "https://prcourse.alexmacgregor.com";
+    const origin = req.headers.get("origin") || "http://localhost:3000";
     
-    // If returnUrl is provided, use it, otherwise use the default
+    // Build success URL with session ID parameter
     let successUrl = returnUrl || `${origin}/payment-success`;
-    
-    // Ensure the success URL has the query parameter placeholder
     if (!successUrl.includes('?')) {
       successUrl = `${successUrl}?session_id={CHECKOUT_SESSION_ID}`;
     } else if (!successUrl.includes('session_id=')) {
@@ -63,7 +55,7 @@ serve(async (req) => {
     }
     
     console.log("Using success URL:", successUrl);
-    
+
     // Initialize Stripe
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
@@ -74,15 +66,16 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    // Check if a Stripe customer record exists for this user
+    // Check if a Stripe customer already exists
     console.log("Checking for existing Stripe customer");
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
       console.log("Found existing customer:", customerId);
     } else {
-      // Create a new customer if one doesn't exist
+      // Create a new customer
       console.log("Creating new customer for:", user.email);
       const newCustomer = await stripe.customers.create({
         email: user.email,
@@ -113,15 +106,15 @@ serve(async (req) => {
       mode: "payment",
       success_url: successUrl,
       cancel_url: `${origin}/pricing`,
-      allow_promotion_codes: true, // Explicitly enable promotion codes in checkout
+      allow_promotion_codes: true,
     };
 
     // If a specific promotion code was provided, add it to the session
     if (promotionCode) {
-      console.log("Attempting to apply specific promotion code:", promotionCode);
+      console.log("Attempting to apply promotion code:", promotionCode);
       
       try {
-        // Verify the promotion code exists before applying it
+        // Verify the promotion code exists before applying
         const promoCodeObj = await stripe.promotionCodes.list({
           code: promotionCode,
           active: true,
@@ -137,12 +130,10 @@ serve(async (req) => {
             },
           ];
         } else {
-          console.log("Warning: Promotion code not found or not active in Stripe:", promotionCode);
-          // Still allow the checkout to proceed, but without the discount applied
+          console.log("Promotion code not found or not active in Stripe:", promotionCode);
         }
       } catch (promoError) {
         console.error("Error checking promotion code:", promoError);
-        // Continue with checkout without applying the discount
       }
     }
 
@@ -150,11 +141,17 @@ serve(async (req) => {
     
     // Create the checkout session
     const session = await stripe.checkout.sessions.create(sessionOptions);
-
     console.log("Created checkout session:", session.id);
 
-    // Create a pending payment record in Supabase
-    const { error: paymentError } = await supabaseClient
+    // Create a service role client to bypass RLS
+    const serviceClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
+    // Create a pending payment record in database
+    const { error: paymentError } = await serviceClient
       .from('user_payments')
       .insert({
         user_id: user.id,
@@ -176,7 +173,7 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    console.error("Payment error:", error);
+    console.error("Payment creation error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

@@ -14,6 +14,7 @@ const PaymentSuccessPage = () => {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
+    // Get session ID from URL parameters
     const sessionId = searchParams.get('session_id') || searchParams.get('CHECKOUT_SESSION_ID');
     console.log("Payment success page loaded with:", { 
       sessionId,
@@ -23,29 +24,28 @@ const PaymentSuccessPage = () => {
     
     const verifyPayment = async () => {
       try {
-        // Instead of showing error and redirecting immediately, wait for auth
+        // If no user is logged in, wait briefly for authentication to complete
         if (!user) {
           console.log("No user found, waiting for authentication to complete...");
           
           // Give auth context time to initialize/restore session
           const timeout = setTimeout(() => {
-            // Only show error if still no user after waiting
             if (!user) {
               console.log("Authentication timed out, redirecting to pricing");
               toast.info("Please complete your payment from the pricing page");
               navigate('/pricing', { replace: true });
             }
-          }, 3000); // Wait 3 seconds before giving up
+          }, 3000);
           
           return () => clearTimeout(timeout);
         }
 
-        // If session ID is present, try to verify with Stripe directly
+        // Verify with Stripe directly if session ID is present
         if (sessionId) {
           console.log("Verifying session with Stripe:", sessionId);
           
           try {
-            // Use our edge function to verify the payment with Stripe
+            // Use edge function to verify payment
             const { data, error } = await supabase.functions.invoke("verify-payment", {
               body: { 
                 sessionId,
@@ -87,18 +87,17 @@ const PaymentSuccessPage = () => {
             setError(`Verification error: ${verifyError.message}`);
           }
         } else {
-          // Even if no session ID is present, try to verify the payment
-          // This handles cases where the user returns directly to the site after payment
+          // If no session ID, check database for payment record
           console.log("No session ID, checking payment status in database");
           
-          // First check if payment is already recorded in database
+          // Check if payment is already recorded
           const isPaid = await checkPaymentStatus(user.id);
           
           if (isPaid) {
             console.log("Payment already verified for user:", user.id);
             toast.success("Payment verified! You now have full access to the course.");
             
-            // Get first lesson to ensure we have a valid path
+            // Get first lesson for redirect
             const { lesson } = getFirstLesson();
             const redirectPath = `/course/${lesson.slug}`;
             
@@ -123,7 +122,7 @@ const PaymentSuccessPage = () => {
     // Slight delay to ensure auth context is fully loaded
     setTimeout(() => {
       verifyPayment();
-    }, 1500); // Increased delay to give auth time to initialize
+    }, 1500);
   }, [searchParams, updatePaymentStatus, checkPaymentStatus, user, navigate, hasPaid]);
   
   return (

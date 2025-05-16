@@ -41,4 +41,3 @@ enabled = true
 verify_jwt = true
 [functions.verify-payment]
 verify_jwt = false
-

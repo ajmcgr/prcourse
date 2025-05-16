@@ -25,13 +25,11 @@ const PricingSection: React.FC = () => {
       setIsProcessing(true);
       console.log("Starting payment process for user:", user.id);
       
-      // Create payment session using our edge function
+      // Create payment session using edge function
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
-          // Ensure we're using the full origin (including protocol) for the success URL
           returnUrl: `${window.location.origin}/payment-success`,
-          // Include promotion code if provided
-          ...(promotionCode ? { promotionCode } : {})
+          promotionCode: promotionCode.trim() || undefined
         }
       });
       
@@ -59,7 +57,7 @@ const PricingSection: React.FC = () => {
     }
   };
 
-  // Create a function to immediately record a payment (for testing)
+  // For development/testing only
   const handleForceSetPaid = async () => {
     if (!user) {
       toast.error("You must be logged in to set payment status");
@@ -81,9 +79,9 @@ const PricingSection: React.FC = () => {
       toast.error("Error updating payment status");
     }
   };
-  
-  // Special debug function for business@hypeworkspod.com user
-  const isBusinessUser = user?.email === 'business@hypeworkspod.com';
+
+  // Special debug function for test environments
+  const isTestEnvironment = import.meta.env.DEV || user?.email === 'business@hypeworkspod.com';
   const handleSpecialDebug = async () => {
     if (!user) return;
     
@@ -124,7 +122,7 @@ const PricingSection: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-background">
       <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
-        {/* Pricing Card - reduced width */}
+        {/* Pricing Card */}
         <div className="md:w-2/5 max-w-md">
           <Card className="border shadow-sm h-full">
             <CardContent className="p-6">
@@ -190,7 +188,7 @@ const PricingSection: React.FC = () => {
               </div>
               
               {/* Development tools - only show in dev environment */}
-              {(import.meta.env.DEV || isBusinessUser) && (
+              {isTestEnvironment && (
                 <div className="mt-4 border-t pt-4">
                   <p className="text-xs text-gray-500 mb-2">Development Tools</p>
                   <div className="flex gap-2 flex-wrap">
@@ -203,7 +201,7 @@ const PricingSection: React.FC = () => {
                       Force Set Paid
                     </Button>
                     
-                    {isBusinessUser && (
+                    {user?.email === 'business@hypeworkspod.com' && (
                       <Button 
                         onClick={handleSpecialDebug} 
                         variant="outline" 
@@ -229,7 +227,7 @@ const PricingSection: React.FC = () => {
           </Card>
         </div>
         
-        {/* Image section - reduced width */}
+        {/* Image section */}
         <div className="md:w-2/5 max-w-md">
           <div className="rounded-lg overflow-hidden h-full">
             <img 
