@@ -1,182 +1,166 @@
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import Stripe from 'https://esm.sh/stripe@13.10.0';
 
+// CORS Headers
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper logging function for enhanced debugging
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[CREATE-PAYMENT] ${step}${detailsStr}`);
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Create Supabase client using the anon key for user authentication
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
+    // Extract the request body
+    const requestData = await req.json();
+    const returnUrl = requestData.returnUrl || 'https://prcourse.alexmacgregor.com/payment-success';
+    const promotionCode = requestData.promotionCode;
+    
+    logStep("Request body", { returnUrl, promotionCode: promotionCode || "none" });
 
-    // Get user from auth header
-    const authHeader = req.headers.get("Authorization");
+    // Get authorization header
+    const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error("No authorization header provided");
+      return new Response(
+        JSON.stringify({ error: "Authorization header is missing" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
     
-    const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabaseClient.auth.getUser(token);
-    const user = data.user;
+    // Initialize Supabase client with service role (to bypass RLS)
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
     
-    if (!user?.email) {
-      throw new Error("User not authenticated or email not available");
+    // Get user from the session
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (userError || !user) {
+      logStep("Authentication error", userError);
+      return new Response(
+        JSON.stringify({ error: "Authentication failed" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+    
+    logStep("Creating payment session for user", { id: user.id, email: user.email });
 
-    console.log("Creating payment session for user:", user.id, user.email);
-
-    // Parse request body to get returnUrl and optional promotion code
-    const requestBody = await req.json();
-    console.log("Request body:", JSON.stringify(requestBody, null, 2));
-    
-    const { returnUrl, promotionCode } = requestBody;
-    
-    // Determine the origin and success URL
-    const origin = req.headers.get("origin") || "http://localhost:3000";
-    
-    // Build success URL with session ID parameter
-    let successUrl = returnUrl || `${origin}/payment-success`;
-    if (!successUrl.includes('?')) {
-      successUrl = `${successUrl}?session_id={CHECKOUT_SESSION_ID}`;
-    } else if (!successUrl.includes('session_id=')) {
-      successUrl = `${successUrl}&session_id={CHECKOUT_SESSION_ID}`;
-    }
-    
-    console.log("Using success URL:", successUrl);
+    // Set up success URL 
+    const successUrl = `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`;
+    logStep("Using success URL", successUrl);
 
     // Initialize Stripe
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) {
-      throw new Error("STRIPE_SECRET_KEY is not set");
-    }
-    
-    const stripe = new Stripe(stripeKey, {
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
+      httpClient: Stripe.createFetchHttpClient()
     });
 
-    // Check if a Stripe customer already exists
-    console.log("Checking for existing Stripe customer");
+    // Check for existing Stripe customer
+    logStep("Checking for existing Stripe customer");
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    let customerId: string;
     
-    let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
-      console.log("Found existing customer:", customerId);
+      logStep("Found existing customer", { customerId });
     } else {
       // Create a new customer
-      console.log("Creating new customer for:", user.email);
       const newCustomer = await stripe.customers.create({
         email: user.email,
         metadata: {
-          userId: user.id,
+          user_id: user.id,
         }
       });
       customerId = newCustomer.id;
-      console.log("Created new customer:", customerId);
+      logStep("Created new customer", { customerId });
     }
 
-    // Create checkout session options
-    const sessionOptions = {
+    // Set up Stripe checkout options
+    const checkoutOptions: any = {
       customer: customerId,
       line_items: [
         {
           price_data: {
             currency: "usd",
-            product_data: { 
+            product_data: {
               name: "PR Masterclass - Complete Course",
-              description: "Lifetime access to all PR course materials",
+              description: "Lifetime access to all PR course materials"
             },
-            unit_amount: 9900, // $99.00 in cents
+            unit_amount: 9900 // $99.00
           },
           quantity: 1,
         },
       ],
       mode: "payment",
       success_url: successUrl,
-      cancel_url: `${origin}/pricing`,
-      allow_promotion_codes: true,
+      cancel_url: `${returnUrl.split('/payment-success')[0]}/pricing`,
+      allow_promotion_codes: true
     };
-
-    // If a specific promotion code was provided, add it to the session
+    
+    // If a specific promotion code was provided (not used anymore, but kept for future flexibility)
     if (promotionCode) {
-      console.log("Attempting to apply promotion code:", promotionCode);
-      
-      try {
-        // Verify the promotion code exists before applying
-        const promoCodeObj = await stripe.promotionCodes.list({
-          code: promotionCode,
-          active: true,
-          limit: 1
-        });
-        
-        if (promoCodeObj.data.length > 0) {
-          const promoId = promoCodeObj.data[0].id;
-          console.log("Found valid promotion code with ID:", promoId);
-          sessionOptions.discounts = [
-            {
-              promotion_code: promoId,
-            },
-          ];
-        } else {
-          console.log("Promotion code not found or not active in Stripe:", promotionCode);
+      checkoutOptions.discounts = [
+        {
+          promotion_code: promotionCode
         }
-      } catch (promoError) {
-        console.error("Error checking promotion code:", promoError);
+      ];
+    }
+    
+    logStep("Creating checkout session with options", checkoutOptions);
+
+    // Create Stripe checkout session
+    const session = await stripe.checkout.sessions.create(checkoutOptions);
+    logStep("Created checkout session", session.id);
+    
+    // Record payment attempt in database (as pending)
+    try {
+      const { error: paymentError } = await supabaseAdmin
+        .from('user_payments')
+        .insert({
+          user_id: user.id,
+          stripe_customer_id: customerId,
+          stripe_session_id: session.id,
+          payment_status: 'pending',
+          amount: 9900, // $99.00
+          updated_at: new Date().toISOString()
+        });
+      
+      if (paymentError) {
+        logStep("Error creating payment record", paymentError);
       }
+    } catch (dbError) {
+      logStep("Database exception", dbError);
+      // Continue even if DB insert fails, as Stripe session is already created
     }
 
-    console.log("Creating checkout session with options:", JSON.stringify(sessionOptions, null, 2));
-    
-    // Create the checkout session
-    const session = await stripe.checkout.sessions.create(sessionOptions);
-    console.log("Created checkout session:", session.id);
-
-    // Create a service role client to bypass RLS
-    const serviceClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
+    // Return success with checkout URL
+    return new Response(
+      JSON.stringify({ url: session.url }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
-    // Create a pending payment record in database
-    const { error: paymentError } = await serviceClient
-      .from('user_payments')
-      .insert({
-        user_id: user.id,
-        stripe_customer_id: customerId,
-        stripe_session_id: session.id,
-        payment_status: 'pending',
-        amount: 9900,
-        promotion_code: promotionCode || null
-      });
     
-    if (paymentError) {
-      console.error("Error creating payment record:", paymentError);
-    } else {
-      console.log("Created pending payment record in database");
-    }
-
-    return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
-  } catch (error) {
-    console.error("Payment creation error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+  } catch (err) {
+    // Log any errors
+    console.error("Error in create-payment function:", err);
+    
+    // Return error response
+    return new Response(
+      JSON.stringify({ error: err.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });

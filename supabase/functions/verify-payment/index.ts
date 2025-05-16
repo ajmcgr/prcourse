@@ -1,142 +1,163 @@
 
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import Stripe from 'https://esm.sh/stripe@13.10.0';
 
+// CORS headers
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper logging function for enhanced debugging
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[VERIFY-PAYMENT] ${step}${detailsStr}`);
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Parse request body
-    const { sessionId, userId } = await req.json();
+    // Extract request body
+    const requestData = await req.json();
+    const sessionId = requestData.sessionId;
+    const userId = requestData.userId;
     
+    logStep("Request received", { sessionId, userId });
+
+    // Validate inputs
     if (!sessionId) {
-      throw new Error("No session ID provided");
+      return new Response(
+        JSON.stringify({ error: "Missing session ID" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
-    
-    console.log("Verifying Stripe payment for session:", sessionId, "User ID:", userId);
-    
-    // Initialize Stripe
+
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: "Missing user ID" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Initialize Stripe client
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
+      httpClient: Stripe.createFetchHttpClient()
     });
     
-    // Create Supabase client with service role key to bypass RLS
-    const supabaseClient = createClient(
+    logStep("Retrieving Stripe session", { sessionId });
+
+    // Get session details from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    
+    if (!session) {
+      logStep("Session not found");
+      return new Response(
+        JSON.stringify({ verified: false, error: "Session not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    logStep("Session retrieved", { 
+      status: session.status,
+      paymentStatus: session.payment_status
+    });
+
+    // Check if payment is successful
+    const isPaymentSuccessful = session.payment_status === 'paid';
+    
+    if (!isPaymentSuccessful) {
+      logStep("Payment unsuccessful", { paymentStatus: session.payment_status });
+      return new Response(
+        JSON.stringify({ verified: false, message: "Payment not completed" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    // Initialize Supabase client with service role (to bypass RLS)
+    const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { persistSession: false } }
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
     
-    // Retrieve checkout session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['total_details.breakdown', 'line_items']
-    });
-    console.log("Retrieved session:", session.id, "Status:", session.payment_status);
-    
-    // Check for promotion code usage
-    let promoCodeUsed = null;
-    if (session.total_details?.breakdown?.discounts && session.total_details.breakdown.discounts.length > 0) {
-      promoCodeUsed = session.total_details.breakdown.discounts[0].discount?.promotion_code?.code || 'unknown_promo';
-      console.log("Promotion code used:", promoCodeUsed);
+    // Get any promotion code used in the session
+    let promotionCode = null;
+    if (session.total_details?.breakdown?.discounts && 
+        session.total_details.breakdown.discounts.length > 0) {
+      promotionCode = session.total_details.breakdown.discounts[0].discount?.promotion_code;
     }
     
-    // Verify payment status
-    if (session.payment_status === 'paid') {
-      console.log("Payment confirmed paid for session:", session.id);
+    // Update payment record in database
+    try {
+      logStep("Updating payment record in database");
       
-      // Update payment status in database
-      if (userId) {
-        console.log("Updating payment record for user:", userId);
-        
-        try {
-          // Check if payment record exists
-          const { data: existingPayment, error: fetchError } = await supabaseClient
-            .from('user_payments')
-            .select('id, promotion_code')
-            .eq('user_id', userId)
-            .maybeSingle();
-
-          if (fetchError) {
-            console.error("Error checking for existing payment:", fetchError);
-            throw new Error(`Failed to check existing payment: ${fetchError.message}`);
-          }
-
-          let updateResult;
-          
-          if (existingPayment) {
-            // Update existing record
-            console.log("Updating existing payment record for ID:", existingPayment.id);
-            updateResult = await supabaseClient
-              .from('user_payments')
-              .update({
-                stripe_session_id: session.id,
-                payment_status: 'completed',
-                amount: session.amount_total || 9900,
-                promotion_code: promoCodeUsed || existingPayment.promotion_code,
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', existingPayment.id);
-          } else {
-            // Create new record if none exists
-            console.log("Creating new payment record");
-            updateResult = await supabaseClient
-              .from('user_payments')
-              .insert({
-                user_id: userId,
-                stripe_session_id: session.id,
-                payment_status: 'completed',
-                amount: session.amount_total || 9900,
-                promotion_code: promoCodeUsed,
-                updated_at: new Date().toISOString()
-              });
-          }
-          
-          if (updateResult.error) {
-            console.error("Database operation failed:", updateResult.error);
-            throw new Error(`Failed to update payment record: ${updateResult.error.message}`);
-          } else {
-            console.log("Payment record successfully updated/created in database");
-          }
-        } catch (dbError: any) {
-          console.error("Database operation error:", dbError);
-          throw new Error(`Database error: ${dbError.message}`);
-        }
+      // First try to update an existing record for this session
+      const { data: updateData, error: updateError } = await supabaseAdmin
+        .from('user_payments')
+        .update({
+          payment_status: 'completed',
+          promotion_code: promotionCode,
+          amount: session.amount_total, // Use the actual amount from Stripe
+          updated_at: new Date().toISOString()
+        })
+        .eq('stripe_session_id', sessionId)
+        .select();
+      
+      if (updateError) {
+        logStep("Error updating payment record", updateError);
+        // Continue despite error, as we'll try inserting a new record
       }
       
-      return new Response(JSON.stringify({ 
-        verified: true,
-        session_id: session.id,
-        payment_status: session.payment_status,
-        promotion_code_used: promoCodeUsed
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    } else {
-      console.log("Payment not completed for session:", session.id);
-      return new Response(JSON.stringify({ 
-        verified: false,
-        session_id: session.id,
-        payment_status: session.payment_status
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      // If no records were updated (no matching session ID), create a new record
+      if (!updateData || updateData.length === 0) {
+        logStep("No existing payment record found, creating new one");
+        
+        const { data: insertData, error: insertError } = await supabaseAdmin
+          .from('user_payments')
+          .insert({
+            user_id: userId,
+            payment_status: 'completed',
+            stripe_session_id: sessionId,
+            stripe_customer_id: session.customer as string,
+            promotion_code: promotionCode,
+            amount: session.amount_total, // Use the actual amount from Stripe
+            updated_at: new Date().toISOString()
+          })
+          .select();
+        
+        if (insertError) {
+          logStep("Error inserting payment record", insertError);
+          throw new Error(`Database error: ${insertError.message}`);
+        }
+        
+        logStep("Created new payment record", { id: insertData?.[0]?.id });
+      } else {
+        logStep("Updated existing payment record", { id: updateData[0]?.id });
+      }
+    } catch (dbError) {
+      logStep("Database operation failed", dbError);
+      throw new Error(`Database error: ${dbError.message}`);
     }
-  } catch (error) {
-    console.error("Payment verification error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+
+    // Return success
+    return new Response(
+      JSON.stringify({ verified: true }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+    
+  } catch (err) {
+    // Log any errors
+    console.error("Error in verify-payment function:", err);
+    
+    // Return error response
+    return new Response(
+      JSON.stringify({ error: err.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });
