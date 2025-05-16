@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { supabase } from '@/integrations/supabase/client';
 
 const SignupPage = () => {
   const [searchParams] = useSearchParams();
@@ -15,11 +16,13 @@ const SignupPage = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isLogin, setIsLogin] = useState(true);
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const { user, signInWithEmail, signUp, signInWithGoogle, loading, hasPaid } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [formError, setFormError] = useState<string | null>(null);
   const [signupSuccess, setSignupSuccess] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
   const { toast: toastNotify } = useToast();
   
   // Set initial mode based on URL parameter
@@ -51,6 +54,34 @@ const SignupPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+    
+    // Handle password reset request
+    if (isResetPassword) {
+      if (!email) {
+        setFormError('Please enter your email address.');
+        return;
+      }
+      
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/`,
+        });
+        
+        if (error) throw error;
+        
+        setResetSuccess(true);
+        toast.success("Password reset email sent. Please check your inbox.");
+        toastNotify({
+          title: "Reset email sent!",
+          description: "Check your inbox for the password reset link.",
+        });
+      } catch (error: any) {
+        console.error("Password reset error:", error);
+        setFormError(error.message || 'An error occurred during password reset.');
+      }
+      
+      return;
+    }
     
     if (!email || !password) {
       setFormError('Please enter your email and password.');
@@ -92,6 +123,104 @@ const SignupPage = () => {
     }
   };
   
+  // Password reset success screen
+  if (resetSuccess) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Password Reset Email Sent
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Please check your email for the reset link.
+            </p>
+          </div>
+          
+          <Alert>
+            <AlertTitle>Check Your Email</AlertTitle>
+            <AlertDescription>
+              We've sent a password reset email to <strong>{email}</strong>. 
+              Please check your inbox and click the link to reset your password.
+              If you don't see the email, check your spam folder.
+            </AlertDescription>
+          </Alert>
+          
+          <div className="text-center mt-4">
+            <Button
+              onClick={() => {
+                setIsResetPassword(false);
+                setResetSuccess(false);
+              }}
+              variant="outline"
+              className="mx-auto"
+            >
+              Back to Login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Password reset form
+  if (isResetPassword) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Reset Your Password
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Enter your email address and we'll send you a link to reset your password.
+            </p>
+          </div>
+          
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <Label htmlFor="email-address" className="block text-sm font-medium text-gray-700">
+                Email address
+              </Label>
+              <div className="mt-1">
+                <Input 
+                  id="email-address" 
+                  name="email" 
+                  type="email" 
+                  autoComplete="email" 
+                  required 
+                  className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            {formError && (
+              <div className="text-red-500 text-sm mt-1">{formError}</div>
+            )}
+            
+            <div>
+              <Button
+                type="submit"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Send Reset Link
+              </Button>
+            </div>
+            
+            <div className="text-sm text-center">
+              <button onClick={() => setIsResetPassword(false)} className="font-medium text-blue-500 hover:text-blue-700">
+                Back to Sign In
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+  
   if (signupSuccess) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
@@ -118,7 +247,7 @@ const SignupPage = () => {
             <Button
               onClick={() => {
                 setIsLogin(true);
-                setSignupSuccess(false); // Reset signup success state when going back to login
+                setSignupSuccess(false);
               }}
               variant="outline"
               className="mx-auto"
@@ -182,9 +311,20 @@ const SignupPage = () => {
           </div>
           
           <div>
-            <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </Label>
+            <div className="flex justify-between items-center">
+              <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </Label>
+              {isLogin && (
+                <button 
+                  type="button"
+                  onClick={() => setIsResetPassword(true)}
+                  className="text-sm font-medium text-blue-500 hover:text-blue-700"
+                >
+                  Forgot password?
+                </button>
+              )}
+            </div>
             <div className="mt-1">
               <Input 
                 id="password" 

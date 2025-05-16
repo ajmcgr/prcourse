@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,8 @@ const EmailSignup: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const [signupSuccess, setSignupSuccess] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { signInWithGoogle, signInWithEmail, signUp, user, hasPaid } = useAuth();
@@ -33,14 +34,27 @@ const EmailSignup: React.FC = () => {
   useEffect(() => {
     setNeedsConfirmation(false);
     setSignupSuccess(false);
-  }, [isSignUp]);
+    setResetSuccess(false);
+  }, [isSignUp, isResetPassword]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      if (isSignUp) {
+      if (isResetPassword) {
+        // Handle password reset request
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/`,
+        });
+        
+        if (error) {
+          throw error;
+        }
+        
+        setResetSuccess(true);
+        toast.success("Password reset email sent. Please check your inbox.");
+      } else if (isSignUp) {
         // Handle sign up
         const result = await signUp(email, password, name);
         if (result.success) {
@@ -137,6 +151,133 @@ const EmailSignup: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  // If password reset was successful, show a success screen
+  if (resetSuccess) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-sans text-center">
+            Password Reset Email Sent
+          </CardTitle>
+          <CardDescription className="text-center">
+            Please check your email to reset your password
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center space-y-4 py-4">
+            <CheckCircle2 className="h-16 w-16 text-green-500" />
+            <p className="text-center text-lg font-medium">
+              Check your inbox!
+            </p>
+            <div className="flex items-center justify-center gap-2 bg-blue-50 p-4 rounded-lg w-full">
+              <Mail className="h-5 w-5 text-blue-500" />
+              <p className="text-blue-700">
+                We've sent a password reset email to <strong>{email}</strong>
+              </p>
+            </div>
+            <p className="text-center">
+              Click the link in the email to reset your password.
+            </p>
+            <p className="text-sm text-gray-500 text-center">
+              If you don't see the email, check your spam folder or click below to resend.
+            </p>
+            <Button 
+              onClick={(e) => {
+                e.preventDefault();
+                handleResendVerification(e);
+              }} 
+              variant="outline"
+              disabled={isLoading}
+              className="mt-4"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : 'Resend reset email'}
+            </Button>
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col items-center">
+          <p className="text-center text-sm">
+            Remember your password? {' '}
+            <a 
+              href="#" 
+              className="text-blue-600 hover:underline" 
+              onClick={(e) => {
+                e.preventDefault();
+                setIsResetPassword(false);
+                setResetSuccess(false);
+              }}
+            >
+              Back to sign in
+            </a>
+          </p>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  // If in password reset mode, show the password reset form
+  if (isResetPassword) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-sans text-center">
+            Reset Password
+          </CardTitle>
+          <CardDescription className="text-center">
+            Enter your email and we'll send you a reset link
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="email">Email</label>
+              <Input 
+                id="email"
+                type="email" 
+                placeholder="Enter your email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                disabled={isLoading}
+                required
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-black hover:bg-black/90" 
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : 'Send Reset Link'}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex flex-col items-center">
+          <p className="text-center text-sm">
+            <a 
+              href="#" 
+              className="text-blue-600 hover:underline" 
+              onClick={(e) => {
+                e.preventDefault();
+                setIsResetPassword(false);
+              }}
+            >
+              Back to sign in
+            </a>
+          </p>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   // If signup was successful, show a success screen
   if (signupSuccess) {
@@ -313,6 +454,21 @@ const EmailSignup: React.FC = () => {
               required
             />
           </div>
+          
+          {!isSignUp && (
+            <div className="flex justify-end">
+              <a
+                href="#"
+                className="text-sm text-blue-600 hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsResetPassword(true);
+                }}
+              >
+                Forgot password?
+              </a>
+            </div>
+          )}
           
           <Button 
             type="submit" 
