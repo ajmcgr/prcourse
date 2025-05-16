@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,9 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 const PricingSection: React.FC = () => {
   const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const handlePurchase = async () => {
     try {
+      setIsProcessing(true);
+      
       if (!user) {
         toast.info("Please sign in to continue with purchase");
         navigate('/signup');
@@ -47,6 +49,8 @@ const PricingSection: React.FC = () => {
     } catch (err) {
       console.error('Purchase error:', err);
       toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -159,8 +163,9 @@ const PricingSection: React.FC = () => {
                 <Button 
                   onClick={handlePurchase} 
                   className="bg-blue-500 hover:bg-blue-600 text-white py-3 text-lg px-10"
+                  disabled={isProcessing}
                 >
-                  Buy Now — $99
+                  {isProcessing ? "Processing..." : "Buy Now — $99"}
                 </Button>
               </div>
               

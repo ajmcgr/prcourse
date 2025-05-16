@@ -82,51 +82,65 @@ serve(async (req) => {
 
     // Create a one-time payment session with promotion code support
     console.log("Creating checkout session with return URL:", successUrl);
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: { 
-              name: "PR Masterclass - Complete Course",
-              description: "Lifetime access to all PR course materials",
+    try {
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: { 
+                name: "PR Masterclass - Complete Course",
+                description: "Lifetime access to all PR course materials",
+              },
+              unit_amount: 9900, // $99.00 in cents
             },
-            unit_amount: 9900, // $99.00 in cents
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: successUrl,
-      cancel_url: `${origin}/pricing`,
-      // Enable promotion codes in the checkout
-      allow_promotion_codes: true,
-    });
-
-    console.log("Created checkout session:", session.id);
-
-    // Create a pending payment record in Supabase
-    const { error: paymentError } = await supabaseClient
-      .from('user_payments')
-      .insert({
-        user_id: user.id,
-        stripe_customer_id: customerId,
-        stripe_session_id: session.id,
-        payment_status: 'pending',
-        amount: 9900
+        ],
+        mode: "payment",
+        success_url: successUrl,
+        cancel_url: `${origin}/pricing`,
+        // Enable promotion codes in the checkout
+        allow_promotion_codes: true,
       });
-    
-    if (paymentError) {
-      console.error("Error creating payment record:", paymentError);
-    } else {
-      console.log("Created pending payment record in database");
-    }
 
-    return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+      console.log("Created checkout session:", session.id);
+
+      // Create a pending payment record in Supabase
+      const serviceClient = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        { auth: { persistSession: false } }
+      );
+      
+      const { error: paymentError } = await serviceClient
+        .from('user_payments')
+        .insert({
+          user_id: user.id,
+          stripe_customer_id: customerId,
+          stripe_session_id: session.id,
+          payment_status: 'pending',
+          amount: 9900
+        });
+      
+      if (paymentError) {
+        console.error("Error creating payment record:", paymentError);
+      } else {
+        console.log("Created pending payment record in database");
+      }
+
+      return new Response(JSON.stringify({ url: session.url }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    } catch (stripeError) {
+      console.error("Stripe checkout session creation error:", stripeError);
+      return new Response(JSON.stringify({ error: "Failed to create checkout session: " + stripeError.message }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
   } catch (error) {
     console.error("Payment error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
