@@ -12,7 +12,6 @@ const PricingSection: React.FC = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
   
   const handlePurchase = async () => {
     try {
@@ -26,35 +25,11 @@ const PricingSection: React.FC = () => {
       setError(null);
       console.log("Starting payment process for user:", user.id);
       
-      // Check if there's any pending payment already and continue with that
-      if (retryCount === 0) {
-        console.log("Checking if there are pending payments to clean up");
-        try {
-          // Try to clean up any pending payments
-          const { error: cleanupError } = await supabase
-            .from('user_payments')
-            .delete()
-            .eq('user_id', user.id)
-            .eq('payment_status', 'pending');
-            
-          if (cleanupError) {
-            console.warn("Failed to clean up pending payments:", cleanupError);
-            // Continue anyway
-          } else {
-            console.log("Successfully cleaned up any pending payments");
-          }
-        } catch (cleanupErr) {
-          console.warn("Error during cleanup:", cleanupErr);
-          // Continue anyway
-        }
-      }
-      
-      // Create payment session using edge function with better error logging
-      console.log(`Attempting payment creation (attempt ${retryCount + 1})`);
+      // Create payment session using edge function
+      console.log("Creating payment checkout session");
       const { data, error: invokeError } = await supabase.functions.invoke("create-payment", {
         body: {
-          returnUrl: `${window.location.origin}/payment-success`,
-          retryAttempt: retryCount
+          returnUrl: `${window.location.origin}/payment-success`
         }
       });
       
@@ -76,9 +51,6 @@ const PricingSection: React.FC = () => {
       
       console.log("Redirecting to Stripe payment URL:", data.url);
       
-      // Increment retry count before redirecting
-      setRetryCount(prev => prev + 1);
-      
       // Redirect to Stripe checkout page
       window.location.href = data.url;
     } catch (err: any) {
@@ -91,66 +63,7 @@ const PricingSection: React.FC = () => {
   };
 
   // For development/testing only
-  const handleForceSetPaid = async () => {
-    if (!user) {
-      toast.error("You must be logged in to set payment status");
-      return;
-    }
-    
-    try {
-      toast.loading("Setting payment status...");
-      const result = await updatePaymentStatus(true);
-      
-      if (result.error) {
-        toast.error("Failed to update payment status: " + result.error.message);
-      } else {
-        toast.success("Payment status updated successfully!");
-        navigate('/course/introduction');
-      }
-    } catch (err) {
-      console.error("Error setting payment status:", err);
-      toast.error("Error updating payment status");
-    }
-  };
-
-  // Special debug function for test environments
   const isTestEnvironment = import.meta.env.DEV || user?.email === 'business@hypeworkspod.com';
-  const handleSpecialDebug = async () => {
-    if (!user) return;
-    
-    try {
-      // Check existing records
-      const { data: existingPayment, error: fetchError } = await supabase
-        .from('user_payments')
-        .select('*')
-        .eq('user_id', user.id);
-      
-      console.log("Current payment records:", existingPayment);
-      
-      // Directly insert a payment record
-      const { data, error } = await supabase
-        .from('user_payments')
-        .insert({
-          user_id: user.id,
-          payment_status: 'completed',
-          amount: 9900,
-          stripe_session_id: 'manual_override_' + Date.now(),
-          updated_at: new Date().toISOString()
-        });
-        
-      if (error) {
-        console.error("Insert payment error:", error);
-        toast.error("Failed to insert payment record");
-      } else {
-        toast.success("Payment record inserted! Try accessing the course now.");
-        setTimeout(() => {
-          window.location.href = '/course';
-        }, 1500);
-      }
-    } catch (err) {
-      console.error("Debug error:", err);
-    }
-  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-background">
@@ -214,30 +127,7 @@ const PricingSection: React.FC = () => {
               
               {/* Development tools - only show in dev environment */}
               {isTestEnvironment && (
-                <div className="mt-4 border-t pt-4">
-                  <p className="text-xs text-gray-500 mb-2">Development Tools</p>
-                  <div className="flex gap-2 flex-wrap">
-                    <Button 
-                      onClick={handleForceSetPaid} 
-                      variant="outline" 
-                      size="sm"
-                      className="text-xs"
-                    >
-                      Force Set Paid
-                    </Button>
-                    
-                    {user?.email === 'business@hypeworkspod.com' && (
-                      <Button 
-                        onClick={handleSpecialDebug} 
-                        variant="outline" 
-                        size="sm"
-                        className="text-xs bg-amber-100"
-                      >
-                        Fix Business User Access
-                      </Button>
-                    )}
-                  </div>
-                </div>
+                <TestingTools user={user} updatePaymentStatus={updatePaymentStatus} navigate={navigate} />
               )}
               
               {/* Testimonial */}
@@ -262,6 +152,95 @@ const PricingSection: React.FC = () => {
             />
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+// Extract testing tools to a separate component to improve readability
+const TestingTools = ({ user, updatePaymentStatus, navigate }) => {
+  const handleForceSetPaid = async () => {
+    if (!user) {
+      toast.error("You must be logged in to set payment status");
+      return;
+    }
+    
+    try {
+      toast.loading("Setting payment status...");
+      const result = await updatePaymentStatus(true);
+      
+      if (result.error) {
+        toast.error("Failed to update payment status: " + result.error.message);
+      } else {
+        toast.success("Payment status updated successfully!");
+        navigate('/course/introduction');
+      }
+    } catch (err) {
+      console.error("Error setting payment status:", err);
+      toast.error("Error updating payment status");
+    }
+  };
+
+  const handleSpecialDebug = async () => {
+    if (!user) return;
+    
+    try {
+      // Check existing records
+      const { data: existingPayment, error: fetchError } = await supabase
+        .from('user_payments')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      console.log("Current payment records:", existingPayment);
+      
+      // Directly insert a payment record
+      const { data, error } = await supabase
+        .from('user_payments')
+        .insert({
+          user_id: user.id,
+          payment_status: 'completed',
+          amount: 9900,
+          stripe_session_id: 'manual_override_' + Date.now(),
+          updated_at: new Date().toISOString()
+        });
+        
+      if (error) {
+        console.error("Insert payment error:", error);
+        toast.error("Failed to insert payment record");
+      } else {
+        toast.success("Payment record inserted! Try accessing the course now.");
+        setTimeout(() => {
+          window.location.href = '/course';
+        }, 1500);
+      }
+    } catch (err) {
+      console.error("Debug error:", err);
+    }
+  };
+
+  return (
+    <div className="mt-4 border-t pt-4">
+      <p className="text-xs text-gray-500 mb-2">Development Tools</p>
+      <div className="flex gap-2 flex-wrap">
+        <Button 
+          onClick={handleForceSetPaid} 
+          variant="outline" 
+          size="sm"
+          className="text-xs"
+        >
+          Force Set Paid
+        </Button>
+        
+        {user?.email === 'business@hypeworkspod.com' && (
+          <Button 
+            onClick={handleSpecialDebug} 
+            variant="outline" 
+            size="sm"
+            className="text-xs bg-amber-100"
+          >
+            Fix Business User Access
+          </Button>
+        )}
       </div>
     </div>
   );

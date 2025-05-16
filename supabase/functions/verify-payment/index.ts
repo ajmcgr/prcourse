@@ -94,113 +94,57 @@ serve(async (req) => {
     
     // Update payment record in database
     try {
-      logStep("Checking for existing completed payment");
+      logStep("Looking for matching payment record", { sessionId });
       
-      // First check if there's already a completed payment record for this user
-      const { data: existingCompletedPayments } = await supabaseAdmin
+      // Find payment with matching session ID first
+      const { data: sessionPayments } = await supabaseAdmin
         .from('user_payments')
         .select('id')
-        .eq('user_id', userId)
-        .eq('payment_status', 'completed')
+        .eq('stripe_session_id', sessionId)
         .limit(1);
+      
+      if (sessionPayments && sessionPayments.length > 0) {
+        // Update the existing payment record
+        logStep("Found matching session payment to update", { paymentId: sessionPayments[0].id });
         
-      if (existingCompletedPayments && existingCompletedPayments.length > 0) {
-        logStep("User already has completed payment, skipping database update");
-      } else {
-        // Look for existing payment record for this session
-        logStep("Looking for existing payment record for this session", { sessionId });
-        
-        const { data: existingSessionPayments } = await supabaseAdmin
+        const { error: updateError } = await supabaseAdmin
           .from('user_payments')
-          .select('id, payment_status')
-          .eq('stripe_session_id', sessionId)
-          .limit(1);
-          
-        if (existingSessionPayments && existingSessionPayments.length > 0) {
-          // Update existing record
-          logStep("Updating existing payment record", { 
-            id: existingSessionPayments[0].id,
-            currentStatus: existingSessionPayments[0].payment_status
-          });
-          
-          const { error: updateError } = await supabaseAdmin
-            .from('user_payments')
-            .update({
-              payment_status: 'completed',
-              promotion_code: promotionCode,
-              amount: session.amount_total, // Use the actual amount from Stripe
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', existingSessionPayments[0].id);
-          
-          if (updateError) {
-            logStep("Error updating payment record", updateError);
-            throw new Error(`Database update error: ${updateError.message}`);
-          }
-          
-          logStep("Successfully updated existing payment record");
-        } else {
-          // Try to find and update any pending payment for this user
-          logStep("Looking for pending payment for user", { userId });
-          
-          const { data: pendingPayments } = await supabaseAdmin
-            .from('user_payments')
-            .select('id')
-            .eq('user_id', userId)
-            .eq('payment_status', 'pending')
-            .limit(1);
-            
-          if (pendingPayments && pendingPayments.length > 0) {
-            // Update the pending payment
-            logStep("Updating pending payment", { id: pendingPayments[0].id });
-            
-            const { error: updatePendingError } = await supabaseAdmin
-              .from('user_payments')
-              .update({
-                payment_status: 'completed',
-                stripe_session_id: sessionId,
-                promotion_code: promotionCode,
-                amount: session.amount_total,
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', pendingPayments[0].id);
-              
-            if (updatePendingError) {
-              logStep("Error updating pending payment", updatePendingError);
-              // If update fails, try to create a new record
-            } else {
-              logStep("Successfully updated pending payment to completed");
-              return new Response(
-                JSON.stringify({ verified: true }),
-                { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-              );
-            }
-          }
-          
-          // If no matching session payment and no pending payment (or update failed),
-          // create a new payment record
-          logStep("Creating new payment record");
-          
-          const { data: insertData, error: insertError } = await supabaseAdmin
-            .from('user_payments')
-            .insert({
-              user_id: userId,
-              payment_status: 'completed',
-              stripe_session_id: sessionId,
-              stripe_customer_id: session.customer as string,
-              promotion_code: promotionCode,
-              amount: session.amount_total,
-              updated_at: new Date().toISOString()
-            })
-            .select();
-          
-          if (insertError) {
-            logStep("Error inserting payment record", insertError);
-            throw new Error(`Database error: ${insertError.message}`);
-          }
-          
-          logStep("Created new payment record", { id: insertData?.[0]?.id });
+          .update({
+            payment_status: 'completed',
+            promotion_code: promotionCode,
+            amount: session.amount_total,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', sessionPayments[0].id);
+        
+        if (updateError) {
+          logStep("Error updating payment record", updateError);
+          throw new Error(`Database update error: ${updateError.message}`);
         }
+        
+        logStep("Successfully updated payment record");
+      } else {
+        // Create a new payment record
+        logStep("No matching session found, creating new payment record");
+        
+        const { error: insertError } = await supabaseAdmin
+          .from('user_payments')
+          .insert({
+            user_id: userId,
+            payment_status: 'completed',
+            stripe_session_id: sessionId,
+            stripe_customer_id: session.customer as string,
+            promotion_code: promotionCode,
+            amount: session.amount_total,
+            updated_at: new Date().toISOString()
+          });
+        
+        if (insertError) {
+          logStep("Error creating payment record", insertError);
+          throw new Error(`Database error: ${insertError.message}`);
+        }
+        
+        logStep("Created new payment record");
       }
     } catch (dbError: any) {
       logStep("Database operation failed", dbError);

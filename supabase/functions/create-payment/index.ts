@@ -59,24 +59,6 @@ serve(async (req) => {
     
     logStep("Creating payment session for user", { id: user.id, email: user.email });
 
-    // Clean up any existing pending payments for this user
-    try {
-      logStep("Cleaning up existing pending payments");
-      const { error: deleteError } = await supabaseAdmin
-        .from('user_payments')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('payment_status', 'pending');
-      
-      if (deleteError) {
-        logStep("Error deleting existing pending payments", deleteError);
-        // Continue despite error, as the insertion might still succeed
-      }
-    } catch (cleanupError) {
-      logStep("Exception during cleanup", cleanupError);
-      // Continue despite error
-    }
-
     // Set up success URL 
     const successUrl = `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`;
     logStep("Using success URL", successUrl);
@@ -137,10 +119,10 @@ serve(async (req) => {
     
     // Record payment attempt in database (as pending)
     try {
-      // Create a new payment record - now we have deleted any existing pending payments first
+      // Create a new payment record
       logStep("Creating new payment record");
       
-      const { error: insertError } = await supabaseAdmin
+      const { data: insertData, error: insertError } = await supabaseAdmin
         .from('user_payments')
         .insert({
           user_id: user.id,
@@ -149,16 +131,19 @@ serve(async (req) => {
           payment_status: 'pending',
           amount: 9900, // $99.00
           updated_at: new Date().toISOString()
-        });
+        })
+        .select();
         
       if (insertError) {
         logStep("Error creating payment record", insertError);
+        console.error("Error creating payment record:", insertError);
         // Continue despite error, as Stripe session is already created
       } else {
         logStep("Payment record created successfully");
       }
     } catch (dbError) {
       logStep("Database exception", dbError);
+      console.error("Error creating payment record:", dbError);
       // Continue even if DB insert fails, as Stripe session is already created
     }
 
