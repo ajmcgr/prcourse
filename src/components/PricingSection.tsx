@@ -6,12 +6,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "sonner";
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from '@/components/ui/input';
 
 const PricingSection: React.FC = () => {
   const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
-  const [promotionCode, setPromotionCode] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   
   const handlePurchase = async () => {
@@ -28,8 +26,7 @@ const PricingSection: React.FC = () => {
       // Create payment session using edge function
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
-          returnUrl: `${window.location.origin}/payment-success`,
-          promotionCode: promotionCode.trim() || undefined
+          returnUrl: `${window.location.origin}/payment-success`
         }
       });
       
@@ -160,21 +157,6 @@ const PricingSection: React.FC = () => {
                   </svg>
                   <span>30-day money-back guarantee</span>
                 </div>
-              </div>
-              
-              {/* Promotion code input */}
-              <div className="mb-4">
-                <label htmlFor="promotion-code" className="block text-sm font-medium text-gray-700 mb-1">
-                  Have a coupon code?
-                </label>
-                <Input 
-                  id="promotion-code"
-                  type="text"
-                  placeholder="Enter coupon code"
-                  value={promotionCode}
-                  onChange={(e) => setPromotionCode(e.target.value)}
-                  className="mb-2"
-                />
               </div>
               
               <div className="flex justify-center">
