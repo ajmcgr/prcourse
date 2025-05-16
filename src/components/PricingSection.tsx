@@ -51,8 +51,14 @@ const PricingSection: React.FC = () => {
       
       console.log("Redirecting to Stripe payment URL:", data.url);
       
-      // Redirect to Stripe checkout page
-      window.location.href = data.url;
+      // Try to open Stripe checkout in a new tab first
+      const stripeWindow = window.open(data.url, '_blank');
+      
+      // If popup is blocked or fails, redirect in the same window
+      if (!stripeWindow || stripeWindow.closed || typeof stripeWindow.closed === 'undefined') {
+        console.log("Popup blocked, redirecting in same window");
+        window.location.href = data.url;
+      }
     } catch (err: any) {
       const errorMessage = err?.message || 'Unknown error occurred';
       console.error('Purchase error:', err);

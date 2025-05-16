@@ -22,12 +22,23 @@ serve(async (req) => {
   }
 
   try {
-    // Extract the request body
+    // Extract request body
     const requestData = await req.json();
     const returnUrl = requestData.returnUrl || 'https://prcourse.alexmacgregor.com/payment-success';
     
-    logStep("Request body", { returnUrl });
+    logStep("Request received", { returnUrl });
 
+    // Check if Stripe secret key is properly configured
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey || stripeKey.trim() === "") {
+      logStep("ERROR: Stripe secret key is missing");
+      return new Response(
+        JSON.stringify({ error: "Stripe configuration error - missing API key" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    logStep("Stripe API key verified");
+    
     // Get authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -61,32 +72,56 @@ serve(async (req) => {
 
     // Set up success URL 
     const successUrl = `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`;
-    logStep("Using success URL", successUrl);
+    logStep("Using success URL", { successUrl });
 
-    // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2023-10-16",
-      httpClient: Stripe.createFetchHttpClient()
-    });
+    // Initialize Stripe with detailed error handling
+    let stripe;
+    try {
+      stripe = new Stripe(stripeKey, {
+        apiVersion: "2023-10-16",
+        httpClient: Stripe.createFetchHttpClient()
+      });
+      logStep("Stripe client initialized successfully");
+    } catch (stripeInitError: any) {
+      logStep("Failed to initialize Stripe client", stripeInitError);
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to initialize Stripe", 
+          details: stripeInitError.message 
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Check for existing Stripe customer
-    logStep("Checking for existing Stripe customer");
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string;
-    
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      logStep("Found existing customer", { customerId });
-    } else {
-      // Create a new customer
-      const newCustomer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          user_id: user.id,
-        }
-      });
-      customerId = newCustomer.id;
-      logStep("Created new customer", { customerId });
+    try {
+      logStep("Checking for existing Stripe customer", { email: user.email });
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        logStep("Found existing customer", { customerId });
+      } else {
+        // Create a new customer
+        const newCustomer = await stripe.customers.create({
+          email: user.email,
+          metadata: {
+            user_id: user.id,
+          }
+        });
+        customerId = newCustomer.id;
+        logStep("Created new customer", { customerId });
+      }
+    } catch (customerError: any) {
+      logStep("Error handling Stripe customer", customerError);
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to create or retrieve customer", 
+          details: customerError.message 
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Set up Stripe checkout options
@@ -111,11 +146,49 @@ serve(async (req) => {
       allow_promotion_codes: true
     };
     
-    logStep("Creating checkout session with options", checkoutOptions);
+    logStep("Creating checkout session with options", {
+      customerId,
+      mode: checkoutOptions.mode,
+      successUrl: checkoutOptions.success_url,
+      cancelUrl: checkoutOptions.cancel_url
+    });
 
-    // Create Stripe checkout session
-    const session = await stripe.checkout.sessions.create(checkoutOptions);
-    logStep("Created checkout session", { sessionId: session.id });
+    // Create Stripe checkout session with enhanced error handling
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create(checkoutOptions);
+      logStep("Created checkout session", { 
+        sessionId: session.id,
+        url: session.url,
+        paymentStatus: session.payment_status
+      });
+    } catch (checkoutError: any) {
+      // Log detailed error information for debugging
+      logStep("Stripe checkout session creation failed", {
+        error: checkoutError.message,
+        type: checkoutError.type,
+        code: checkoutError.code,
+        param: checkoutError.param,
+        detail: checkoutError.detail,
+        requestId: checkoutError.requestId
+      });
+      
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to create Stripe checkout session", 
+          details: checkoutError.message 
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (!session || !session.url) {
+      logStep("Stripe returned invalid session", session);
+      return new Response(
+        JSON.stringify({ error: "Invalid session returned from Stripe" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     
     // Record payment attempt in database (as pending)
     try {
@@ -163,6 +236,8 @@ serve(async (req) => {
       // Continue even if DB insert fails, as Stripe session is already created
     }
 
+    logStep("Returning checkout URL to client", { url: session.url });
+    
     // Return success with checkout URL
     return new Response(
       JSON.stringify({ url: session.url }),
