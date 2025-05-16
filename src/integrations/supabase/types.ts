@@ -15,6 +15,7 @@ export type Database = {
           created_at: string
           id: string
           payment_status: string
+          promotion_code: string | null
           stripe_customer_id: string | null
           stripe_session_id: string | null
           updated_at: string
@@ -25,6 +26,7 @@ export type Database = {
           created_at?: string
           id?: string
           payment_status: string
+          promotion_code?: string | null
           stripe_customer_id?: string | null
           stripe_session_id?: string | null
           updated_at?: string
@@ -35,6 +37,7 @@ export type Database = {
           created_at?: string
           id?: string
           payment_status?: string
+          promotion_code?: string | null
           stripe_customer_id?: string | null
           stripe_session_id?: string | null
           updated_at?: string
