@@ -11,6 +11,7 @@ const PricingSection: React.FC = () => {
   const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const handlePurchase = async () => {
     try {
@@ -21,25 +22,28 @@ const PricingSection: React.FC = () => {
       }
       
       setIsProcessing(true);
+      setError(null);
       console.log("Starting payment process for user:", user.id);
       
-      // Create payment session using edge function
-      const { data, error } = await supabase.functions.invoke("create-payment", {
+      // Create payment session using edge function with better error logging
+      const { data, error: invokeError } = await supabase.functions.invoke("create-payment", {
         body: {
           returnUrl: `${window.location.origin}/payment-success`
         }
       });
       
-      if (error) {
-        console.error("Payment creation failed:", error);
-        toast.error("Failed to create payment session. Please try again.");
+      if (invokeError) {
+        console.error("Payment function invoke error:", invokeError);
+        setError(`Payment processing failed: ${invokeError.message || 'Unknown error'}`);
+        toast.error("Failed to start payment process. Please try again.");
         setIsProcessing(false);
         return;
       }
       
-      if (!data?.url) {
-        console.error("No redirect URL returned from payment function");
-        toast.error("Payment processing error. Please try again.");
+      if (!data || !data.url) {
+        console.error("No redirect URL returned from payment function", data);
+        setError("No payment URL returned from server");
+        toast.error("Payment setup failed. Please try again later.");
         setIsProcessing(false);
         return;
       }
@@ -47,8 +51,10 @@ const PricingSection: React.FC = () => {
       console.log("Redirecting to Stripe payment URL:", data.url);
       // Redirect to Stripe checkout page
       window.location.href = data.url;
-    } catch (err) {
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Unknown error occurred';
       console.error('Purchase error:', err);
+      setError(errorMessage);
       toast.error("Something went wrong. Please try again.");
       setIsProcessing(false);
     }
@@ -158,6 +164,13 @@ const PricingSection: React.FC = () => {
                   <span>30-day money-back guarantee</span>
                 </div>
               </div>
+              
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+                  <p className="font-semibold">Payment Error</p>
+                  <p>{error}</p>
+                </div>
+              )}
               
               <div className="flex justify-center">
                 <Button 

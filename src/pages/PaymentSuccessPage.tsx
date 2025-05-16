@@ -12,6 +12,7 @@ const PaymentSuccessPage = () => {
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [processingDetails, setProcessingDetails] = useState<string>('');
   
   useEffect(() => {
     // Get session ID from URL parameters
@@ -22,11 +23,15 @@ const PaymentSuccessPage = () => {
       hasPaid
     });
     
+    // Show more detailed processing feedback
+    setProcessingDetails('Initializing payment verification...');
+    
     const verifyPayment = async () => {
       try {
         // If no user is logged in, wait briefly for authentication to complete
         if (!user) {
           console.log("No user found, waiting for authentication to complete...");
+          setProcessingDetails('Waiting for authentication...');
           
           // Give auth context time to initialize/restore session
           const timeout = setTimeout(() => {
@@ -43,6 +48,7 @@ const PaymentSuccessPage = () => {
         // Verify with Stripe directly if session ID is present
         if (sessionId) {
           console.log("Verifying session with Stripe:", sessionId);
+          setProcessingDetails('Verifying payment with Stripe...');
           
           try {
             // Use edge function to verify payment
@@ -62,6 +68,7 @@ const PaymentSuccessPage = () => {
             
             if (data?.verified) {
               console.log("Payment verified with Stripe, updating status");
+              setProcessingDetails('Payment verified! Updating your account...');
               const result = await updatePaymentStatus(true);
               
               if (result.error) {
@@ -72,6 +79,7 @@ const PaymentSuccessPage = () => {
                 toast.success("Payment successful! You now have full access to the course.");
                 
                 // Force a re-check of payment status
+                setProcessingDetails('Checking account access...');
                 await checkPaymentStatus(user.id);
                 
                 // Get first lesson for redirect
@@ -89,6 +97,7 @@ const PaymentSuccessPage = () => {
         } else {
           // If no session ID, check database for payment record
           console.log("No session ID, checking payment status in database");
+          setProcessingDetails('Checking payment status in database...');
           
           // Check if payment is already recorded
           const isPaid = await checkPaymentStatus(user.id);
@@ -163,11 +172,11 @@ const PaymentSuccessPage = () => {
             )}
           </div>
           <h2 className="text-2xl font-bold text-gray-800">
-            {error ? "Payment Verification Issue" : "Payment Successful!"}
+            {error ? "Payment Verification Issue" : "Payment Processing"}
           </h2>
           <p className="mt-2 text-gray-600">
             {processing 
-              ? "Processing your payment confirmation..." 
+              ? processingDetails
               : error 
                 ? error
                 : "Your payment has been confirmed. You now have full access to the course!"}
@@ -189,7 +198,7 @@ const PaymentSuccessPage = () => {
         )}
         
         {!processing && error && (
-          <div className="mt-6">
+          <div className="mt-6 space-y-4">
             <button 
               onClick={() => {
                 navigate('/pricing');
@@ -198,16 +207,28 @@ const PaymentSuccessPage = () => {
             >
               Return to Pricing
             </button>
+            
+            <button 
+              onClick={() => {
+                window.location.reload();
+              }}
+              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded transition-colors"
+            >
+              Try Again
+            </button>
           </div>
         )}
         
         {/* Debug info in development only */}
-        {import.meta.env.DEV && !processing && (
+        {import.meta.env.DEV && (
           <div className="mt-6 p-4 border rounded bg-gray-50 text-left text-xs">
             <h3 className="font-bold mb-1">Debug Info:</h3>
             <p>User ID: {user?.id || 'Not logged in'}</p>
             <p>Has Paid: {hasPaid ? 'Yes' : 'No'}</p>
             <p>Session ID: {searchParams.get('session_id') || searchParams.get('CHECKOUT_SESSION_ID') || 'None'}</p>
+            <p>Processing: {processing ? 'Yes' : 'No'}</p>
+            <p>State: {processing ? 'Processing' : error ? 'Error' : 'Success'}</p>
+            {error && <p className="text-red-500">Error: {error}</p>}
           </div>
         )}
       </div>

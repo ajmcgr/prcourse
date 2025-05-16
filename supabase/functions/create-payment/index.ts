@@ -25,13 +25,13 @@ serve(async (req) => {
     // Extract the request body
     const requestData = await req.json();
     const returnUrl = requestData.returnUrl || 'https://prcourse.alexmacgregor.com/payment-success';
-    const promotionCode = requestData.promotionCode;
     
-    logStep("Request body", { returnUrl, promotionCode: promotionCode || "none" });
+    logStep("Request body", { returnUrl });
 
     // Get authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      logStep("Authorization error - Missing header");
       return new Response(
         JSON.stringify({ error: "Authorization header is missing" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -111,15 +111,6 @@ serve(async (req) => {
       allow_promotion_codes: true
     };
     
-    // If a specific promotion code was provided (not used anymore, but kept for future flexibility)
-    if (promotionCode) {
-      checkoutOptions.discounts = [
-        {
-          promotion_code: promotionCode
-        }
-      ];
-    }
-    
     logStep("Creating checkout session with options", checkoutOptions);
 
     // Create Stripe checkout session
@@ -128,19 +119,46 @@ serve(async (req) => {
     
     // Record payment attempt in database (as pending)
     try {
-      const { error: paymentError } = await supabaseAdmin
+      // First check if there's already a pending payment with the same session ID
+      const { data: existingPayments } = await supabaseAdmin
         .from('user_payments')
-        .insert({
-          user_id: user.id,
-          stripe_customer_id: customerId,
-          stripe_session_id: session.id,
-          payment_status: 'pending',
-          amount: 9900, // $99.00
-          updated_at: new Date().toISOString()
-        });
-      
-      if (paymentError) {
-        logStep("Error creating payment record", paymentError);
+        .select('id')
+        .eq('stripe_session_id', session.id)
+        .limit(1);
+        
+      if (existingPayments && existingPayments.length > 0) {
+        // Update the existing record instead of creating a new one
+        logStep("Updating existing payment record", { id: existingPayments[0].id });
+        
+        const { error: updateError } = await supabaseAdmin
+          .from('user_payments')
+          .update({
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingPayments[0].id);
+          
+        if (updateError) {
+          logStep("Error updating payment record", updateError);
+        }
+      } else {
+        // Create a new payment record
+        logStep("Creating new payment record");
+        
+        const { error: insertError } = await supabaseAdmin
+          .from('user_payments')
+          .insert({
+            user_id: user.id,
+            stripe_customer_id: customerId,
+            stripe_session_id: session.id,
+            payment_status: 'pending',
+            amount: 9900, // $99.00
+            updated_at: new Date().toISOString()
+          });
+          
+        if (insertError) {
+          logStep("Error creating payment record", insertError);
+          // Continue despite error, as Stripe session is already created
+        }
       }
     } catch (dbError) {
       logStep("Database exception", dbError);
@@ -155,11 +173,12 @@ serve(async (req) => {
     
   } catch (err) {
     // Log any errors
-    console.error("Error in create-payment function:", err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error("Error in create-payment function:", errorMessage);
     
     // Return error response
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
