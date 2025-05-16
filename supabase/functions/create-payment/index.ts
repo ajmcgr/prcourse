@@ -115,31 +115,47 @@ serve(async (req) => {
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create(checkoutOptions);
-    logStep("Created checkout session", session.id);
+    logStep("Created checkout session", { sessionId: session.id });
     
     // Record payment attempt in database (as pending)
     try {
-      // Create a new payment record
-      logStep("Creating new payment record");
+      // First check if there's an existing pending payment for this session to avoid duplicates
+      logStep("Checking for existing payment record for session", { sessionId: session.id });
       
-      const { data: insertData, error: insertError } = await supabaseAdmin
+      const { data: existingPayment, error: checkError } = await supabaseAdmin
         .from('user_payments')
-        .insert({
-          user_id: user.id,
-          stripe_customer_id: customerId,
-          stripe_session_id: session.id,
-          payment_status: 'pending',
-          amount: 9900, // $99.00
-          updated_at: new Date().toISOString()
-        })
-        .select();
+        .select('id')
+        .eq('stripe_session_id', session.id)
+        .limit(1);
         
-      if (insertError) {
-        logStep("Error creating payment record", insertError);
-        console.error("Error creating payment record:", insertError);
-        // Continue despite error, as Stripe session is already created
+      if (checkError) {
+        logStep("Error checking for existing payment record", checkError);
+      }
+      
+      if (existingPayment && existingPayment.length > 0) {
+        logStep("Found existing payment record for this session, skipping insert", { paymentId: existingPayment[0].id });
       } else {
-        logStep("Payment record created successfully");
+        // Create a new payment record
+        logStep("Creating new payment record");
+        
+        const { data: insertData, error: insertError } = await supabaseAdmin
+          .from('user_payments')
+          .insert({
+            user_id: user.id,
+            stripe_customer_id: customerId,
+            stripe_session_id: session.id,
+            payment_status: 'pending',
+            amount: 9900, // $99.00
+            updated_at: new Date().toISOString()
+          });
+          
+        if (insertError) {
+          logStep("Error creating payment record", insertError);
+          console.error("Error creating payment record:", insertError);
+          // Continue despite error, as Stripe session is already created
+        } else {
+          logStep("Payment record created successfully");
+        }
       }
     } catch (dbError) {
       logStep("Database exception", dbError);

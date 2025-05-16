@@ -31,6 +31,7 @@ serve(async (req) => {
 
     // Validate inputs
     if (!sessionId) {
+      logStep("Missing session ID");
       return new Response(
         JSON.stringify({ error: "Missing session ID" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -38,6 +39,7 @@ serve(async (req) => {
     }
 
     if (!userId) {
+      logStep("Missing user ID");
       return new Response(
         JSON.stringify({ error: "Missing user ID" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -97,11 +99,16 @@ serve(async (req) => {
       logStep("Looking for matching payment record", { sessionId });
       
       // Find payment with matching session ID first
-      const { data: sessionPayments } = await supabaseAdmin
+      const { data: sessionPayments, error: fetchError } = await supabaseAdmin
         .from('user_payments')
         .select('id')
         .eq('stripe_session_id', sessionId)
         .limit(1);
+      
+      if (fetchError) {
+        logStep("Error finding payment record", fetchError);
+        throw new Error(`Database query error: ${fetchError.message}`);
+      }
       
       if (sessionPayments && sessionPayments.length > 0) {
         // Update the existing payment record
@@ -159,11 +166,12 @@ serve(async (req) => {
     
   } catch (err: any) {
     // Log any errors
-    console.error("Error in verify-payment function:", err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error("Error in verify-payment function:", errorMessage);
     
     // Return error response
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
