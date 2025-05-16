@@ -15,10 +15,11 @@ serve(async (req) => {
   }
 
   try {
-    // Create Supabase client using the anon key for user authentication.
-    const supabaseClient = createClient(
+    // Create Supabase client using the service role key for database operations
+    const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
     );
 
     // Get user from auth header
@@ -28,7 +29,7 @@ serve(async (req) => {
     }
     
     const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabaseClient.auth.getUser(token);
+    const { data } = await serviceClient.auth.getUser(token);
     const user = data.user;
     
     if (!user?.email) {
@@ -86,6 +87,29 @@ serve(async (req) => {
       console.log("Created new customer:", customerId);
     }
 
+    // Before creating a new session, find and update any existing pending payments
+    try {
+      console.log("Looking for existing pending payments to expire");
+      const { error: updateError } = await serviceClient
+        .from('user_payments')
+        .update({
+          payment_status: 'expired',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+        .eq('payment_status', 'pending');
+      
+      if (updateError) {
+        console.error("Error expiring pending payments:", updateError);
+        // Continue despite errors with updating old records
+      } else {
+        console.log("Updated any existing pending payments to expired");
+      }
+    } catch (expireError) {
+      console.error("Failed to expire old payments:", expireError);
+      // Continue despite this error
+    }
+
     // Create checkout session options
     const sessionOptions = {
       customer: customerId,
@@ -105,14 +129,8 @@ serve(async (req) => {
       mode: "payment",
       success_url: successUrl,
       cancel_url: `${origin}/pricing`,
-      allow_promotion_codes: true,
+      allow_promotion_codes: true, // This allows users to enter promo codes on the Stripe checkout page
     };
-    
-    // Add promotion code if provided
-    if (promotionCode) {
-      console.log("Adding promotion code to session:", promotionCode);
-      // Note: we're not pre-applying the code, just allowing Stripe's UI to use it
-    }
 
     // Create a one-time payment session with promotion code support
     console.log("Creating checkout session with return URL:", successUrl);
@@ -121,46 +139,28 @@ serve(async (req) => {
 
       console.log("Created checkout session:", session.id);
 
-      // Create a service client with the service role key to handle database operations
-      const serviceClient = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-        { auth: { persistSession: false } }
-      );
-      
-      // First, mark all existing pending payments as expired
-      const { error: updateError } = await serviceClient
-        .from('user_payments')
-        .update({
-          payment_status: 'expired',
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id)
-        .eq('payment_status', 'pending');
-      
-      if (updateError) {
-        console.error("Error marking existing payments as expired:", updateError);
-      } else {
-        console.log("Marked existing pending payments as expired (if any)");
-      }
-      
       // Create a new pending payment record
-      const { error: insertError } = await serviceClient
-        .from('user_payments')
-        .insert({
-          user_id: user.id,
-          stripe_customer_id: customerId,
-          stripe_session_id: session.id,
-          payment_status: 'pending',
-          amount: 9900,
-          updated_at: new Date().toISOString()
-        });
-      
-      if (insertError) {
-        console.error("Error creating payment record:", insertError);
-        // Continue even if there's an error with the payment record
-      } else {
-        console.log("Created new pending payment record");
+      try {
+        const { error: insertError } = await serviceClient
+          .from('user_payments')
+          .insert({
+            user_id: user.id,
+            stripe_customer_id: customerId,
+            stripe_session_id: session.id,
+            payment_status: 'pending',
+            amount: 9900,
+            updated_at: new Date().toISOString()
+          });
+        
+        if (insertError) {
+          console.error("Error creating payment record:", insertError);
+          // Continue even if there's an error with the payment record
+        } else {
+          console.log("Created new pending payment record");
+        }
+      } catch (dbError) {
+        console.error("Database error when creating payment record:", dbError);
+        // Continue despite database errors
       }
 
       return new Response(JSON.stringify({ url: session.url }), {

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,10 +12,12 @@ const PricingSection: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [promotionCode, setPromotionCode] = useState('');
   const [showPromoField, setShowPromoField] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const handlePurchase = async () => {
     try {
       setIsProcessing(true);
+      setError(null);
       
       if (!user) {
         toast.info("Please sign in to continue with purchase");
@@ -38,12 +39,14 @@ const PricingSection: React.FC = () => {
       
       if (error) {
         console.error("Payment creation failed:", error);
+        setError("Failed to create payment session. Please try again.");
         toast.error("Failed to create payment session. Please try again.");
         return;
       }
       
       if (!data?.url) {
         console.error("No redirect URL returned from payment function");
+        setError("Payment processing error. Please try again.");
         toast.error("Payment processing error. Please try again.");
         return;
       }
@@ -53,6 +56,7 @@ const PricingSection: React.FC = () => {
       window.location.href = data.url;
     } catch (err) {
       console.error('Purchase error:', err);
+      setError("Something went wrong. Please try again.");
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsProcessing(false);
@@ -186,6 +190,12 @@ const PricingSection: React.FC = () => {
                   >
                     Have a promo code?
                   </button>
+                </div>
+              )}
+              
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">
+                  {error}
                 </div>
               )}
               
