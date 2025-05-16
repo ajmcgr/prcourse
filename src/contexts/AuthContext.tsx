@@ -202,7 +202,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/course`,
+          redirectTo: `${window.location.origin}/`, // Changed to redirect to homepage
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -240,14 +240,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const isPaid = await checkPaymentStatus(data.user.id);
           console.log("Payment status after login:", isPaid ? "PAID" : "NOT PAID");
           
-          // Redirect based on payment status
-          if (isPaid) {
-            console.log("User has paid, redirecting to course");
-            window.location.href = "/course";
-          } else {
-            console.log("User has not paid, redirecting to pricing");
-            // No need to redirect here, auth guard will handle this
-          }
+          // Redirect to homepage instead of checking payment status
+          console.log("Redirecting to homepage after login");
+          window.location.href = "/";
         } catch (err) {
           console.error("Error checking payment status after login:", err);
         }

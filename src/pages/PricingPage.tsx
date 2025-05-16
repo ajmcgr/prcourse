@@ -20,11 +20,10 @@ const PricingPage = () => {
     });
   }, [user, hasPaid, loading]);
 
-  // If authenticated and has paid, redirect to the course page
-  if (!loading && user && hasPaid) {
-    console.log("User is paid, redirecting from pricing to course");
-    const { lesson } = getFirstLesson();
-    return <Navigate to={`/course/${lesson.slug}`} replace />;
+  // If authenticated, redirect to the homepage instead of checking payment status
+  if (!loading && user) {
+    console.log("User is authenticated, redirecting from pricing to homepage");
+    return <Navigate to="/" replace />;
   }
 
   return (

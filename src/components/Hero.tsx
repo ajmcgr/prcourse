@@ -1,12 +1,64 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 const Hero: React.FC = () => {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  
+  const handleStripeCheckout = async () => {
+    try {
+      // If not logged in, redirect to signup
+      if (!user) {
+        toast.info("Please sign in to continue with purchase");
+        navigate('/signup');
+        return;
+      }
+      
+      setIsProcessing(true);
+      console.log("Starting direct payment process for user:", user.id);
+      
+      // Create payment session using edge function
+      console.log("Creating payment checkout session");
+      const { data, error: invokeError } = await supabase.functions.invoke("create-payment", {
+        body: {
+          returnUrl: `${window.location.origin}/payment-success`
+        }
+      });
+      
+      if (invokeError) {
+        console.error("Payment function invoke error:", invokeError);
+        toast.error("Failed to start payment process. Please try again.");
+        setIsProcessing(false);
+        return;
+      }
+      
+      if (!data || !data.url) {
+        console.error("No redirect URL returned from payment function", data);
+        toast.error("Payment setup failed. Please try again later.");
+        setIsProcessing(false);
+        return;
+      }
+      
+      console.log("Redirecting to Stripe payment URL:", data.url);
+      
+      // Redirect directly to the Stripe checkout URL in the current window
+      window.location.href = data.url;
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Unknown error occurred';
+      console.error('Purchase error:', err);
+      toast.error("Something went wrong. Please try again.");
+      setIsProcessing(false);
+    }
+  };
   
   return (
     <div className="relative h-auto flex items-center bg-background -mt-16 pt-24 md:pt-20"> 
@@ -24,8 +76,13 @@ const Hero: React.FC = () => {
         
         <div className="mt-6 md:mt-12 w-full animate-fade-in" style={{animationDelay: '0.4s'}}>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
-            <Button size="lg" className="w-full md:w-auto bg-[#409EFF] hover:bg-[#409EFF]/90 text-white font-medium text-sm md:text-base px-4 md:px-8 py-5 md:py-6">
-              <Link to="/signup?mode=signup">Get Access Now for $99</Link>
+            <Button 
+              size="lg" 
+              className="w-full md:w-auto bg-[#409EFF] hover:bg-[#409EFF]/90 text-white font-medium text-sm md:text-base px-4 md:px-8 py-5 md:py-6"
+              onClick={handleStripeCheckout}
+              disabled={isProcessing}
+            >
+              {isProcessing ? 'Processing...' : 'Get Access Now for $99'}
             </Button>
             
             {/* Senja Widget - Optimized for mobile */}
