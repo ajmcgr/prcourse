@@ -8,6 +8,8 @@ interface PromoCodeInputProps {
   setPromotionCode: (code: string) => void;
 }
 
+// NOTE: This component is no longer used since we're letting Stripe handle promo codes
+// Kept for reference only and to prevent build errors
 const PromoCodeInput: React.FC<PromoCodeInputProps> = ({
   showPromoField,
   setShowPromoField,

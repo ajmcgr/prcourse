@@ -38,14 +38,11 @@ serve(async (req) => {
 
     console.log("Creating payment session for user:", user.id, user.email);
 
-    // Parse request body to get returnUrl and promotional code
+    // Parse request body to get returnUrl
     const requestBody = await req.json();
-    const { returnUrl, promotionCode } = requestBody;
+    const { returnUrl } = requestBody;
     
-    console.log("Request received with:", { 
-      returnUrl, 
-      hasPromotionCode: !!promotionCode 
-    });
+    console.log("Request received with return URL:", returnUrl);
     
     // Determine the origin and success URL
     const origin = req.headers.get("origin") || "https://prcourse.alexmacgregor.com";
@@ -87,55 +84,61 @@ serve(async (req) => {
       console.log("Created new customer:", customerId);
     }
 
-    // Before creating a new session, find and update any existing pending payments
+    // Expire any existing pending payments
     try {
       console.log("Looking for existing pending payments to expire");
-      const { error: updateError } = await serviceClient
+      const { data: pendingPayments, error: fetchError } = await serviceClient
         .from('user_payments')
-        .update({
-          payment_status: 'expired',
-          updated_at: new Date().toISOString()
-        })
+        .select('id')
         .eq('user_id', user.id)
         .eq('payment_status', 'pending');
       
-      if (updateError) {
-        console.error("Error expiring pending payments:", updateError);
-        // Continue despite errors with updating old records
-      } else {
-        console.log("Updated any existing pending payments to expired");
+      if (fetchError) {
+        console.error("Error fetching pending payments:", fetchError);
+      } else if (pendingPayments && pendingPayments.length > 0) {
+        for (const payment of pendingPayments) {
+          const { error: updateError } = await serviceClient
+            .from('user_payments')
+            .update({
+              payment_status: 'expired',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', payment.id);
+          
+          if (updateError) {
+            console.error("Error expiring pending payment:", updateError);
+          }
+        }
+        console.log("Updated existing pending payments to expired");
       }
     } catch (expireError) {
       console.error("Failed to expire old payments:", expireError);
       // Continue despite this error
     }
 
-    // Create checkout session options
-    const sessionOptions = {
-      customer: customerId,
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: { 
-              name: "PR Masterclass - Complete Course",
-              description: "Lifetime access to all PR course materials",
-            },
-            unit_amount: 9900, // $99.00 in cents
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: successUrl,
-      cancel_url: `${origin}/pricing`,
-      allow_promotion_codes: true, // This allows users to enter promo codes on the Stripe checkout page
-    };
-
-    // Create a one-time payment session with promotion code support
+    // Create checkout session
     console.log("Creating checkout session with return URL:", successUrl);
     try {
-      const session = await stripe.checkout.sessions.create(sessionOptions);
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: { 
+                name: "PR Masterclass - Complete Course",
+                description: "Lifetime access to all PR course materials",
+              },
+              unit_amount: 9900, // $99.00 in cents
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: successUrl,
+        cancel_url: `${origin}/pricing`,
+        allow_promotion_codes: true, // This enables Stripe's built-in promotion code functionality
+      });
 
       console.log("Created checkout session:", session.id);
 

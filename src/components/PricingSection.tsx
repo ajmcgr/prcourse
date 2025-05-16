@@ -13,8 +13,6 @@ const PricingSection: React.FC = () => {
   const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [promotionCode, setPromotionCode] = useState('');
-  const [showPromoField, setShowPromoField] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   const handlePurchase = async () => {
@@ -35,8 +33,6 @@ const PricingSection: React.FC = () => {
         body: {
           // Ensure we're using the full origin (including protocol) for the success URL
           returnUrl: `${window.location.origin}/payment-success`,
-          // Pass promotion code if entered
-          promotionCode: promotionCode || undefined
         }
       });
       
@@ -135,14 +131,10 @@ const PricingSection: React.FC = () => {
         <PricingCard 
           error={error}
           isProcessing={isProcessing}
-          promotionCode={promotionCode}
-          setPromotionCode={setPromotionCode}
           handlePurchase={handlePurchase}
           isBusinessUser={isBusinessUser}
           handleForceSetPaid={handleForceSetPaid}
           handleSpecialDebug={handleSpecialDebug}
-          showPromoField={showPromoField}
-          setShowPromoField={setShowPromoField}
         />
         
         {/* Image section */}

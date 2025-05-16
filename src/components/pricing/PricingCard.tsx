@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import PricingFeatures from './PricingFeatures';
-import PromoCodeInput from './PromoCodeInput';
 import PurchaseButton from './PurchaseButton';
 import DeveloperTools from './DeveloperTools';
 import Testimonial from './Testimonial';
@@ -10,27 +9,19 @@ import Testimonial from './Testimonial';
 interface PricingCardProps {
   error: string | null;
   isProcessing: boolean;
-  promotionCode: string;
-  setPromotionCode: (code: string) => void;
   handlePurchase: () => Promise<void>;
   isBusinessUser: boolean;
   handleForceSetPaid: () => Promise<void>;
   handleSpecialDebug: () => Promise<void>;
-  showPromoField: boolean;
-  setShowPromoField: (show: boolean) => void;
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({
   error,
   isProcessing,
-  promotionCode,
-  setPromotionCode,
   handlePurchase,
   isBusinessUser,
   handleForceSetPaid,
-  handleSpecialDebug,
-  showPromoField,
-  setShowPromoField
+  handleSpecialDebug
 }) => {
   return (
     <div className="md:w-2/5 max-w-md">
@@ -47,13 +38,6 @@ const PricingCard: React.FC<PricingCardProps> = ({
           
           <PricingFeatures />
           
-          <PromoCodeInput 
-            showPromoField={showPromoField}
-            setShowPromoField={setShowPromoField}
-            promotionCode={promotionCode}
-            setPromotionCode={setPromotionCode}
-          />
-          
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">
               {error}
@@ -64,6 +48,12 @@ const PricingCard: React.FC<PricingCardProps> = ({
             isProcessing={isProcessing}
             onClick={handlePurchase}
           />
+          
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-500">
+              Promotion codes can be entered on the checkout page
+            </p>
+          </div>
           
           {/* Development tools - only show in dev environment */}
           {(import.meta.env.DEV || isBusinessUser) && (
