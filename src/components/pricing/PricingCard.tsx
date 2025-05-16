@@ -2,7 +2,6 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import PricingFeatureList from './PricingFeatureList';
-import PromoCodeInput from './PromoCodeInput';
 import ErrorDisplay from './ErrorDisplay';
 import PurchaseButton from './PurchaseButton';
 import PricingTestimonial from './PricingTestimonial';
@@ -11,8 +10,6 @@ import { User } from '@supabase/supabase-js';
 import { NavigateFunction } from 'react-router-dom';
 
 interface PricingCardProps {
-  promoCode: string;
-  setPromoCode: (code: string) => void;
   error: string | null;
   isProcessing: boolean;
   handlePurchase: () => void;
@@ -22,8 +19,6 @@ interface PricingCardProps {
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({
-  promoCode,
-  setPromoCode,
   error,
   isProcessing,
   handlePurchase,
@@ -44,12 +39,6 @@ const PricingCard: React.FC<PricingCardProps> = ({
         </div>
         
         <PricingFeatureList />
-        
-        <PromoCodeInput 
-          promoCode={promoCode} 
-          setPromoCode={setPromoCode}
-          isProcessing={isProcessing}
-        />
         
         <ErrorDisplay error={error} />
         

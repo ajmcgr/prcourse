@@ -8,10 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 interface UsePaymentProcessorProps {
   user: User | null;
   navigate: NavigateFunction;
-  promoCode: string;
+  promoCode: string; // Keep the prop for backward compatibility
 }
 
-const usePaymentProcessor = ({ user, navigate, promoCode }: UsePaymentProcessorProps) => {
+const usePaymentProcessor = ({ user, navigate }: UsePaymentProcessorProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -27,16 +27,12 @@ const usePaymentProcessor = ({ user, navigate, promoCode }: UsePaymentProcessorP
       setError(null);
       console.log("Starting payment process for user:", user.id);
       
-      if (promoCode) {
-        console.log("Using promo code:", promoCode);
-      }
-      
       // Create payment session using edge function
       console.log("Creating payment checkout session");
       const { data, error: invokeError } = await supabase.functions.invoke("create-payment", {
         body: {
-          returnUrl: `${window.location.origin}/payment-success`,
-          promoCode: promoCode.trim() || undefined // Include promo code if entered
+          returnUrl: `${window.location.origin}/payment-success`
+          // Removed promoCode parameter
         }
       });
       
@@ -73,4 +69,3 @@ const usePaymentProcessor = ({ user, navigate, promoCode }: UsePaymentProcessorP
 };
 
 export default usePaymentProcessor;
-

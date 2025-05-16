@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import PricingCard from './pricing/PricingCard';
@@ -9,13 +9,12 @@ import usePaymentProcessor from './pricing/PaymentProcessor';
 const PricingSection: React.FC = () => {
   const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
-  const [promoCode, setPromoCode] = useState<string>('');
   
-  // Use the custom hook to get payment processing functions and state
+  // Use the custom hook to get payment processing functions and state - removed promoCode
   const { handlePurchase, isProcessing, error } = usePaymentProcessor({ 
     user, 
-    navigate, 
-    promoCode 
+    navigate,
+    promoCode: '' // Now passing empty string by default
   });
 
   return (
@@ -24,8 +23,6 @@ const PricingSection: React.FC = () => {
         {/* Pricing Card */}
         <div className="md:w-2/5 max-w-md">
           <PricingCard 
-            promoCode={promoCode}
-            setPromoCode={setPromoCode}
             error={error}
             isProcessing={isProcessing}
             handlePurchase={handlePurchase}
