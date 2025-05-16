@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getFirstLesson } from '@/utils/course-data';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar: React.FC = () => {
   const { user, signOut, hasPaid } = useAuth();
@@ -23,6 +24,7 @@ const Navbar: React.FC = () => {
   const isHomePage = location.pathname === '/';
   const isMobile = useIsMobile();
   const { lesson } = getFirstLesson();
+  const [isProcessing, setIsProcessing] = useState(false);
   
   // URLs 
   const communityUrl = "https://discord.gg/7sbqZgesud";
@@ -58,6 +60,46 @@ const Navbar: React.FC = () => {
   // Always set text color to black
   const textColorClass = "text-black";
   
+  // Handle Stripe checkout for users who haven't paid
+  const handleStripeCheckout = async () => {
+    try {
+      setIsProcessing(true);
+      console.log("Starting direct payment process for user:", user?.id);
+      
+      // Create payment session using edge function
+      console.log("Creating payment checkout session");
+      const { data, error: invokeError } = await supabase.functions.invoke("create-payment", {
+        body: {
+          returnUrl: `${window.location.origin}/payment-success`
+        }
+      });
+      
+      if (invokeError) {
+        console.error("Payment function invoke error:", invokeError);
+        toast.error("Failed to start payment process. Please try again.");
+        setIsProcessing(false);
+        return;
+      }
+      
+      if (!data || !data.url) {
+        console.error("No redirect URL returned from payment function", data);
+        toast.error("Payment setup failed. Please try again later.");
+        setIsProcessing(false);
+        return;
+      }
+      
+      console.log("Redirecting to Stripe payment URL:", data.url);
+      
+      // Redirect directly to the Stripe checkout URL in the current window
+      window.location.href = data.url;
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Unknown error occurred';
+      console.error('Purchase error:', err);
+      toast.error("Something went wrong. Please try again.");
+      setIsProcessing(false);
+    }
+  };
+  
   const handleAccessCourse = (e: React.MouseEvent) => {
     e.preventDefault();
     
@@ -67,7 +109,7 @@ const Navbar: React.FC = () => {
     }
     
     if (!hasPaid) {
-      navigate('/pricing');
+      handleStripeCheckout();
       return;
     }
     
@@ -106,8 +148,12 @@ const Navbar: React.FC = () => {
                 {user ? (
                   <>
                     <DropdownMenuItem asChild>
-                      <button className="w-full px-4 py-2 text-left" onClick={handleAccessCourse}>
-                        Access Course Content
+                      <button 
+                        className="w-full px-4 py-2 text-left" 
+                        onClick={handleAccessCourse}
+                        disabled={isProcessing}
+                      >
+                        {isProcessing ? 'Processing...' : 'Access Course Content'}
                       </button>
                     </DropdownMenuItem>
                     {user && hasPaid && (
@@ -191,9 +237,10 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex md:flex-grow items-center justify-end space-x-4">
               <button 
                 onClick={handleAccessCourse}
-                className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}
+                disabled={isProcessing}
+                className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass} ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                Access Course Content
+                {isProcessing ? 'Processing...' : 'Access Course Content'}
               </button>
               {hasPaid && (
                 <>
