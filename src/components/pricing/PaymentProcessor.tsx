@@ -1,17 +1,17 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { toast } from "sonner";
 import { NavigateFunction } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 
-interface PaymentProcessorProps {
+interface UsePaymentProcessorProps {
   user: User | null;
   navigate: NavigateFunction;
   promoCode: string;
 }
 
-const PaymentProcessor: React.FC<PaymentProcessorProps> = ({ user, navigate, promoCode }) => {
+const usePaymentProcessor = ({ user, navigate, promoCode }: UsePaymentProcessorProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -72,4 +72,5 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({ user, navigate, pro
   return { handlePurchase, isProcessing, error };
 };
 
-export default PaymentProcessor;
+export default usePaymentProcessor;
+

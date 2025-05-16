@@ -4,14 +4,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import PricingCard from './pricing/PricingCard';
 import PricingImage from './pricing/PricingImage';
-import PaymentProcessor from './pricing/PaymentProcessor';
+import usePaymentProcessor from './pricing/PaymentProcessor';
 
 const PricingSection: React.FC = () => {
   const { user, updatePaymentStatus } = useAuth();
   const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState<string>('');
   
-  const { handlePurchase, isProcessing, error } = PaymentProcessor({ 
+  // Use the custom hook to get payment processing functions and state
+  const { handlePurchase, isProcessing, error } = usePaymentProcessor({ 
     user, 
     navigate, 
     promoCode 
