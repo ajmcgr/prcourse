@@ -5,6 +5,8 @@ import PricingFeatures from './PricingFeatures';
 import PurchaseButton from './PurchaseButton';
 import DeveloperTools from './DeveloperTools';
 import Testimonial from './Testimonial';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface PricingCardProps {
   error: string | null;
@@ -49,10 +51,28 @@ const PricingCard: React.FC<PricingCardProps> = ({
             onClick={handlePurchase}
           />
           
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-500">
-              Promotion codes can be entered on the checkout page
-            </p>
+          <div className="mt-4 space-y-2">
+            <div className="text-center">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="text-sm text-blue-500">
+                    Have a promo code?
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Promotion Code Information</DialogTitle>
+                    <DialogDescription className="pt-4">
+                      <p className="mb-4">You can enter your promotion code on the Stripe checkout page that appears after clicking "Buy Now".</p>
+                      <p className="mb-4">Look for the "Add promotion code" text under the payment amount.</p>
+                      <div className="p-3 bg-blue-50 text-blue-700 rounded-md">
+                        If you're experiencing issues with promotion codes, please contact support.
+                      </div>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
           
           {/* Development tools - only show in dev environment */}

@@ -96,7 +96,9 @@ serve(async (req) => {
       if (fetchError) {
         console.error("Error fetching pending payments:", fetchError);
       } else if (pendingPayments && pendingPayments.length > 0) {
+        console.log("Found pending payments:", pendingPayments.length);
         for (const payment of pendingPayments) {
+          console.log("Expiring payment:", payment.id);
           const { error: updateError } = await serviceClient
             .from('user_payments')
             .update({
@@ -107,16 +109,20 @@ serve(async (req) => {
           
           if (updateError) {
             console.error("Error expiring pending payment:", updateError);
+          } else {
+            console.log("Successfully expired payment:", payment.id);
           }
         }
         console.log("Updated existing pending payments to expired");
+      } else {
+        console.log("No pending payments found to expire");
       }
     } catch (expireError) {
       console.error("Failed to expire old payments:", expireError);
       // Continue despite this error
     }
 
-    // Create checkout session
+    // Create checkout session with explicit allow_promotion_codes set to true
     console.log("Creating checkout session with return URL:", successUrl);
     try {
       const session = await stripe.checkout.sessions.create({
@@ -137,7 +143,7 @@ serve(async (req) => {
         mode: "payment",
         success_url: successUrl,
         cancel_url: `${origin}/pricing`,
-        allow_promotion_codes: true, // This enables Stripe's built-in promotion code functionality
+        allow_promotion_codes: true, // Explicitly set to true to ensure promo codes are allowed
       });
 
       console.log("Created checkout session:", session.id);
