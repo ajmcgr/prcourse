@@ -38,7 +38,16 @@ serve(async (req) => {
     console.log("Creating payment session for user:", user.id, user.email);
 
     // Parse request body to get returnUrl and optional promotion code
-    const { returnUrl, promotionCode } = await req.json();
+    const requestBody = await req.json();
+    console.log("Request body:", JSON.stringify(requestBody, null, 2));
+    
+    const { returnUrl, promotionCode } = requestBody;
+    
+    if (promotionCode) {
+      console.log("Promotion code provided:", promotionCode);
+    } else {
+      console.log("No promotion code provided in request");
+    }
     
     // Determine the origin and success URL
     const origin = req.headers.get("origin") || "https://prcourse.alexmacgregor.com";
@@ -56,7 +65,12 @@ serve(async (req) => {
     console.log("Using success URL:", successUrl);
     
     // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      throw new Error("STRIPE_SECRET_KEY is not set");
+    }
+    
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
@@ -99,17 +113,37 @@ serve(async (req) => {
       mode: "payment",
       success_url: successUrl,
       cancel_url: `${origin}/pricing`,
-      allow_promotion_codes: true, // Enable promotion codes in checkout
+      allow_promotion_codes: true, // Explicitly enable promotion codes in checkout
     };
 
-    // If a specific promotion code was provided, add it
+    // If a specific promotion code was provided, add it to the session
     if (promotionCode) {
-      console.log("Applying promotion code:", promotionCode);
-      sessionOptions.discounts = [
-        {
-          promotion_code: promotionCode,
-        },
-      ];
+      console.log("Attempting to apply specific promotion code:", promotionCode);
+      
+      try {
+        // Verify the promotion code exists before applying it
+        const promoCodeObj = await stripe.promotionCodes.list({
+          code: promotionCode,
+          active: true,
+          limit: 1
+        });
+        
+        if (promoCodeObj.data.length > 0) {
+          const promoId = promoCodeObj.data[0].id;
+          console.log("Found valid promotion code with ID:", promoId);
+          sessionOptions.discounts = [
+            {
+              promotion_code: promoId,
+            },
+          ];
+        } else {
+          console.log("Warning: Promotion code not found or not active in Stripe:", promotionCode);
+          // Still allow the checkout to proceed, but without the discount applied
+        }
+      } catch (promoError) {
+        console.error("Error checking promotion code:", promoError);
+        // Continue with checkout without applying the discount
+      }
     }
 
     console.log("Creating checkout session with options:", JSON.stringify(sessionOptions, null, 2));
@@ -127,7 +161,8 @@ serve(async (req) => {
         stripe_customer_id: customerId,
         stripe_session_id: session.id,
         payment_status: 'pending',
-        amount: 9900
+        amount: 9900,
+        promotion_code: promotionCode || null
       });
     
     if (paymentError) {

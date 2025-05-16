@@ -37,8 +37,16 @@ serve(async (req) => {
     );
     
     // Retrieve checkout session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['total_details.breakdown', 'line_items']
+    });
     console.log("Retrieved session:", session.id, "Status:", session.payment_status);
+    
+    let promoCodeUsed = null;
+    if (session.total_details?.breakdown?.discounts && session.total_details.breakdown.discounts.length > 0) {
+      promoCodeUsed = session.total_details.breakdown.discounts[0].discount?.promotion_code?.code || 'unknown_promo';
+      console.log("Promotion code used:", promoCodeUsed);
+    }
     
     if (session.payment_status === 'paid') {
       console.log("Payment confirmed paid for session:", session.id);
@@ -51,7 +59,7 @@ serve(async (req) => {
           // First check if a payment record already exists
           const { data: existingPayment, error: fetchError } = await supabaseClient
             .from('user_payments')
-            .select('id')
+            .select('id, promotion_code')
             .eq('user_id', userId)
             .maybeSingle();
 
@@ -71,6 +79,7 @@ serve(async (req) => {
                 stripe_session_id: session.id,
                 payment_status: 'completed',
                 amount: session.amount_total || 9900,
+                promotion_code: promoCodeUsed || existingPayment.promotion_code,
                 updated_at: new Date().toISOString()
               })
               .eq('id', existingPayment.id);
@@ -84,6 +93,7 @@ serve(async (req) => {
                 stripe_session_id: session.id,
                 payment_status: 'completed',
                 amount: session.amount_total || 9900,
+                promotion_code: promoCodeUsed,
                 updated_at: new Date().toISOString()
               });
           }
@@ -103,7 +113,8 @@ serve(async (req) => {
       return new Response(JSON.stringify({ 
         verified: true,
         session_id: session.id,
-        payment_status: session.payment_status
+        payment_status: session.payment_status,
+        promotion_code_used: promoCodeUsed
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
