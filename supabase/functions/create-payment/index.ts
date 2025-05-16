@@ -84,7 +84,7 @@ serve(async (req) => {
       console.log("Created new customer:", customerId);
     }
 
-    // Expire any existing pending payments
+    // Delete any existing pending payments for this user
     try {
       console.log("Looking for existing pending payments to expire");
       const { data: pendingPayments, error: fetchError } = await serviceClient
@@ -97,32 +97,30 @@ serve(async (req) => {
         console.error("Error fetching pending payments:", fetchError);
       } else if (pendingPayments && pendingPayments.length > 0) {
         console.log("Found pending payments:", pendingPayments.length);
-        for (const payment of pendingPayments) {
-          console.log("Expiring payment:", payment.id);
-          const { error: updateError } = await serviceClient
-            .from('user_payments')
-            .update({
-              payment_status: 'expired',
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', payment.id);
-          
-          if (updateError) {
-            console.error("Error expiring pending payment:", updateError);
-          } else {
-            console.log("Successfully expired payment:", payment.id);
-          }
+        
+        // Instead of updating, delete the pending payments to avoid conflicts
+        const deleteIds = pendingPayments.map(payment => payment.id);
+        console.log("Deleting pending payments:", deleteIds);
+        
+        const { error: deleteError } = await serviceClient
+          .from('user_payments')
+          .delete()
+          .in('id', deleteIds);
+        
+        if (deleteError) {
+          console.error("Error deleting pending payments:", deleteError);
+        } else {
+          console.log("Successfully deleted pending payments");
         }
-        console.log("Updated existing pending payments to expired");
       } else {
-        console.log("No pending payments found to expire");
+        console.log("No pending payments found to delete");
       }
     } catch (expireError) {
-      console.error("Failed to expire old payments:", expireError);
+      console.error("Failed to delete old payments:", expireError);
       // Continue despite this error
     }
 
-    // Create checkout session with explicit allow_promotion_codes set to true
+    // Create checkout session with allow_promotion_codes explicitly set to true
     console.log("Creating checkout session with return URL:", successUrl);
     try {
       const session = await stripe.checkout.sessions.create({
@@ -144,6 +142,7 @@ serve(async (req) => {
         success_url: successUrl,
         cancel_url: `${origin}/pricing`,
         allow_promotion_codes: true, // Explicitly set to true to ensure promo codes are allowed
+        payment_method_types: ['card'], // Explicitly allow card payments
       });
 
       console.log("Created checkout session:", session.id);
