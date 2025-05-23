@@ -127,7 +127,7 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16 w-full">
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
-              <Avatar className="h-8 w-8 mr-2">
+              <Avatar className="h-10 w-10 mr-2">
                 <AvatarImage src="https://prcourse.alexmacgregor.com/lovable-uploads/dc42269e-ffc8-4cbd-857f-536419ecd159.png" alt="Alex MacGregor" />
                 <AvatarFallback>AM</AvatarFallback>
               </Avatar>
@@ -186,6 +186,9 @@ const Navbar: React.FC = () => {
                 ) : (
                   <>
                     <DropdownMenuItem asChild>
+                      <Link to="/coursecontent" className="w-full px-4 py-2">Course Content</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/" className="w-full px-4 py-2">Home</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -207,9 +210,6 @@ const Navbar: React.FC = () => {
                       >
                         Newsletter
                       </a>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/coursecontent" className="w-full px-4 py-2">Course Content</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/pricing" className="w-full px-4 py-2">Pricing</Link>
@@ -286,6 +286,9 @@ const Navbar: React.FC = () => {
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-2">
+              <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
+                Course Content
+              </Link>
               <a 
                 href={communityUrl}
                 target="_blank"
@@ -302,9 +305,6 @@ const Navbar: React.FC = () => {
               >
                 Newsletter
               </a>
-              <Link to="/coursecontent" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
-                Course Content
-              </Link>
               <Link to="/signup" className={`px-3 py-2 text-sm font-medium hover:opacity-80 ${textColorClass}`}>
                 Login
               </Link>
