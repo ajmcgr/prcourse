@@ -118,7 +118,8 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Reckless', serif;
-    @apply font-medium tracking-tight;
+    font-weight: 500 !important;
+    @apply tracking-tight;
   }
   h1 {
     @apply text-7xl md:text-8xl;
