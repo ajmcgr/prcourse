@@ -103,7 +103,8 @@ export default {
 			},
 			fontFamily: {
 				serif: ['Merriweather', 'serif'],
-				sans: ['Inter', 'sans-serif']
+				sans: ['Inter', 'sans-serif'],
+				reckless: ['Reckless', 'serif']
 			}
 		}
 	},
