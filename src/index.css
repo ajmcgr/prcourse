@@ -118,7 +118,7 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Reckless', serif;
-    @apply font-semibold tracking-tight;
+    @apply font-medium tracking-tight;
   }
   h1 {
     @apply text-6xl md:text-7xl;
@@ -137,6 +137,9 @@
   }
   h6 {
     @apply text-xl md:text-2xl;
+  }
+  p, span, div, li, td, th, label, button, input, textarea {
+    font-family: 'Inter', sans-serif;
   }
   .font-serif {
     font-family: 'Merriweather', serif;
